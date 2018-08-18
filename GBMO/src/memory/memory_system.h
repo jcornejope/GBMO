@@ -12,6 +12,8 @@ class MemorySystem final
     static u16 const SYSTEM_MEMORY_SIZE     = 0x10000 - CARTRIDGE_ROM_MAP_SIZE - CARTRIDGE_RAM_MAP_SIZE - ECHO_RAM_SIZE;
 
 public:
+    static u16 const IO_ADDRESS_START = 0xFF00;
+
     MemorySystem( Cartridge& cartridge );
 
     u8  read_8( u16 address );
