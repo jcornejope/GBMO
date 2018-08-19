@@ -31,7 +31,7 @@ class CPU
 
     enum Flags : u8
     {
-        NONE        = 0x3,      // Not used( always zero )
+        NONE        = 0x0F,      // Not used( always zero )
         CARRY       = 1 << 4,
         HALF_CARRY  = 1 << 5,   // BCD
         ADD_SUB     = 1 << 6,   // BCD
@@ -45,6 +45,14 @@ public:
     CPU( MemorySystem& memory );
 
 private:
+    // Flags manipulation
+    void _process_zero_flag();
+    void _process_carry_flag( u16 const value );
+    void _process_half_carry_flag( u8 const value, u8 const carry, bool const is_addition );
+    void _set_flag( Flags const flag );
+    void _reset_flag( Flags const flag );
+    bool _is_flag_set( Flags const flag );
+
     // Instruction set
     void _initialize_instruction_tables();
     // 8Bit Transfer
@@ -69,11 +77,14 @@ private:
     u32 _ld_sp_hl();
     u32 _push( u16 const reg );
     u32 _pop( u16& reg );
+    // 8Bit Aritmethic
+    void _add( u8 const rhs, bool const carry );
+    void _sub( u8 const rhs, bool const carry );
 
     /////////////////
 
     // Aritmethic
-    void _add( u8 lhs, u8 rhs, bool carry );
+    
     void _add( u8 lhs, u16 rhs, bool carry );
     void _add( u16 lhs, u16 rhs, bool carry );
     void _add( u16 lhs, s8 rhs, bool carry );
