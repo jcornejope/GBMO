@@ -1,7 +1,9 @@
 
 #include "memory/memory_system.h"
 #include "cartridge/cartridge.h"
+
 #include <cstring>
+#include <cassert>
 
 MemorySystem::MemorySystem( Cartridge& cartridge )
     : m_cartridge( cartridge )
@@ -38,12 +40,12 @@ u16 MemorySystem::read_16( u16 address )
     return value.data;
 }
 
-void MemorySystem::write( u16 address, u8 data )
+void MemorySystem::write( u16 /*address*/, u8 /*data*/ )
 {
-
+    assert( false ); // NOT IMPLEMENTED!!
 }
 
-void MemorySystem::write( u16 address, u16 data )
+void MemorySystem::write( u16 /*address*/, u16 /*data*/ )
 {
-
+    assert( false ); // NOT IMPLEMENTED!!
 }

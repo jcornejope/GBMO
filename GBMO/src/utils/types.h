@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning( disable : 4201 ) // annonnymous struct/union
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;

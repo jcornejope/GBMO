@@ -15,7 +15,7 @@ u8 MBC_None::read( u16 address )
     return 0xFF;
 }
 
-void MBC_None::write( u16 address, u8 data )
+void MBC_None::write( u16 /*address*/, u8 /*data*/ )
 {
     // Do nothing. NOT ALLOWED
     assert( false );

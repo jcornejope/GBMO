@@ -13,21 +13,17 @@ int foo(int param)
 
 int main( int argc, char* argv[] )
 {
+    (void)argc;
+    (void)argv;
+
     if( SDL_Init( SDL_INIT_VIDEO ) != 0 )
     {
         std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return 1;
     }
 
-    //int i = 0;
-    //int f = 10;
-    //std::function<int( int )> v = std::bind( foo, i++ );
-    //v(f);
-    //(this->v());
-    //std::cout << i << std::endl;
-
     Options options;
-    options.m_rom_path = "D:\\Dev\\GBMO\\rom_sml.gb";
+    options.m_rom_path = "D:\\Dev\\GBMO\\rom_t.gb";
     GBMO emulator(options);
 
     getchar();
