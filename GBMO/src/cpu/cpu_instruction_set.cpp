@@ -1,5 +1,6 @@
 
-/* Table 1: Base opcode map
+/* 
+Table 1: Base opcode map
     0	        1	        2	        3	        4	        5	        6	        7	        8	        9	        A	        B	    C	        D	    E	        F
 0x 	NOP 	    LD BC,nn 	LD (BC),A 	INC BC 	    INC B 	    DEC B 	    LD B,n 	    RLC A 	    LD (nn),SP 	ADD HL,BC 	LD A,(BC) 	DEC BC 	INC C 	    DEC C 	LD C,n 	    RRC A
 1x 	STOP 	    LD DE,nn 	LD (DE),A 	INC DE 	    INC D 	    DEC D 	    LD D,n 	    RL A 	    JR n 	    ADD HL,DE 	LD A,(DE) 	DEC DE 	INC E 	    DEC E 	LD E,n 	    RR A
@@ -48,13 +49,526 @@ void CPU::_initialize_instruction_tables()
 {
     using namespace std;
 
+ /*   
+     m_base_instruction[0x00] =
+     m_base_instruction[0x01] =
+     m_base_instruction[0x02] =
+     m_base_instruction[0x03] =
+     m_base_instruction[0x04] =
+     m_base_instruction[0x05] =
+     m_base_instruction[0x06] =
+     m_base_instruction[0x07] =
+     m_base_instruction[0x08] =
+     m_base_instruction[0x09] =
+     m_base_instruction[0x0A] =
+     m_base_instruction[0x0B] =
+     m_base_instruction[0x0C] =
+     m_base_instruction[0x0D] =
+     m_base_instruction[0x0E] =
+     m_base_instruction[0x0F] =
+     m_base_instruction[0x10] =
+     m_base_instruction[0x11] =
+     m_base_instruction[0x12] =
+     m_base_instruction[0x13] =
+     m_base_instruction[0x14] =
+     m_base_instruction[0x15] =
+     m_base_instruction[0x16] =
+     m_base_instruction[0x17] =
+     m_base_instruction[0x18] =
+     m_base_instruction[0x19] =
+     m_base_instruction[0x1A] =
+     m_base_instruction[0x1B] =
+     m_base_instruction[0x1C] =
+     m_base_instruction[0x1D] =
+     m_base_instruction[0x1E] =
+     m_base_instruction[0x1F] =
+     m_base_instruction[0x20] =
+     m_base_instruction[0x21] =
+     m_base_instruction[0x22] =
+     m_base_instruction[0x23] =
+     m_base_instruction[0x24] =
+     m_base_instruction[0x25] =
+     m_base_instruction[0x26] =
+     m_base_instruction[0x27] =
+     m_base_instruction[0x28] =
+     m_base_instruction[0x29] =
+     m_base_instruction[0x2A] =
+     m_base_instruction[0x2B] =
+     m_base_instruction[0x2C] =
+     m_base_instruction[0x2D] =
+     m_base_instruction[0x2E] =
+     m_base_instruction[0x2F] =
+     m_base_instruction[0x30] =
+     m_base_instruction[0x31] =
+     m_base_instruction[0x32] =
+     m_base_instruction[0x33] =
+     m_base_instruction[0x34] =
+     m_base_instruction[0x35] =
+     m_base_instruction[0x36] =
+     m_base_instruction[0x37] =
+     m_base_instruction[0x38] =
+     m_base_instruction[0x39] =
+     m_base_instruction[0x3A] =
+     m_base_instruction[0x3B] =
+     m_base_instruction[0x3C] =
+     m_base_instruction[0x3D] =
+     m_base_instruction[0x3E] =
+     m_base_instruction[0x3F] =
+     m_base_instruction[0x40] =
+     m_base_instruction[0x41] =
+     m_base_instruction[0x42] =
+     m_base_instruction[0x43] =
+     m_base_instruction[0x44] =
+     m_base_instruction[0x45] =
+     m_base_instruction[0x46] =
+     m_base_instruction[0x47] =
+     m_base_instruction[0x48] =
+     m_base_instruction[0x49] =
+     m_base_instruction[0x4A] =
+     m_base_instruction[0x4B] =
+     m_base_instruction[0x4C] =
+     m_base_instruction[0x4D] =
+     m_base_instruction[0x4E] =
+     m_base_instruction[0x4F] =
+     m_base_instruction[0x50] =
+     m_base_instruction[0x51] =
+     m_base_instruction[0x52] =
+     m_base_instruction[0x53] =
+     m_base_instruction[0x54] =
+     m_base_instruction[0x55] =
+     m_base_instruction[0x56] =
+     m_base_instruction[0x57] =
+     m_base_instruction[0x58] =
+     m_base_instruction[0x59] =
+     m_base_instruction[0x5A] =
+     m_base_instruction[0x5B] =
+     m_base_instruction[0x5C] =
+     m_base_instruction[0x5D] =
+     m_base_instruction[0x5E] =
+     m_base_instruction[0x5F] =
+     m_base_instruction[0x60] =
+     m_base_instruction[0x61] =
+     m_base_instruction[0x62] =
+     m_base_instruction[0x63] =
+     m_base_instruction[0x64] =
+     m_base_instruction[0x65] =
+     m_base_instruction[0x66] =
+     m_base_instruction[0x67] =
+     m_base_instruction[0x68] =
+     m_base_instruction[0x69] =
+     m_base_instruction[0x6A] =
+     m_base_instruction[0x6B] =
+     m_base_instruction[0x6C] =
+     m_base_instruction[0x6D] =
+     m_base_instruction[0x6E] =
+     m_base_instruction[0x6F] =
+     m_base_instruction[0x70] =
+     m_base_instruction[0x71] =
+     m_base_instruction[0x72] =
+     m_base_instruction[0x73] =
+     m_base_instruction[0x74] =
+     m_base_instruction[0x75] =
+     m_base_instruction[0x76] =
+     m_base_instruction[0x77] =
+     m_base_instruction[0x78] =
+     m_base_instruction[0x79] =
+     m_base_instruction[0x7A] =
+     m_base_instruction[0x7B] =
+     m_base_instruction[0x7C] =
+     m_base_instruction[0x7D] =
+     m_base_instruction[0x7E] =
+     m_base_instruction[0x7F] =
+     m_base_instruction[0x80] =
+     m_base_instruction[0x81] =
+     m_base_instruction[0x82] =
+     m_base_instruction[0x83] =
+     m_base_instruction[0x84] =
+     m_base_instruction[0x85] =
+     m_base_instruction[0x86] =
+     m_base_instruction[0x87] =
+     m_base_instruction[0x88] =
+     m_base_instruction[0x89] =
+     m_base_instruction[0x8A] =
+     m_base_instruction[0x8B] =
+     m_base_instruction[0x8C] =
+     m_base_instruction[0x8D] =
+     m_base_instruction[0x8E] =
+     m_base_instruction[0x8F] =
+     m_base_instruction[0x90] =
+     m_base_instruction[0x91] =
+     m_base_instruction[0x92] =
+     m_base_instruction[0x93] =
+     m_base_instruction[0x94] =
+     m_base_instruction[0x95] =
+     m_base_instruction[0x96] =
+     m_base_instruction[0x97] =
+     m_base_instruction[0x98] =
+     m_base_instruction[0x99] =
+     m_base_instruction[0x9A] =
+     m_base_instruction[0x9B] =
+     m_base_instruction[0x9C] =
+     m_base_instruction[0x9D] =
+     m_base_instruction[0x9E] =
+     m_base_instruction[0x9F] =
+     m_base_instruction[0xA0] =
+     m_base_instruction[0xA1] =
+     m_base_instruction[0xA2] =
+     m_base_instruction[0xA3] =
+     m_base_instruction[0xA4] =
+     m_base_instruction[0xA5] =
+     m_base_instruction[0xA6] =
+     m_base_instruction[0xA7] =
+     m_base_instruction[0xA8] =
+     m_base_instruction[0xA9] =
+     m_base_instruction[0xAA] =
+     m_base_instruction[0xAB] =
+     m_base_instruction[0xAC] =
+     m_base_instruction[0xAD] =
+     m_base_instruction[0xAE] =
+     m_base_instruction[0xAF] =
+     m_base_instruction[0xB0] =
+     m_base_instruction[0xB1] =
+     m_base_instruction[0xB2] =
+     m_base_instruction[0xB3] =
+     m_base_instruction[0xB4] =
+     m_base_instruction[0xB5] =
+     m_base_instruction[0xB6] =
+     m_base_instruction[0xB7] =
+     m_base_instruction[0xB8] =
+     m_base_instruction[0xB9] =
+     m_base_instruction[0xBA] =
+     m_base_instruction[0xBB] =
+     m_base_instruction[0xBC] =
+     m_base_instruction[0xBD] =
+     m_base_instruction[0xBE] =
+     m_base_instruction[0xBF] =
+     m_base_instruction[0xC0] =
+     m_base_instruction[0xC1] =
+     m_base_instruction[0xC2] =
+     m_base_instruction[0xC3] =
+     m_base_instruction[0xC4] =
+     m_base_instruction[0xC5] =
+     m_base_instruction[0xC6] =
+     m_base_instruction[0xC7] =
+     m_base_instruction[0xC8] =
+     m_base_instruction[0xC9] =
+     m_base_instruction[0xCA] =
+     m_base_instruction[0xCB] =
+     m_base_instruction[0xCC] =
+     m_base_instruction[0xCD] =
+     m_base_instruction[0xCE] =
+     m_base_instruction[0xCF] =
+     m_base_instruction[0xD0] =
+     m_base_instruction[0xD1] =
+     m_base_instruction[0xD2] =
+     m_base_instruction[0xD3] =
+     m_base_instruction[0xD4] =
+     m_base_instruction[0xD5] =
+     m_base_instruction[0xD6] =
+     m_base_instruction[0xD7] =
+     m_base_instruction[0xD8] =
+     m_base_instruction[0xD9] =
+     m_base_instruction[0xDA] =
+     m_base_instruction[0xDB] =
+     m_base_instruction[0xDC] =
+     m_base_instruction[0xDD] =
+     m_base_instruction[0xDE] =
+     m_base_instruction[0xDF] =
+     m_base_instruction[0xE0] =
+     m_base_instruction[0xE1] =
+     m_base_instruction[0xE2] =
+     m_base_instruction[0xE3] =
+     m_base_instruction[0xE4] =
+     m_base_instruction[0xE5] =
+     m_base_instruction[0xE6] =
+     m_base_instruction[0xE7] =
+     m_base_instruction[0xE8] =
+     m_base_instruction[0xE9] =
+     m_base_instruction[0xEA] =
+     m_base_instruction[0xEB] =
+     m_base_instruction[0xEC] =
+     m_base_instruction[0xED] =
+     m_base_instruction[0xEE] =
+     m_base_instruction[0xEF] =
+     m_base_instruction[0xF0] =
+     m_base_instruction[0xF1] =
+     m_base_instruction[0xF2] =
+     m_base_instruction[0xF3] =
+     m_base_instruction[0xF4] =
+     m_base_instruction[0xF5] =
+     m_base_instruction[0xF6] =
+     m_base_instruction[0xF7] =
+     m_base_instruction[0xF8] =
+     m_base_instruction[0xF9] =
+     m_base_instruction[0xFA] =
+     m_base_instruction[0xFB] =
+     m_base_instruction[0xFC] =
+     m_base_instruction[0xFD] =
+     m_base_instruction[0xFE] =
+     m_base_instruction[0xFF] =
+
+     m_cb_prefix_instruction[0x00] =
+     m_cb_prefix_instruction[0x01] =
+     m_cb_prefix_instruction[0x02] =
+     m_cb_prefix_instruction[0x03] =
+     m_cb_prefix_instruction[0x04] =
+     m_cb_prefix_instruction[0x05] =
+     m_cb_prefix_instruction[0x06] =
+     m_cb_prefix_instruction[0x07] =
+     m_cb_prefix_instruction[0x08] =
+     m_cb_prefix_instruction[0x09] =
+     m_cb_prefix_instruction[0x0A] =
+     m_cb_prefix_instruction[0x0B] =
+     m_cb_prefix_instruction[0x0C] =
+     m_cb_prefix_instruction[0x0D] =
+     m_cb_prefix_instruction[0x0E] =
+     m_cb_prefix_instruction[0x0F] =
+     m_cb_prefix_instruction[0x10] =
+     m_cb_prefix_instruction[0x11] =
+     m_cb_prefix_instruction[0x12] =
+     m_cb_prefix_instruction[0x13] =
+     m_cb_prefix_instruction[0x14] =
+     m_cb_prefix_instruction[0x15] =
+     m_cb_prefix_instruction[0x16] =
+     m_cb_prefix_instruction[0x17] =
+     m_cb_prefix_instruction[0x18] =
+     m_cb_prefix_instruction[0x19] =
+     m_cb_prefix_instruction[0x1A] =
+     m_cb_prefix_instruction[0x1B] =
+     m_cb_prefix_instruction[0x1C] =
+     m_cb_prefix_instruction[0x1D] =
+     m_cb_prefix_instruction[0x1E] =
+     m_cb_prefix_instruction[0x1F] =
+     m_cb_prefix_instruction[0x20] =
+     m_cb_prefix_instruction[0x21] =
+     m_cb_prefix_instruction[0x22] =
+     m_cb_prefix_instruction[0x23] =
+     m_cb_prefix_instruction[0x24] =
+     m_cb_prefix_instruction[0x25] =
+     m_cb_prefix_instruction[0x26] =
+     m_cb_prefix_instruction[0x27] =
+     m_cb_prefix_instruction[0x28] =
+     m_cb_prefix_instruction[0x29] =
+     m_cb_prefix_instruction[0x2A] =
+     m_cb_prefix_instruction[0x2B] =
+     m_cb_prefix_instruction[0x2C] =
+     m_cb_prefix_instruction[0x2D] =
+     m_cb_prefix_instruction[0x2E] =
+     m_cb_prefix_instruction[0x2F] =
+     m_cb_prefix_instruction[0x30] =
+     m_cb_prefix_instruction[0x31] =
+     m_cb_prefix_instruction[0x32] =
+     m_cb_prefix_instruction[0x33] =
+     m_cb_prefix_instruction[0x34] =
+     m_cb_prefix_instruction[0x35] =
+     m_cb_prefix_instruction[0x36] =
+     m_cb_prefix_instruction[0x37] =
+     m_cb_prefix_instruction[0x38] =
+     m_cb_prefix_instruction[0x39] =
+     m_cb_prefix_instruction[0x3A] =
+     m_cb_prefix_instruction[0x3B] =
+     m_cb_prefix_instruction[0x3C] =
+     m_cb_prefix_instruction[0x3D] =
+     m_cb_prefix_instruction[0x3E] =
+     m_cb_prefix_instruction[0x3F] =
+     m_cb_prefix_instruction[0x40] =
+     m_cb_prefix_instruction[0x41] =
+     m_cb_prefix_instruction[0x42] =
+     m_cb_prefix_instruction[0x43] =
+     m_cb_prefix_instruction[0x44] =
+     m_cb_prefix_instruction[0x45] =
+     m_cb_prefix_instruction[0x46] =
+     m_cb_prefix_instruction[0x47] =
+     m_cb_prefix_instruction[0x48] =
+     m_cb_prefix_instruction[0x49] =
+     m_cb_prefix_instruction[0x4A] =
+     m_cb_prefix_instruction[0x4B] =
+     m_cb_prefix_instruction[0x4C] =
+     m_cb_prefix_instruction[0x4D] =
+     m_cb_prefix_instruction[0x4E] =
+     m_cb_prefix_instruction[0x4F] =
+     m_cb_prefix_instruction[0x50] =
+     m_cb_prefix_instruction[0x51] =
+     m_cb_prefix_instruction[0x52] =
+     m_cb_prefix_instruction[0x53] =
+     m_cb_prefix_instruction[0x54] =
+     m_cb_prefix_instruction[0x55] =
+     m_cb_prefix_instruction[0x56] =
+     m_cb_prefix_instruction[0x57] =
+     m_cb_prefix_instruction[0x58] =
+     m_cb_prefix_instruction[0x59] =
+     m_cb_prefix_instruction[0x5A] =
+     m_cb_prefix_instruction[0x5B] =
+     m_cb_prefix_instruction[0x5C] =
+     m_cb_prefix_instruction[0x5D] =
+     m_cb_prefix_instruction[0x5E] =
+     m_cb_prefix_instruction[0x5F] =
+     m_cb_prefix_instruction[0x60] =
+     m_cb_prefix_instruction[0x61] =
+     m_cb_prefix_instruction[0x62] =
+     m_cb_prefix_instruction[0x63] =
+     m_cb_prefix_instruction[0x64] =
+     m_cb_prefix_instruction[0x65] =
+     m_cb_prefix_instruction[0x66] =
+     m_cb_prefix_instruction[0x67] =
+     m_cb_prefix_instruction[0x68] =
+     m_cb_prefix_instruction[0x69] =
+     m_cb_prefix_instruction[0x6A] =
+     m_cb_prefix_instruction[0x6B] =
+     m_cb_prefix_instruction[0x6C] =
+     m_cb_prefix_instruction[0x6D] =
+     m_cb_prefix_instruction[0x6E] =
+     m_cb_prefix_instruction[0x6F] =
+     m_cb_prefix_instruction[0x70] =
+     m_cb_prefix_instruction[0x71] =
+     m_cb_prefix_instruction[0x72] =
+     m_cb_prefix_instruction[0x73] =
+     m_cb_prefix_instruction[0x74] =
+     m_cb_prefix_instruction[0x75] =
+     m_cb_prefix_instruction[0x76] =
+     m_cb_prefix_instruction[0x77] =
+     m_cb_prefix_instruction[0x78] =
+     m_cb_prefix_instruction[0x79] =
+     m_cb_prefix_instruction[0x7A] =
+     m_cb_prefix_instruction[0x7B] =
+     m_cb_prefix_instruction[0x7C] =
+     m_cb_prefix_instruction[0x7D] =
+     m_cb_prefix_instruction[0x7E] =
+     m_cb_prefix_instruction[0x7F] =
+     m_cb_prefix_instruction[0x80] =
+     m_cb_prefix_instruction[0x81] =
+     m_cb_prefix_instruction[0x82] =
+     m_cb_prefix_instruction[0x83] =
+     m_cb_prefix_instruction[0x84] =
+     m_cb_prefix_instruction[0x85] =
+     m_cb_prefix_instruction[0x86] =
+     m_cb_prefix_instruction[0x87] =
+     m_cb_prefix_instruction[0x88] =
+     m_cb_prefix_instruction[0x89] =
+     m_cb_prefix_instruction[0x8A] =
+     m_cb_prefix_instruction[0x8B] =
+     m_cb_prefix_instruction[0x8C] =
+     m_cb_prefix_instruction[0x8D] =
+     m_cb_prefix_instruction[0x8E] =
+     m_cb_prefix_instruction[0x8F] =
+     m_cb_prefix_instruction[0x90] =
+     m_cb_prefix_instruction[0x91] =
+     m_cb_prefix_instruction[0x92] =
+     m_cb_prefix_instruction[0x93] =
+     m_cb_prefix_instruction[0x94] =
+     m_cb_prefix_instruction[0x95] =
+     m_cb_prefix_instruction[0x96] =
+     m_cb_prefix_instruction[0x97] =
+     m_cb_prefix_instruction[0x98] =
+     m_cb_prefix_instruction[0x99] =
+     m_cb_prefix_instruction[0x9A] =
+     m_cb_prefix_instruction[0x9B] =
+     m_cb_prefix_instruction[0x9C] =
+     m_cb_prefix_instruction[0x9D] =
+     m_cb_prefix_instruction[0x9E] =
+     m_cb_prefix_instruction[0x9F] =
+     m_cb_prefix_instruction[0xA0] =
+     m_cb_prefix_instruction[0xA1] =
+     m_cb_prefix_instruction[0xA2] =
+     m_cb_prefix_instruction[0xA3] =
+     m_cb_prefix_instruction[0xA4] =
+     m_cb_prefix_instruction[0xA5] =
+     m_cb_prefix_instruction[0xA6] =
+     m_cb_prefix_instruction[0xA7] =
+     m_cb_prefix_instruction[0xA8] =
+     m_cb_prefix_instruction[0xA9] =
+     m_cb_prefix_instruction[0xAA] =
+     m_cb_prefix_instruction[0xAB] =
+     m_cb_prefix_instruction[0xAC] =
+     m_cb_prefix_instruction[0xAD] =
+     m_cb_prefix_instruction[0xAE] =
+     m_cb_prefix_instruction[0xAF] =
+     m_cb_prefix_instruction[0xB0] =
+     m_cb_prefix_instruction[0xB1] =
+     m_cb_prefix_instruction[0xB2] =
+     m_cb_prefix_instruction[0xB3] =
+     m_cb_prefix_instruction[0xB4] =
+     m_cb_prefix_instruction[0xB5] =
+     m_cb_prefix_instruction[0xB6] =
+     m_cb_prefix_instruction[0xB7] =
+     m_cb_prefix_instruction[0xB8] =
+     m_cb_prefix_instruction[0xB9] =
+     m_cb_prefix_instruction[0xBA] =
+     m_cb_prefix_instruction[0xBB] =
+     m_cb_prefix_instruction[0xBC] =
+     m_cb_prefix_instruction[0xBD] =
+     m_cb_prefix_instruction[0xBE] =
+     m_cb_prefix_instruction[0xBF] =
+     m_cb_prefix_instruction[0xC0] =
+     m_cb_prefix_instruction[0xC1] =
+     m_cb_prefix_instruction[0xC2] =
+     m_cb_prefix_instruction[0xC3] =
+     m_cb_prefix_instruction[0xC4] =
+     m_cb_prefix_instruction[0xC5] =
+     m_cb_prefix_instruction[0xC6] =
+     m_cb_prefix_instruction[0xC7] =
+     m_cb_prefix_instruction[0xC8] =
+     m_cb_prefix_instruction[0xC9] =
+     m_cb_prefix_instruction[0xCA] =
+     m_cb_prefix_instruction[0xCB] =
+     m_cb_prefix_instruction[0xCC] =
+     m_cb_prefix_instruction[0xCD] =
+     m_cb_prefix_instruction[0xCE] =
+     m_cb_prefix_instruction[0xCF] =
+     m_cb_prefix_instruction[0xD0] =
+     m_cb_prefix_instruction[0xD1] =
+     m_cb_prefix_instruction[0xD2] =
+     m_cb_prefix_instruction[0xD3] =
+     m_cb_prefix_instruction[0xD4] =
+     m_cb_prefix_instruction[0xD5] =
+     m_cb_prefix_instruction[0xD6] =
+     m_cb_prefix_instruction[0xD7] =
+     m_cb_prefix_instruction[0xD8] =
+     m_cb_prefix_instruction[0xD9] =
+     m_cb_prefix_instruction[0xDA] =
+     m_cb_prefix_instruction[0xDB] =
+     m_cb_prefix_instruction[0xDC] =
+     m_cb_prefix_instruction[0xDD] =
+     m_cb_prefix_instruction[0xDE] =
+     m_cb_prefix_instruction[0xDF] =
+     m_cb_prefix_instruction[0xE0] =
+     m_cb_prefix_instruction[0xE1] =
+     m_cb_prefix_instruction[0xE2] =
+     m_cb_prefix_instruction[0xE3] =
+     m_cb_prefix_instruction[0xE4] =
+     m_cb_prefix_instruction[0xE5] =
+     m_cb_prefix_instruction[0xE6] =
+     m_cb_prefix_instruction[0xE7] =
+     m_cb_prefix_instruction[0xE8] =
+     m_cb_prefix_instruction[0xE9] =
+     m_cb_prefix_instruction[0xEA] =
+     m_cb_prefix_instruction[0xEB] =
+     m_cb_prefix_instruction[0xEC] =
+     m_cb_prefix_instruction[0xED] =
+     m_cb_prefix_instruction[0xEE] =
+     m_cb_prefix_instruction[0xEF] =
+     m_cb_prefix_instruction[0xF0] =
+     m_cb_prefix_instruction[0xF1] =
+     m_cb_prefix_instruction[0xF2] =
+     m_cb_prefix_instruction[0xF3] =
+     m_cb_prefix_instruction[0xF4] =
+     m_cb_prefix_instruction[0xF5] =
+     m_cb_prefix_instruction[0xF6] =
+     m_cb_prefix_instruction[0xF7] =
+     m_cb_prefix_instruction[0xF8] =
+     m_cb_prefix_instruction[0xF9] =
+     m_cb_prefix_instruction[0xFA] =
+     m_cb_prefix_instruction[0xFB] =
+     m_cb_prefix_instruction[0xFC] =
+     m_cb_prefix_instruction[0xFD] =
+     m_cb_prefix_instruction[0xFE] =
+     m_cb_prefix_instruction[0xFF] =
+*/
+
     m_base_instruction[0x00] = [this]() { ++m_registers.pc; return 4; };
     m_base_instruction[0x02] = [this]() { m_memory.write( m_registers.bc, m_registers.a ); return 8; };
 
     m_base_instruction[0x47] = bind( &CPU::_ld_r_r, this, ref( m_registers.b ), cref( m_registers.a ) );
-
-    //m_base_instruction[0x80] = bind( &CPU::_add_r, this, cref( m_registers.b ), false );
-    //m_base_instruction[0x88] = bind( &CPU::_add_r, this, cref( m_registers.b ), true );
 
     m_base_instruction[0x80] = [this]() { _add( m_registers.b, false ); return 4; };
     m_base_instruction[0x86] = [this]() { _add( m_memory.read_8( m_registers.hl ), false ); return 8; };
@@ -191,11 +705,6 @@ u32 CPU::_ld_sp_hl()
 
 u32 CPU::_push( u16 const reg )
 {
-    //u8 const hi = static_cast<u8>( reg >> 8 );
-    //u8 const lo = static_cast<u8>( reg );
-    //m_memory.write( m_registers.sp - 1, hi );
-    //m_memory.write( m_registers.sp - 2, lo );
-
     word aux = { reg };
     m_memory.write( m_registers.sp - 1, aux.hi );
     m_memory.write( m_registers.sp - 2, aux.lo );
@@ -243,53 +752,120 @@ void CPU::_sub( u8 const rhs, bool const carry )
     _set_flag( Flags::ADD_SUB );
 }
 
-/*
-u32 CPU::_add_r( u8 const reg, bool carry )
+
+u32 CPU::_inc_r( u8& reg )
 {
-    u8 const carry_value = carry && _is_flag_set( Flags::CARRY ) ? 1 : 0;
+    _process_half_carry_flag( reg, 1, 0, false );
 
-    _process_carry_flag( m_registers.a + reg + carry_value );
-    _process_half_carry_flag( reg, carry_value );
+    ++reg;
 
-    m_registers.a += reg + carry_value;
-
-    _process_zero_flag();
+    _process_zero_flag( reg );
     _reset_flag( Flags::ADD_SUB );
+    // ignore carry flag
 
     return 4;
 }
 
-u32 CPU::_add_n( bool carry ) 
+u32 CPU::_inc_hl()
 {
-    u8 const carry_value = carry && _is_flag_set( Flags::CARRY ) ? 1 : 0;
-    u8 const mem_value = m_memory.read_8( m_registers.pc++ );
-    
-    _process_carry_flag( m_registers.a + mem_value + carry_value );
-    _process_half_carry_flag( mem_value, carry_value );
+    u8 const mem_value = m_memory.read_8( m_registers.hl );
+    u8 const inc_mem_value = mem_value + 1;
 
-    m_registers.a += mem_value + carry_value;
+    m_memory.write( m_registers.hl, inc_mem_value );
 
-    _process_zero_flag();
+    _process_zero_flag( inc_mem_value );
+    _process_half_carry_flag( mem_value, 1, 0, false );
     _reset_flag( Flags::ADD_SUB );
+    // ignore carry flag
 
-    return 8;
+    return 12;
 }
 
-u32 CPU::_add_hl( bool carry )
+u32 CPU::_dec_r( u8& reg )
 {
-    u8 const carry_value = carry && _is_flag_set( Flags::CARRY ) ? 1 : 0;
+    _process_half_carry_flag( reg, 1, 0, true );
+
+    --reg;
+
+    _process_zero_flag( reg );
+    _set_flag( Flags::ADD_SUB );
+    // ignore carry flag
+
+    return 4;
+}
+
+u32 CPU::_dec_hl()
+{
     u8 const mem_value = m_memory.read_8( m_registers.hl );
+    u8 const dec_mem_value = mem_value - 1;
 
-    _process_carry_flag( m_registers.a + mem_value + carry_value );
-    _process_half_carry_flag( mem_value, carry_value );
+    m_memory.write( m_registers.hl, dec_mem_value );
 
-    m_registers.a += mem_value + carry_value;
+    _process_zero_flag( dec_mem_value );
+    _process_half_carry_flag( mem_value, 1, 0, true );
+    _set_flag( Flags::ADD_SUB );
+    // ignore carry flag
+
+    return 12;
+}
+
+u32 CPU::_decimal_adjust_acc()
+{
+    assert( false ); // TODO IMPLEMENT THIS.
+
+    return 4;
+}
+
+u32 CPU::_complement()
+{
+    m_registers.a ^= 0xFF;
+
+    _set_flag( Flags::ADD_SUB );
+    _set_flag( Flags::HALF_CARRY );
+
+    return 4;
+}
+
+// Logical
+void CPU::_and( u8 const rhs )
+{  
+    m_registers.a &= rhs;
 
     _process_zero_flag();
+    _set_flag( Flags::HALF_CARRY );
     _reset_flag( Flags::ADD_SUB );
+    _reset_flag( Flags::CARRY );
+}
 
-    return 8;
-}*/
+void CPU::_xor( u8 const rhs )
+{
+    m_registers.a ^= rhs;
+
+    _process_zero_flag();
+    _reset_flag( Flags::HALF_CARRY );
+    _reset_flag( Flags::ADD_SUB );
+    _reset_flag( Flags::CARRY );
+}
+
+void CPU::_or( u8 const rhs )
+{
+    m_registers.a |= rhs;
+
+    _process_zero_flag();
+    _reset_flag( Flags::HALF_CARRY );
+    _reset_flag( Flags::ADD_SUB );
+    _reset_flag( Flags::CARRY );
+}
+
+void CPU::_cmp( u8 const rhs )
+{
+    u8 const aux = m_registers.a - rhs;
+
+    _process_zero_flag( aux );
+    _process_half_carry_flag( rhs, 0, false );
+    _process_carry_flag( aux );
+    _set_flag( Flags::ADD_SUB );
+}
 
 ////////////////////////
 
@@ -305,11 +881,6 @@ void CPU::_inc_dec( u8 lhs, u8 inc ){ assert( false ); } // NOT IMPLEMENTED
 void CPU::_inc_dec( u16 lhs, u8 inc ){ assert( false ); } // NOT IMPLEMENTED
 void CPU::_decimal_adjust_acc(){ assert( false ); } // NOT IMPLEMENTED
 void CPU::_complement(){ assert( false ); } // NOT IMPLEMENTED
-// Logical (all these uses register A)
-void CPU::_and( u8 rhs ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_xor( u8 rhs ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_or( u8 rhs ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_cmp( u8 rhs ){ assert( false ); } // NOT IMPLEMENTED
 // Rotate Shift
 void CPU::_rl( u8 lhs, bool carry ){ assert( false ); } // NOT IMPLEMENTED
 void CPU::_rr( u8 lhs, bool carry ){ assert( false ); } // NOT IMPLEMENTED

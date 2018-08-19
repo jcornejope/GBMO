@@ -47,8 +47,10 @@ public:
 private:
     // Flags manipulation
     void _process_zero_flag();
+    void _process_zero_flag( u8 const reg );
     void _process_carry_flag( u16 const value );
     void _process_half_carry_flag( u8 const value, u8 const carry, bool const is_addition );
+    void _process_half_carry_flag( u8 const reg, u8 const value, u8 const carry, bool const is_addition );
     void _set_flag( Flags const flag );
     void _reset_flag( Flags const flag );
     bool _is_flag_set( Flags const flag );
@@ -80,25 +82,23 @@ private:
     // 8Bit Aritmethic
     void _add( u8 const rhs, bool const carry );
     void _sub( u8 const rhs, bool const carry );
+    u32 _inc_r( u8& reg );
+    u32 _inc_hl();
+    u32 _dec_r( u8& reg );
+    u32 _dec_hl();
+    u32 _decimal_adjust_acc();
+    u32 _complement();
+
+    // Logical
+    void _and( u8 const rhs );
+    void _xor( u8 const rhs );
+    void _or( u8 const rhs );
+    void _cmp( u8 const rhs );
 
     /////////////////
 
     // Aritmethic
-    
-    void _add( u8 lhs, u16 rhs, bool carry );
-    void _add( u16 lhs, u16 rhs, bool carry );
-    void _add( u16 lhs, s8 rhs, bool carry );
-    void _sub( u8 lhs, u8 rhs, bool carry );
-    void _sub( u8 lhs, u16 rhs, bool carry );
-    void _inc_dec( u8 lhs, u8 inc );
-    void _inc_dec( u16 lhs, u8 inc );
-    void _decimal_adjust_acc();
-    void _complement();
-    // Logical (all these uses register A)
-    void _and( u8 rhs );
-    void _xor( u8 rhs );
-    void _or( u8 rhs );
-    void _cmp( u8 rhs );
+
     // Rotate Shift
     void _rl( u8 lhs, bool carry );
     void _rr( u8 lhs, bool carry );

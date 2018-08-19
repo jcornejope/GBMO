@@ -57,7 +57,12 @@ CPU::CPU( MemorySystem& memory )
 
 void CPU::_process_zero_flag()
 {
-    if( m_registers.a == 0 )
+    _process_zero_flag( m_registers.a ); 
+}
+
+void CPU::_process_zero_flag( u8 const reg )
+{
+    if( reg == 0 )
         _set_flag( Flags::ZERO );
     else
         _reset_flag( Flags::ZERO );
@@ -73,14 +78,15 @@ void CPU::_process_carry_flag( u16 const value )
 
 void CPU::_process_half_carry_flag( u8 const value, u8 const carry, bool const is_addition )
 {
+    _process_half_carry_flag( m_registers.a, value, carry, is_addition );
+}
+
+void CPU::_process_half_carry_flag( u8 const reg, u8 const value, u8 const carry, bool const is_addition )
+{
     assert( carry == 0 || carry == 1 );
 
-    //u8 const u_reg_a_F = m_registers.a & 0x0F;
-    //u8 const u_val_F = u_value & 0x0F;
-    //u8 const tot = u_reg_a_F + u_val_F + u_carry;
-
-    if( ( is_addition  && ( ( (m_registers.a & 0x0F) + (value & 0x0F) + carry ) > 0x0F ) ) ||
-        ( !is_addition && ( ( (m_registers.a & 0x0F) - (value & 0x0F) - carry ) < 0x00 ) ) )
+    if( ( is_addition  && ( ( ( reg & 0x0F ) + ( value & 0x0F ) + carry ) > 0x0F ) ) ||
+        ( !is_addition && ( ( ( reg & 0x0F ) - ( value & 0x0F ) - carry ) < 0x00 ) ) )
         _set_flag( Flags::HALF_CARRY );
     else
         _reset_flag( Flags::HALF_CARRY );
