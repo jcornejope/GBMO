@@ -49,9 +49,8 @@ void CPU::_initialize_instruction_tables()
 {
     using namespace std;
 
- /*   
-     m_base_instruction[0x00] =
-     m_base_instruction[0x01] =
+     m_base_instruction[0x00] = [this]() { ++m_registers.pc; return 4; };
+ /*    m_base_instruction[0x01] =
      m_base_instruction[0x02] =
      m_base_instruction[0x03] =
      m_base_instruction[0x04] =
@@ -88,9 +87,9 @@ void CPU::_initialize_instruction_tables()
      m_base_instruction[0x23] =
      m_base_instruction[0x24] =
      m_base_instruction[0x25] =
-     m_base_instruction[0x26] =
-     m_base_instruction[0x27] =
-     m_base_instruction[0x28] =
+     m_base_instruction[0x26] = */
+    m_base_instruction[0x27] = bind( &CPU::_decimal_adjust_acc, this );
+/*     m_base_instruction[0x28] =
      m_base_instruction[0x29] =
      m_base_instruction[0x2A] =
      m_base_instruction[0x2B] =
@@ -120,9 +119,9 @@ void CPU::_initialize_instruction_tables()
      m_base_instruction[0x43] =
      m_base_instruction[0x44] =
      m_base_instruction[0x45] =
-     m_base_instruction[0x46] =
-     m_base_instruction[0x47] =
-     m_base_instruction[0x48] =
+     m_base_instruction[0x46] = */
+     m_base_instruction[0x47] = bind( &CPU::_ld_r_r, this, ref( m_registers.b ), cref( m_registers.a ) );
+/*     m_base_instruction[0x48] =
      m_base_instruction[0x49] =
      m_base_instruction[0x4A] =
      m_base_instruction[0x4B] =
@@ -565,10 +564,7 @@ void CPU::_initialize_instruction_tables()
      m_cb_prefix_instruction[0xFF] =
 */
 
-    m_base_instruction[0x00] = [this]() { ++m_registers.pc; return 4; };
     m_base_instruction[0x02] = [this]() { m_memory.write( m_registers.bc, m_registers.a ); return 8; };
-
-    m_base_instruction[0x47] = bind( &CPU::_ld_r_r, this, ref( m_registers.b ), cref( m_registers.a ) );
 
     m_base_instruction[0x80] = [this]() { _add( m_registers.b, false ); return 4; };
     m_base_instruction[0x86] = [this]() { _add( m_memory.read_8( m_registers.hl ), false ); return 8; };
@@ -811,7 +807,34 @@ u32 CPU::_dec_hl()
 
 u32 CPU::_decimal_adjust_acc()
 {
-    assert( false ); // TODO IMPLEMENT THIS.
+    if( _is_flag_set( Flags::ADD_SUB ) )
+    {
+        if( _is_flag_set( Flags::HALF_CARRY ) )
+            m_registers.a += 0xFA;
+        if( _is_flag_set( Flags::CARRY ) )
+            m_registers.a += 0xA0;
+    }
+    else
+    {
+        // This impl looks like a simplified version of the table in the gb manual... 
+        // I think there's some gaps that this is mistakenly modifying the A reg
+        // (FI: With H: 0x94 - 0x9F && 0xF4 - 0xFF we are adding 6 when we shouldn't)
+        // Maybe I'm missing something... ??
+
+        u16 aux = m_registers.a;
+        if( _is_flag_set( Flags::HALF_CARRY ) || ( aux & 0x0F ) > 0x09 )
+            aux += 0x06;
+        if( _is_flag_set( Flags::CARRY ) || ( aux > 0x9F ) )
+            aux += 0x60;
+
+        if( ( aux & 0x100 ) == 0x100 )
+            _set_flag( Flags::CARRY );
+
+        m_registers.a = static_cast<u8>( aux );
+    }
+
+    _process_zero_flag();
+    _reset_flag( Flags::HALF_CARRY );
 
     return 4;
 }

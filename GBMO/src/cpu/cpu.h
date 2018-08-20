@@ -88,7 +88,6 @@ private:
     u32 _dec_hl();
     u32 _decimal_adjust_acc();
     u32 _complement();
-
     // Logical
     void _and( u8 const rhs );
     void _xor( u8 const rhs );

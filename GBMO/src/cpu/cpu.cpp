@@ -52,6 +52,18 @@ CPU::CPU( MemorySystem& memory )
     m_base_instruction[0x98](); // sbc 0x10 -> F:40
     assert( m_registers.af == 0x1040 );
 
+    // DAA test
+    m_registers.a = 0x45;
+    m_registers.b = 0x38;
+    m_base_instruction[0x80](); // add 0x7D -> F:00
+    assert( m_registers.af == 0x7D00 );
+    m_base_instruction[0x27](); // daa 0x83 -> F:00
+    assert( m_registers.af == 0x8300 );
+    m_base_instruction[0x90](); // sub 0x4B -> F:60
+    assert( m_registers.af == 0x4B60 );
+    m_base_instruction[0x27](); // daa 0x45 -> F:40
+    assert( m_registers.af == 0x4540 );
+
     m_base_instruction[0xC6]();
 }
 

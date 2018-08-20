@@ -23,6 +23,8 @@ public:
     void write( u16 address, u16 data );
 
 private:
+    bool _is_memory_handled_by_cartridge( u16 const address ) const;
+
     u8 m_memory[SYSTEM_MEMORY_SIZE];
     Cartridge& m_cartridge;
 };
