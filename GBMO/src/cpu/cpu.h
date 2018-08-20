@@ -48,9 +48,11 @@ private:
     // Flags manipulation
     void _process_zero_flag();
     void _process_zero_flag( u8 const reg );
-    void _process_carry_flag( u16 const value );
+    void _process_carry_flag_8( u16 const value );
+    void _process_carry_flag_16( u32 const value );
     void _process_half_carry_flag( u8 const value, u8 const carry, bool const is_addition );
     void _process_half_carry_flag( u8 const reg, u8 const value, u8 const carry, bool const is_addition );
+    void _process_half_carry_flag( u16 const reg, u16 const value );
     void _set_flag( Flags const flag );
     void _reset_flag( Flags const flag );
     bool _is_flag_set( Flags const flag );
@@ -79,6 +81,7 @@ private:
     u32 _ld_sp_hl();
     u32 _push( u16 const reg );
     u32 _pop( u16& reg );
+    u32 _ldhl();
     // 8Bit Aritmethic
     void _add( u8 const rhs, bool const carry );
     void _sub( u8 const rhs, bool const carry );
@@ -93,6 +96,10 @@ private:
     void _xor( u8 const rhs );
     void _or( u8 const rhs );
     void _cmp( u8 const rhs );
+    // 16Bit Aritmethic
+    u32 _add_hl( u16 const reg );
+    u32 _add_sp();
+    u32 _inc_dec( u16& reg, bool inc );
 
     /////////////////
 

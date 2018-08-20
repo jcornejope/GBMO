@@ -80,9 +80,17 @@ void CPU::_process_zero_flag( u8 const reg )
         _reset_flag( Flags::ZERO );
 }
 
-void CPU::_process_carry_flag( u16 const value )
+void CPU::_process_carry_flag_8( u16 const value )
 {
     if( value > 0xFF )
+        _set_flag( Flags::CARRY );
+    else
+        _reset_flag( Flags::CARRY );
+}
+
+void CPU::_process_carry_flag_16( u32 const value )
+{
+    if( value > 0xFFFF )
         _set_flag( Flags::CARRY );
     else
         _reset_flag( Flags::CARRY );
@@ -99,6 +107,16 @@ void CPU::_process_half_carry_flag( u8 const reg, u8 const value, u8 const carry
 
     if( ( is_addition  && ( ( ( reg & 0x0F ) + ( value & 0x0F ) + carry ) > 0x0F ) ) ||
         ( !is_addition && ( ( ( reg & 0x0F ) - ( value & 0x0F ) - carry ) < 0x00 ) ) )
+        _set_flag( Flags::HALF_CARRY );
+    else
+        _reset_flag( Flags::HALF_CARRY );
+}
+
+void CPU::_process_half_carry_flag( u16 const reg, u16 const value )
+{
+    // TODO: BUG? Following the documentation it says that the half carry for 16bit is 
+    // bit 11 (even with examples) but the code for other 3 emulators I checked uses bit 3 :S
+    if( ( reg & 0x0FFF ) + ( value & 0x0FFF ) > 0x0FFF )
         _set_flag( Flags::HALF_CARRY );
     else
         _reset_flag( Flags::HALF_CARRY );
