@@ -102,8 +102,8 @@ private:
     u32 _add_sp();
     u32 _inc_dec( u16& reg, bool inc );
     // Rotate Shift
-    u32 _rla_rlca( bool const carry );
-    void _rl( u8& reg, bool const carry );
+    u32 _rlca( );
+    void _rlc( u8& reg );
 
     /////////////////
 

@@ -306,14 +306,14 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xFE] = nullptr;
     m_base_instruction[0xFF] = nullptr;
 
-    m_cb_prefix_instruction[0x00] = nullptr;
-    m_cb_prefix_instruction[0x01] = nullptr;
-    m_cb_prefix_instruction[0x02] = nullptr;
-    m_cb_prefix_instruction[0x03] = nullptr;
-    m_cb_prefix_instruction[0x04] = nullptr;
-    m_cb_prefix_instruction[0x05] = nullptr;
+    m_cb_prefix_instruction[0x00] = [this]() { _rlc( m_registers.b ); return 8; };
+    m_cb_prefix_instruction[0x01] = [this]() { _rlc( m_registers.c ); return 8; };
+    m_cb_prefix_instruction[0x02] = [this]() { _rlc( m_registers.d ); return 8; };
+    m_cb_prefix_instruction[0x03] = [this]() { _rlc( m_registers.e ); return 8; };
+    m_cb_prefix_instruction[0x04] = [this]() { _rlc( m_registers.h ); return 8; };
+    m_cb_prefix_instruction[0x05] = [this]() { _rlc( m_registers.l ); return 8; };
     m_cb_prefix_instruction[0x06] = nullptr;
-    m_cb_prefix_instruction[0x07] = nullptr;
+    m_cb_prefix_instruction[0x07] = bind( &CPU::_rlca, this );
     m_cb_prefix_instruction[0x08] = nullptr;
     m_cb_prefix_instruction[0x09] = nullptr;
     m_cb_prefix_instruction[0x0A] = nullptr;
@@ -934,6 +934,31 @@ u32 CPU::_inc_dec( u16& reg, bool inc )
 }
 
 // Rotate Shift
+u32 CPU::_rlca()
+{
+    u8 carry = ( m_registers.a & 0x80 ) >> 7;
+    m_registers.a <<= 1;
+    m_registers.a |= carry;
+
+    carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
+    _set_flag( Flags::ADD_SUB );
+    _set_flag( Flags::HALF_CARRY );
+    _set_flag( Flags::ZERO );
+
+    return 4;
+}
+
+void CPU::_rlc( u8& reg )
+{
+    u8 carry = ( reg & 0x80 ) >> 7;
+    reg <<= 1;
+    reg |= carry;
+
+    carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
+    _set_flag( Flags::ADD_SUB );
+    _set_flag( Flags::HALF_CARRY );
+    _process_zero_flag( reg );
+}
 
 ////////////////////////
 
