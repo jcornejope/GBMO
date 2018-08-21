@@ -114,8 +114,6 @@ void CPU::_process_half_carry_flag( u8 const reg, u8 const value, u8 const carry
 
 void CPU::_process_half_carry_flag( u16 const reg, u16 const value )
 {
-    // TODO: BUG? Following the documentation it says that the half carry for 16bit is 
-    // bit 11 (even with examples) but the code for other 3 emulators I checked uses bit 3 :S
     if( ( reg & 0x0FFF ) + ( value & 0x0FFF ) > 0x0FFF )
         _set_flag( Flags::HALF_CARRY );
     else

@@ -57,7 +57,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x05] = nullptr;
     m_base_instruction[0x06] = nullptr;
     m_base_instruction[0x07] = nullptr;
-    m_base_instruction[0x08] = nullptr;
+    m_base_instruction[0x08] = bind( &CPU::_ld_nn_sp, this );
     m_base_instruction[0x09] = bind( &CPU::_add_hl, this, cref( m_registers.bc ) );
     m_base_instruction[0x0A] = nullptr;
     m_base_instruction[0x0B] = bind( &CPU::_inc_dec, this, ref( m_registers.bc ), false );
@@ -120,7 +120,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x44] = nullptr;
     m_base_instruction[0x45] = nullptr;
     m_base_instruction[0x46] = nullptr;
-    m_base_instruction[0x47] = nullptr; bind( &CPU::_ld_r_r, this, ref( m_registers.b ), cref( m_registers.a ) );
+    m_base_instruction[0x47] = bind( &CPU::_ld_r_r, this, ref( m_registers.b ), cref( m_registers.a ) );
     m_base_instruction[0x48] = nullptr;
     m_base_instruction[0x49] = nullptr;
     m_base_instruction[0x4A] = nullptr;
@@ -242,11 +242,11 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xBE] = nullptr;
     m_base_instruction[0xBF] = nullptr;
     m_base_instruction[0xC0] = nullptr;
-    m_base_instruction[0xC1] = nullptr;
+    m_base_instruction[0xC1] = bind( &CPU::_pop, this, ref( m_registers.bc ) );
     m_base_instruction[0xC2] = nullptr;
     m_base_instruction[0xC3] = nullptr;
     m_base_instruction[0xC4] = nullptr;
-    m_base_instruction[0xC5] = nullptr;
+    m_base_instruction[0xC5] = bind( &CPU::_push, this, ref( m_registers.bc ) );
     m_base_instruction[0xC6] = [this]() { _add( m_memory.read_8( m_registers.pc++ ), false ); return 8; };
     m_base_instruction[0xC7] = nullptr;
     m_base_instruction[0xC8] = nullptr;
@@ -258,11 +258,11 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xCE] = nullptr;
     m_base_instruction[0xCF] = nullptr;
     m_base_instruction[0xD0] = nullptr;
-    m_base_instruction[0xD1] = nullptr;
+    m_base_instruction[0xD1] = bind( &CPU::_pop, this, ref( m_registers.de ) );
     m_base_instruction[0xD2] = nullptr;
     m_base_instruction[0xD3] = nullptr;
     m_base_instruction[0xD4] = nullptr;
-    m_base_instruction[0xD5] = nullptr;
+    m_base_instruction[0xD5] = bind( &CPU::_push, this, ref( m_registers.bc ) );
     m_base_instruction[0xD6] = nullptr;
     m_base_instruction[0xD7] = nullptr;
     m_base_instruction[0xD8] = nullptr;
@@ -274,11 +274,11 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xDE] = nullptr;
     m_base_instruction[0xDF] = nullptr;
     m_base_instruction[0xE0] = nullptr;
-    m_base_instruction[0xE1] = nullptr;
+    m_base_instruction[0xE1] = bind( &CPU::_pop, this, ref( m_registers.hl ) );
     m_base_instruction[0xE2] = nullptr;
     m_base_instruction[0xE3] = nullptr;
     m_base_instruction[0xE4] = nullptr;
-    m_base_instruction[0xE5] = nullptr;
+    m_base_instruction[0xE5] = bind( &CPU::_push, this, ref( m_registers.hl ) );
     m_base_instruction[0xE6] = nullptr;
     m_base_instruction[0xE7] = nullptr; 
     m_base_instruction[0xE8] = bind( &CPU::_add_sp, this );
@@ -290,11 +290,11 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xEE] = nullptr;
     m_base_instruction[0xEF] = nullptr;
     m_base_instruction[0xF0] = nullptr;
-    m_base_instruction[0xF1] = nullptr;
+    m_base_instruction[0xF1] = bind( &CPU::_pop, this, ref( m_registers.af ) );
     m_base_instruction[0xF2] = nullptr;
     m_base_instruction[0xF3] = nullptr;
     m_base_instruction[0xF4] = nullptr;
-    m_base_instruction[0xF5] = nullptr;
+    m_base_instruction[0xF5] = bind( &CPU::_push, this, ref( m_registers.af ) );
     m_base_instruction[0xF6] = nullptr;
     m_base_instruction[0xF7] = nullptr;
     m_base_instruction[0xF8] = bind( &CPU::_ldhl, this );
@@ -691,21 +691,15 @@ u32 CPU::_ld_sp_hl()
 
 u32 CPU::_push( u16 const reg )
 {
-    word aux = { reg };
-    m_memory.write( m_registers.sp - 1, aux.hi );
-    m_memory.write( m_registers.sp - 2, aux.lo );
     m_registers.sp -= 2;
-
+    m_memory.write( m_registers.sp, reg );
+    
     return 16;
 }
 
 u32 CPU::_pop( u16& reg )
 {
-    //word aux = { { .lo = m_memory.read_8( m_registers.sp ), .hi = m_memory.read_8( m_registers.sp + 1 ) } };
-    word aux;
-    aux.lo = m_memory.read_8( m_registers.sp );
-    aux.hi = m_memory.read_8( m_registers.sp + 1 );
-    reg = aux.data;
+    reg = m_memory.read_16( m_registers.sp );
     m_registers.sp += 2;
 
     return 12;
@@ -724,6 +718,14 @@ u32 CPU::_ldhl()
     _reset_flag( Flags::ZERO );
 
     return 12;
+}
+
+u32 CPU::_ld_nn_sp()
+{
+    u8 const mem_address = m_memory.read_8( m_registers.pc++ );
+    m_memory.write( mem_address, m_registers.sp );
+
+    return 20;
 }
 
 // Aritmethic
@@ -752,7 +754,6 @@ void CPU::_sub( u8 const rhs, bool const carry )
     _process_zero_flag();
     _set_flag( Flags::ADD_SUB );
 }
-
 
 u32 CPU::_inc_r( u8& reg )
 {
@@ -913,7 +914,8 @@ u32 CPU::_add_sp()
 {
     u8 value = m_memory.read_8( m_registers.pc++ );
 
-    _process_half_carry_flag( m_registers.sp, value );
+    // Apparently this needs to be bit 3 not bit 11 for reg SP.
+    _process_half_carry_flag( static_cast<u8>( m_registers.sp ), value );
     _process_carry_flag_16( m_registers.sp + value );
 
     m_registers.sp += value;
@@ -930,6 +932,8 @@ u32 CPU::_inc_dec( u16& reg, bool inc )
 
     return 8;
 }
+
+// Rotate Shift
 
 ////////////////////////
 

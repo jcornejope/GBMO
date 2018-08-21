@@ -82,6 +82,7 @@ private:
     u32 _push( u16 const reg );
     u32 _pop( u16& reg );
     u32 _ldhl();
+    u32 _ld_nn_sp();
     // 8Bit Aritmethic
     void _add( u8 const rhs, bool const carry );
     void _sub( u8 const rhs, bool const carry );
@@ -100,14 +101,17 @@ private:
     u32 _add_hl( u16 const reg );
     u32 _add_sp();
     u32 _inc_dec( u16& reg, bool inc );
+    // Rotate Shift
+    u32 _rla_rlca( bool const carry );
+    void _rl( u8& reg, bool const carry );
 
     /////////////////
 
     // Aritmethic
 
     // Rotate Shift
-    void _rl( u8 lhs, bool carry );
-    void _rr( u8 lhs, bool carry );
+    
+    void _rr( u8& lhs, bool const carry );
     void _shift_l( u8 lhs );
     void _shift_r( u8 lhs );
     void _shift_r_logical( u8 lhs );
@@ -128,14 +132,12 @@ private:
     void _ret( bool enable_interruptions );
     bool _conditional_ret();
     // CPU Control
-    u32 _noop();
     void _set_carry();
     void _halt();
     void _stop();
     void _set_interrupts( bool enable );
 
     typedef std::function<u32( void )> Instruction;
-    //typedef u32( CPU::*Instruction ) (void);
     Instruction m_base_instruction[0xFF];
     Instruction m_cb_prefix_instruction[0xFF];
 
