@@ -58,8 +58,8 @@ void MemorySystem::write( u16 address, u16 data )
 {
     word value = { data };
 
-    write( address, value.hi );
-    write( address + 1, value.lo );
+    write( address, value.lo );
+    write( address + 1, value.hi );
 }
 
 bool MemorySystem::_is_memory_handled_by_cartridge( u16 const address ) const
