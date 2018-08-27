@@ -54,6 +54,7 @@ private:
     void _process_half_carry_flag( u8 const reg, u8 const value, u8 const carry, bool const is_addition );
     void _process_half_carry_flag( u16 const reg, u16 const value );
     void _set_flag( Flags const flag );
+    u8   _get_flag( Flags const flag );
     void _reset_flag( Flags const flag );
     bool _is_flag_set( Flags const flag );
 
@@ -102,8 +103,8 @@ private:
     u32 _add_sp();
     u32 _inc_dec( u16& reg, bool inc );
     // Rotate Shift
-    u32 _rlca( );
-    void _rlc( u8& reg );
+    u32 _rla_rlca( bool through_carry );
+    void _rl_rlc( u8& reg, bool through_carry );
 
     /////////////////
 
