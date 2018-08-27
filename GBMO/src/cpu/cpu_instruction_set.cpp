@@ -338,22 +338,22 @@ void CPU::_initialize_instruction_tables()
     m_cb_prefix_instruction[0x1D] = [this]() { _rr_rrc( m_registers.l, false ); return 8; };
     m_cb_prefix_instruction[0x1E] = bind( &CPU::_rr_rrc_hl, this, false );
     m_cb_prefix_instruction[0x1F] = [this]() { _rr_rrc( m_registers.a, false ); return 8; };
-    m_cb_prefix_instruction[0x20] = nullptr;
-    m_cb_prefix_instruction[0x21] = nullptr;
-    m_cb_prefix_instruction[0x22] = nullptr;
-    m_cb_prefix_instruction[0x23] = nullptr;
-    m_cb_prefix_instruction[0x24] = nullptr;
-    m_cb_prefix_instruction[0x25] = nullptr;
-    m_cb_prefix_instruction[0x26] = nullptr;
-    m_cb_prefix_instruction[0x27] = nullptr;
-    m_cb_prefix_instruction[0x28] = nullptr;
-    m_cb_prefix_instruction[0x29] = nullptr;
-    m_cb_prefix_instruction[0x2A] = nullptr;
-    m_cb_prefix_instruction[0x2B] = nullptr;
-    m_cb_prefix_instruction[0x2C] = nullptr;
-    m_cb_prefix_instruction[0x2D] = nullptr;
-    m_cb_prefix_instruction[0x2E] = nullptr;
-    m_cb_prefix_instruction[0x2F] = nullptr;
+    m_cb_prefix_instruction[0x20] = [this]() { _shift_l( m_registers.b ); return 8; };
+    m_cb_prefix_instruction[0x21] = [this]() { _shift_l( m_registers.c ); return 8; };
+    m_cb_prefix_instruction[0x22] = [this]() { _shift_l( m_registers.d ); return 8; };
+    m_cb_prefix_instruction[0x23] = [this]() { _shift_l( m_registers.e ); return 8; };
+    m_cb_prefix_instruction[0x24] = [this]() { _shift_l( m_registers.h ); return 8; };
+    m_cb_prefix_instruction[0x25] = [this]() { _shift_l( m_registers.l ); return 8; };
+    m_cb_prefix_instruction[0x26] = bind( &CPU::_shift_l_hl, this );
+    m_cb_prefix_instruction[0x27] = [this]() { _shift_l( m_registers.a ); return 8; };
+    m_cb_prefix_instruction[0x28] = [this]() { _shift_r( m_registers.b, false ); return 8; };
+    m_cb_prefix_instruction[0x29] = [this]() { _shift_r( m_registers.c, false ); return 8; };
+    m_cb_prefix_instruction[0x2A] = [this]() { _shift_r( m_registers.d, false ); return 8; };
+    m_cb_prefix_instruction[0x2B] = [this]() { _shift_r( m_registers.e, false ); return 8; };
+    m_cb_prefix_instruction[0x2C] = [this]() { _shift_r( m_registers.h, false ); return 8; };
+    m_cb_prefix_instruction[0x2D] = [this]() { _shift_r( m_registers.l, false ); return 8; };
+    m_cb_prefix_instruction[0x2E] = bind( &CPU::_shift_r_hl, this, false );
+    m_cb_prefix_instruction[0x2F] = [this]() { _shift_r( m_registers.a, false ); return 8; };
     m_cb_prefix_instruction[0x30] = nullptr;
     m_cb_prefix_instruction[0x31] = nullptr;
     m_cb_prefix_instruction[0x32] = nullptr;
@@ -362,14 +362,14 @@ void CPU::_initialize_instruction_tables()
     m_cb_prefix_instruction[0x35] = nullptr;
     m_cb_prefix_instruction[0x36] = nullptr;
     m_cb_prefix_instruction[0x37] = nullptr;
-    m_cb_prefix_instruction[0x38] = nullptr;
-    m_cb_prefix_instruction[0x39] = nullptr;
-    m_cb_prefix_instruction[0x3A] = nullptr;
-    m_cb_prefix_instruction[0x3B] = nullptr;
-    m_cb_prefix_instruction[0x3C] = nullptr;
-    m_cb_prefix_instruction[0x3D] = nullptr;
-    m_cb_prefix_instruction[0x3E] = nullptr;
-    m_cb_prefix_instruction[0x3F] = nullptr;
+    m_cb_prefix_instruction[0x38] = [this]() { _shift_r( m_registers.b, true ); return 8; };
+    m_cb_prefix_instruction[0x39] = [this]() { _shift_r( m_registers.c, true ); return 8; };
+    m_cb_prefix_instruction[0x3A] = [this]() { _shift_r( m_registers.d, true ); return 8; };
+    m_cb_prefix_instruction[0x3B] = [this]() { _shift_r( m_registers.e, true ); return 8; };
+    m_cb_prefix_instruction[0x3C] = [this]() { _shift_r( m_registers.h, true ); return 8; };
+    m_cb_prefix_instruction[0x3D] = [this]() { _shift_r( m_registers.l, true ); return 8; };
+    m_cb_prefix_instruction[0x3E] = bind( &CPU::_shift_r_hl, this, true );
+    m_cb_prefix_instruction[0x3F] = [this]() { _shift_r( m_registers.a, true ); return 8; };
     m_cb_prefix_instruction[0x40] = nullptr;
     m_cb_prefix_instruction[0x41] = nullptr;
     m_cb_prefix_instruction[0x42] = nullptr;
@@ -941,9 +941,9 @@ u32 CPU::_rla_rlca( bool through_carry )
     m_registers.a |= through_carry ? carry : _get_flag( Flags::CARRY );
 
     carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
-    _set_flag( Flags::ADD_SUB );
-    _set_flag( Flags::HALF_CARRY );
-    _set_flag( Flags::ZERO );
+    _reset_flag( Flags::ADD_SUB );
+    _reset_flag( Flags::HALF_CARRY );
+    _reset_flag( Flags::ZERO );
 
     return 4;
 }
@@ -955,8 +955,8 @@ void CPU::_rl_rlc( u8& reg, bool through_carry )
     reg |= through_carry ? carry : _get_flag( Flags::CARRY );
 
     carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
-    _set_flag( Flags::ADD_SUB );
-    _set_flag( Flags::HALF_CARRY );
+    _reset_flag( Flags::ADD_SUB );
+    _reset_flag( Flags::HALF_CARRY );
     _process_zero_flag( reg );
 }
 
@@ -976,9 +976,9 @@ u32 CPU::_rra_rrca( bool through_carry )
     m_registers.a |= through_carry ? carry : _get_flag( Flags::CARRY ) << 7; // OR works cos is unsigned
 
     carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
-    _set_flag( Flags::ADD_SUB );
-    _set_flag( Flags::HALF_CARRY );
-    _set_flag( Flags::ZERO );
+    _reset_flag( Flags::ADD_SUB );
+    _reset_flag( Flags::HALF_CARRY );
+    _reset_flag( Flags::ZERO );
 
     return 4;
 }
@@ -990,8 +990,8 @@ void CPU::_rr_rrc( u8& reg, bool through_carry )
     reg |= through_carry ? carry : _get_flag( Flags::CARRY ) << 7;
 
     carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
-    _set_flag( Flags::ADD_SUB );
-    _set_flag( Flags::HALF_CARRY );
+    _reset_flag( Flags::ADD_SUB );
+    _reset_flag( Flags::HALF_CARRY );
     _process_zero_flag( reg );
 }
 
@@ -1003,6 +1003,66 @@ u32 CPU::_rr_rrc_hl( bool through_carry )
 
     return 16;
 }
+
+void CPU::_shift_l( u8& reg )
+{
+    reg | 0x80 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
+    reg <<= 1;
+
+    _reset_flag( Flags::ADD_SUB );
+    _reset_flag( Flags::HALF_CARRY );
+    _process_zero_flag( reg );
+}
+
+void CPU::_shift_r( u8& reg, bool logical )
+{
+    reg | 0x01 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
+    u8 bit7 = reg | 0x08;
+    reg >>= 1;
+    if( logical )
+        reg |= bit7;
+
+    _reset_flag( Flags::ADD_SUB );
+    _reset_flag( Flags::HALF_CARRY );
+    _process_zero_flag( reg );
+}
+
+//void CPU::_shift_r_logical( u8& reg )
+//{
+//    reg | 0x01 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
+//    reg >>= 1;
+//
+//    _reset_flag( Flags::ADD_SUB );
+//    _reset_flag( Flags::HALF_CARRY );
+//    _process_zero_flag( reg );
+//}
+
+u32 CPU::_shift_l_hl()
+{
+    u8 mem_hl = m_memory.read_8( m_registers.hl );
+    _shift_l( mem_hl );
+    m_memory.write( m_registers.hl, mem_hl );
+
+    return 16;
+}
+
+u32 CPU::_shift_r_hl( bool logical )
+{
+    u8 mem_hl = m_memory.read_8( m_registers.hl );
+    _shift_r( mem_hl, logical );
+    m_memory.write( m_registers.hl, mem_hl );
+
+    return 16;
+}
+
+//u32 CPU::_shift_r_logical_hl()
+//{
+//    u8 mem_hl = m_memory.read_8( m_registers.hl );
+//    _shift_r_logical( mem_hl );
+//    m_memory.write( m_registers.hl, mem_hl );
+//
+//    return 16;
+//}
 
 ////////////////////////
 

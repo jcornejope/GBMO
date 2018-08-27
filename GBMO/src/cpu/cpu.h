@@ -109,6 +109,10 @@ private:
     u32 _rra_rrca( bool through_carry );
     void _rr_rrc( u8& reg, bool through_carry );
     u32 _rr_rrc_hl( bool through_carry );
+    void _shift_l( u8& reg );
+    void _shift_r( u8& reg, bool logical );
+    u32 _shift_l_hl();
+    u32 _shift_r_hl( bool logical );
 
     /////////////////
 
@@ -116,10 +120,6 @@ private:
 
     // Rotate Shift
     
-    void _rr( u8& lhs, bool const carry );
-    void _shift_l( u8 lhs );
-    void _shift_r( u8 lhs );
-    void _shift_r_logical( u8 lhs );
     void _swap( u8 lhs );
     // Bit
     void _test_bit( u8 lhs );
