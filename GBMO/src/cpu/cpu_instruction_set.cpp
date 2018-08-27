@@ -312,32 +312,32 @@ void CPU::_initialize_instruction_tables()
     m_cb_prefix_instruction[0x03] = [this]() { _rl_rlc( m_registers.e, true ); return 8; };
     m_cb_prefix_instruction[0x04] = [this]() { _rl_rlc( m_registers.h, true ); return 8; };
     m_cb_prefix_instruction[0x05] = [this]() { _rl_rlc( m_registers.l, true ); return 8; };
-    m_cb_prefix_instruction[0x06] = nullptr;
-    m_cb_prefix_instruction[0x07] = bind( &CPU::_rla_rlca, this, true );
-    m_cb_prefix_instruction[0x08] = nullptr;
-    m_cb_prefix_instruction[0x09] = nullptr;
-    m_cb_prefix_instruction[0x0A] = nullptr;
-    m_cb_prefix_instruction[0x0B] = nullptr;
-    m_cb_prefix_instruction[0x0C] = nullptr;
-    m_cb_prefix_instruction[0x0D] = nullptr;
-    m_cb_prefix_instruction[0x0E] = nullptr;
-    m_cb_prefix_instruction[0x0F] = nullptr;
+    m_cb_prefix_instruction[0x06] = bind( &CPU::_rl_rlc_hl, this, true );
+    m_cb_prefix_instruction[0x07] = [this]() { _rl_rlc( m_registers.a, true ); return 8; };
+    m_cb_prefix_instruction[0x08] = [this]() { _rr_rrc( m_registers.b, true ); return 8; };
+    m_cb_prefix_instruction[0x09] = [this]() { _rr_rrc( m_registers.c, true ); return 8; };
+    m_cb_prefix_instruction[0x0A] = [this]() { _rr_rrc( m_registers.d, true ); return 8; };
+    m_cb_prefix_instruction[0x0B] = [this]() { _rr_rrc( m_registers.e, true ); return 8; };
+    m_cb_prefix_instruction[0x0C] = [this]() { _rr_rrc( m_registers.h, true ); return 8; };
+    m_cb_prefix_instruction[0x0D] = [this]() { _rr_rrc( m_registers.l, true ); return 8; };
+    m_cb_prefix_instruction[0x0E] = bind( &CPU::_rr_rrc_hl, this, true );
+    m_cb_prefix_instruction[0x0F] = [this]() { _rr_rrc( m_registers.a, true ); return 8; };
     m_cb_prefix_instruction[0x10] = [this]() { _rl_rlc( m_registers.b, false ); return 8; };
     m_cb_prefix_instruction[0x11] = [this]() { _rl_rlc( m_registers.c, false ); return 8; };
     m_cb_prefix_instruction[0x12] = [this]() { _rl_rlc( m_registers.d, false ); return 8; };
     m_cb_prefix_instruction[0x13] = [this]() { _rl_rlc( m_registers.e, false ); return 8; };
     m_cb_prefix_instruction[0x14] = [this]() { _rl_rlc( m_registers.h, false ); return 8; };
     m_cb_prefix_instruction[0x15] = [this]() { _rl_rlc( m_registers.l, false ); return 8; };
-    m_cb_prefix_instruction[0x16] = nullptr;
-    m_cb_prefix_instruction[0x17] = bind( &CPU::_rla_rlca, this, false );
-    m_cb_prefix_instruction[0x18] = nullptr;
-    m_cb_prefix_instruction[0x19] = nullptr;
-    m_cb_prefix_instruction[0x1A] = nullptr;
-    m_cb_prefix_instruction[0x1B] = nullptr;
-    m_cb_prefix_instruction[0x1C] = nullptr;
-    m_cb_prefix_instruction[0x1D] = nullptr;
-    m_cb_prefix_instruction[0x1E] = nullptr;
-    m_cb_prefix_instruction[0x1F] = nullptr;
+    m_cb_prefix_instruction[0x16] = bind( &CPU::_rl_rlc_hl, this, false );
+    m_cb_prefix_instruction[0x17] = [this]() { _rl_rlc( m_registers.a, false ); return 8; };
+    m_cb_prefix_instruction[0x18] = [this]() { _rr_rrc( m_registers.b, false ); return 8; };
+    m_cb_prefix_instruction[0x19] = [this]() { _rr_rrc( m_registers.c, false ); return 8; };
+    m_cb_prefix_instruction[0x1A] = [this]() { _rr_rrc( m_registers.d, false ); return 8; };
+    m_cb_prefix_instruction[0x1B] = [this]() { _rr_rrc( m_registers.e, false ); return 8; };
+    m_cb_prefix_instruction[0x1C] = [this]() { _rr_rrc( m_registers.h, false ); return 8; };
+    m_cb_prefix_instruction[0x1D] = [this]() { _rr_rrc( m_registers.l, false ); return 8; };
+    m_cb_prefix_instruction[0x1E] = bind( &CPU::_rr_rrc_hl, this, false );
+    m_cb_prefix_instruction[0x1F] = [this]() { _rr_rrc( m_registers.a, false ); return 8; };
     m_cb_prefix_instruction[0x20] = nullptr;
     m_cb_prefix_instruction[0x21] = nullptr;
     m_cb_prefix_instruction[0x22] = nullptr;
@@ -947,71 +947,62 @@ u32 CPU::_rla_rlca( bool through_carry )
 
     return 4;
 }
-//
-//u32 CPU::_rlca()
-//{
-//    u8 carry = ( m_registers.a & 0x80 ) >> 7;
-//    m_registers.a <<= 1;
-//    m_registers.a |= carry;
-//
-//    carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
-//    _set_flag( Flags::ADD_SUB );
-//    _set_flag( Flags::HALF_CARRY );
-//    _set_flag( Flags::ZERO );
-//
-//    return 4;
-//}
-//
-//u32 CPU::_rla()
-//{
-//    u8 carry = ( m_registers.a & 0x80 ) >> 7;
-//    m_registers.a <<= 1;
-//    m_registers.a |= _get_flag( Flags::CARRY );
-//
-//    carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
-//    _set_flag( Flags::ADD_SUB );
-//    _set_flag( Flags::HALF_CARRY );
-//    _set_flag( Flags::ZERO );
-//
-//    return 4;
-//}
 
 void CPU::_rl_rlc( u8& reg, bool through_carry )
 {
     u8 carry = ( reg & 0x80 ) >> 7;
     reg <<= 1;
-    m_registers.a |= through_carry ? carry : _get_flag( Flags::CARRY );
+    reg |= through_carry ? carry : _get_flag( Flags::CARRY );
 
     carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
     _set_flag( Flags::ADD_SUB );
     _set_flag( Flags::HALF_CARRY );
     _process_zero_flag( reg );
 }
-//
-//void CPU::_rlc( u8& reg )
-//{
-//    u8 carry = ( reg & 0x80 ) >> 7;
-//    reg <<= 1;
-//    reg |= carry;
-//
-//    carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
-//    _set_flag( Flags::ADD_SUB );
-//    _set_flag( Flags::HALF_CARRY );
-//    _process_zero_flag( reg );
-//}
-//
-//void CPU::_rl( u8& reg )
-//{
-//    u8 carry = ( reg & 0x80 ) >> 7;
-//    reg <<= 1;
-//    reg |= _get_flag( Flags::CARRY );
-//
-//    carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
-//    _set_flag( Flags::ADD_SUB );
-//    _set_flag( Flags::HALF_CARRY );
-//    _process_zero_flag( reg );
-//}
 
+u32 CPU::_rl_rlc_hl( bool through_carry )
+{
+    u8 mem_hl = m_memory.read_8( m_registers.hl );
+    _rl_rlc( mem_hl, through_carry );
+    m_memory.write( m_registers.hl, mem_hl );
+
+    return 16;
+}
+
+u32 CPU::_rra_rrca( bool through_carry )
+{
+    u8 carry = (m_registers.a & 0x01) << 7;
+    m_registers.a >>= 1;
+    m_registers.a |= through_carry ? carry : _get_flag( Flags::CARRY ) << 7; // OR works cos is unsigned
+
+    carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
+    _set_flag( Flags::ADD_SUB );
+    _set_flag( Flags::HALF_CARRY );
+    _set_flag( Flags::ZERO );
+
+    return 4;
+}
+
+void CPU::_rr_rrc( u8& reg, bool through_carry )
+{
+    u8 carry = ( m_registers.a & 0x01 ) << 7;
+    reg >>= 1;
+    reg |= through_carry ? carry : _get_flag( Flags::CARRY ) << 7;
+
+    carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
+    _set_flag( Flags::ADD_SUB );
+    _set_flag( Flags::HALF_CARRY );
+    _process_zero_flag( reg );
+}
+
+u32 CPU::_rr_rrc_hl( bool through_carry )
+{
+    u8 mem_hl = m_memory.read_8( m_registers.hl );
+    _rr_rrc( mem_hl, through_carry );
+    m_memory.write( m_registers.hl, mem_hl );
+
+    return 16;
+}
 
 ////////////////////////
 

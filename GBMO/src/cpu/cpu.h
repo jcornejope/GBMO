@@ -105,6 +105,10 @@ private:
     // Rotate Shift
     u32 _rla_rlca( bool through_carry );
     void _rl_rlc( u8& reg, bool through_carry );
+    u32 _rl_rlc_hl( bool through_carry );
+    u32 _rra_rrca( bool through_carry );
+    void _rr_rrc( u8& reg, bool through_carry );
+    u32 _rr_rrc_hl( bool through_carry );
 
     /////////////////
 
@@ -139,8 +143,8 @@ private:
     void _set_interrupts( bool enable );
 
     typedef std::function<u32( void )> Instruction;
-    Instruction m_base_instruction[0xFF];
-    Instruction m_cb_prefix_instruction[0xFF];
+    Instruction m_base_instruction[0xFF + 1];
+    Instruction m_cb_prefix_instruction[0xFF + 1];
 
     Registers m_registers;
     MemorySystem& m_memory;
