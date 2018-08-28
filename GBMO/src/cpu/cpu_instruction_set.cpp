@@ -1073,21 +1073,29 @@ void CPU::_test_bit( u8& reg, u8 const bit )
 
 void CPU::_set_bit( u8& reg, u8 const bit )
 {
-
+    reg |= ( 1 << bit );
 }
 
 u32 CPU::_set_bit_hl( u8& reg, u8 const bit )
 {
+    u8 mem_hl = m_memory.read_8( m_registers.hl );
+    _set_bit( mem_hl, bit );
+    m_memory.write( m_registers.hl, mem_hl );
+
     return 16;
 }
 
 void CPU::_reset_bit( u8& reg, u8 const bit )
 {
-
+    reg &= ~( 1 << bit );
 }
 
 u32 CPU::_reset_bit_hl( u8& reg, u8 const bit )
 {
+    u8 mem_hl = m_memory.read_8( m_registers.hl );
+    _reset_bit( mem_hl, bit );
+    m_memory.write( m_registers.hl, mem_hl );
+
     return 16;
 }
 
