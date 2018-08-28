@@ -113,18 +113,12 @@ private:
     void _shift_r( u8& reg, bool logical );
     u32 _shift_l_hl();
     u32 _shift_r_hl( bool logical );
+    void _swap( u8& reg );
+    u32 _swap_hl();
+
 
     /////////////////
 
-    // Aritmethic
-
-    // Rotate Shift
-    
-    void _swap( u8 lhs );
-    // Bit
-    void _test_bit( u8 lhs );
-    void _set_bit( u8 lhs );
-    void _reset_bit( u8 lhs );
     // Jumps
     void _jump( u16 address );
     void _jump( s8 relative_address );

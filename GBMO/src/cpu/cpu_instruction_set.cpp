@@ -354,14 +354,14 @@ void CPU::_initialize_instruction_tables()
     m_cb_prefix_instruction[0x2D] = [this]() { _shift_r( m_registers.l, false ); return 8; };
     m_cb_prefix_instruction[0x2E] = bind( &CPU::_shift_r_hl, this, false );
     m_cb_prefix_instruction[0x2F] = [this]() { _shift_r( m_registers.a, false ); return 8; };
-    m_cb_prefix_instruction[0x30] = nullptr;
-    m_cb_prefix_instruction[0x31] = nullptr;
-    m_cb_prefix_instruction[0x32] = nullptr;
-    m_cb_prefix_instruction[0x33] = nullptr;
-    m_cb_prefix_instruction[0x34] = nullptr;
-    m_cb_prefix_instruction[0x35] = nullptr;
-    m_cb_prefix_instruction[0x36] = nullptr;
-    m_cb_prefix_instruction[0x37] = nullptr;
+    m_cb_prefix_instruction[0x30] = [this]() { _swap( m_registers.b ); return 8; };
+    m_cb_prefix_instruction[0x31] = [this]() { _swap( m_registers.c ); return 8; };
+    m_cb_prefix_instruction[0x32] = [this]() { _swap( m_registers.d ); return 8; };
+    m_cb_prefix_instruction[0x33] = [this]() { _swap( m_registers.e ); return 8; };
+    m_cb_prefix_instruction[0x34] = [this]() { _swap( m_registers.h ); return 8; };
+    m_cb_prefix_instruction[0x35] = [this]() { _swap( m_registers.l ); return 8; };
+    m_cb_prefix_instruction[0x36] = bind( &CPU::_swap_hl, this );
+    m_cb_prefix_instruction[0x37] = [this]() { _swap( m_registers.a ); return 8; };
     m_cb_prefix_instruction[0x38] = [this]() { _shift_r( m_registers.b, true ); return 8; };
     m_cb_prefix_instruction[0x39] = [this]() { _shift_r( m_registers.c, true ); return 8; };
     m_cb_prefix_instruction[0x3A] = [this]() { _shift_r( m_registers.d, true ); return 8; };
@@ -1027,16 +1027,6 @@ void CPU::_shift_r( u8& reg, bool logical )
     _process_zero_flag( reg );
 }
 
-//void CPU::_shift_r_logical( u8& reg )
-//{
-//    reg | 0x01 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
-//    reg >>= 1;
-//
-//    _reset_flag( Flags::ADD_SUB );
-//    _reset_flag( Flags::HALF_CARRY );
-//    _process_zero_flag( reg );
-//}
-
 u32 CPU::_shift_l_hl()
 {
     u8 mem_hl = m_memory.read_8( m_registers.hl );
@@ -1055,14 +1045,51 @@ u32 CPU::_shift_r_hl( bool logical )
     return 16;
 }
 
-//u32 CPU::_shift_r_logical_hl()
-//{
-//    u8 mem_hl = m_memory.read_8( m_registers.hl );
-//    _shift_r_logical( mem_hl );
-//    m_memory.write( m_registers.hl, mem_hl );
-//
-//    return 16;
-//}
+void CPU::_swap( u8& reg )
+{
+    u8 hi = reg & 0xF0;
+    reg = ( reg << 4 ) | ( hi >> 4 );
+
+    _reset_flag( Flags::ADD_SUB );
+    _reset_flag( Flags::CARRY );
+    _reset_flag( Flags::HALF_CARRY );
+    _process_zero_flag( reg );
+}
+
+u32 CPU::_swap_hl()
+{
+    u8 mem_hl = m_memory.read_8( m_registers.hl );
+    _swap( mem_hl );
+    m_memory.write( m_registers.hl, mem_hl );
+
+    return 16;
+}
+
+// Bit Operations
+void CPU::_test_bit( u8& reg, u8 const bit )
+{
+
+}
+
+void CPU::_set_bit( u8& reg, u8 const bit )
+{
+
+}
+
+u32 CPU::_set_bit_hl( u8& reg, u8 const bit )
+{
+    return 16;
+}
+
+void CPU::_reset_bit( u8& reg, u8 const bit )
+{
+
+}
+
+u32 CPU::_reset_bit_hl( u8& reg, u8 const bit )
+{
+    return 16;
+}
 
 ////////////////////////
 
