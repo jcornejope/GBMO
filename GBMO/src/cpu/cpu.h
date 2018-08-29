@@ -121,6 +121,7 @@ private:
     u32 _set_bit_hl( u8 const bit );
     void _reset_bit( u8& reg, u8 const bit );
     u32 _reset_bit_hl( u8 const bit );
+    // Jumps
 
     /////////////////
 
