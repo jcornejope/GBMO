@@ -38,7 +38,7 @@ u16 MemorySystem::read_16( u16 address )
 {
     word value;
 
-    value.lo  = read_8( address );
+    value.lo = read_8( address );
     value.hi = read_8( address + 1 );
 
     return value.data;

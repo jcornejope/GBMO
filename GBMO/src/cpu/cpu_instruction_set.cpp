@@ -73,7 +73,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x15] = bind( &CPU::_dec_r, this, ref( m_registers.d ) );
     m_base_instruction[0x16] = nullptr;
     m_base_instruction[0x17] = bind( &CPU::_rla_rlca, this, false );
-    m_base_instruction[0x18] = nullptr;
+    m_base_instruction[0x18] = bind( &CPU::_jump_relative, this, JumpCondition::NO_CONDITION );
     m_base_instruction[0x19] = bind( &CPU::_add_hl, this, cref( m_registers.de ) );
     m_base_instruction[0x1A] = nullptr;
     m_base_instruction[0x1B] = bind( &CPU::_inc_dec, this, ref( m_registers.de ), false );
@@ -81,7 +81,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x1D] = bind( &CPU::_dec_r, this, ref( m_registers.e ) );
     m_base_instruction[0x1E] = nullptr;
     m_base_instruction[0x1F] = nullptr;
-    m_base_instruction[0x20] = nullptr;
+    m_base_instruction[0x20] = bind( &CPU::_jump_relative, this, JumpCondition::NO_ZERO );
     m_base_instruction[0x21] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.hl ) );
     m_base_instruction[0x22] = nullptr;
     m_base_instruction[0x23] = bind( &CPU::_inc_dec, this, ref( m_registers.hl ), true );
@@ -89,7 +89,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x25] = bind( &CPU::_dec_r, this, ref( m_registers.h ) );
     m_base_instruction[0x26] = nullptr;
     m_base_instruction[0x27] = bind( &CPU::_decimal_adjust_acc, this );
-    m_base_instruction[0x28] = nullptr;
+    m_base_instruction[0x28] = bind( &CPU::_jump_relative, this, JumpCondition::ZERO );
     m_base_instruction[0x29] = bind( &CPU::_add_hl, this, cref( m_registers.hl ) );
     m_base_instruction[0x2A] = nullptr;
     m_base_instruction[0x2B] = bind( &CPU::_inc_dec, this, ref( m_registers.hl ), false );
@@ -97,7 +97,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x2D] = bind( &CPU::_dec_r, this, ref( m_registers.l ) );
     m_base_instruction[0x2E] = nullptr;
     m_base_instruction[0x2F] = nullptr;
-    m_base_instruction[0x30] = nullptr;
+    m_base_instruction[0x30] = bind( &CPU::_jump_relative, this, JumpCondition::NO_CARRY );
     m_base_instruction[0x31] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.sp ) );
     m_base_instruction[0x32] = nullptr;
     m_base_instruction[0x33] = bind( &CPU::_inc_dec, this, ref( m_registers.sp ), true );
@@ -105,7 +105,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x35] = bind( &CPU::_dec_hl, this );
     m_base_instruction[0x36] = nullptr;
     m_base_instruction[0x37] = nullptr;
-    m_base_instruction[0x38] = nullptr;
+    m_base_instruction[0x38] = bind( &CPU::_jump_relative, this, JumpCondition::CARRY );
     m_base_instruction[0x39] = bind( &CPU::_add_hl, this, cref( m_registers.sp ) );
     m_base_instruction[0x3A] = nullptr;
     m_base_instruction[0x3B] = bind( &CPU::_inc_dec, this, ref( m_registers.sp ), false );
@@ -243,15 +243,15 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xBF] = nullptr;
     m_base_instruction[0xC0] = nullptr;
     m_base_instruction[0xC1] = bind( &CPU::_pop, this, ref( m_registers.bc ) );
-    m_base_instruction[0xC2] = nullptr;
-    m_base_instruction[0xC3] = nullptr;
+    m_base_instruction[0xC2] = bind( &CPU::_jump, this, JumpCondition::NO_ZERO );
+    m_base_instruction[0xC3] = bind( &CPU::_jump, this, JumpCondition::NO_CONDITION );
     m_base_instruction[0xC4] = nullptr;
     m_base_instruction[0xC5] = bind( &CPU::_push, this, ref( m_registers.bc ) );
     m_base_instruction[0xC6] = [this]() { _add( m_memory.read_8( m_registers.pc++ ), false ); return 8; };
     m_base_instruction[0xC7] = nullptr;
     m_base_instruction[0xC8] = nullptr;
     m_base_instruction[0xC9] = nullptr;
-    m_base_instruction[0xCA] = nullptr;
+    m_base_instruction[0xCA] = bind( &CPU::_jump, this, JumpCondition::ZERO );
     m_base_instruction[0xCB] = nullptr;
     m_base_instruction[0xCC] = nullptr;
     m_base_instruction[0xCD] = nullptr;
@@ -259,7 +259,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xCF] = nullptr;
     m_base_instruction[0xD0] = nullptr;
     m_base_instruction[0xD1] = bind( &CPU::_pop, this, ref( m_registers.de ) );
-    m_base_instruction[0xD2] = nullptr;
+    m_base_instruction[0xD2] = bind( &CPU::_jump, this, JumpCondition::NO_CARRY );
     m_base_instruction[0xD3] = nullptr;
     m_base_instruction[0xD4] = nullptr;
     m_base_instruction[0xD5] = bind( &CPU::_push, this, ref( m_registers.bc ) );
@@ -267,7 +267,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xD7] = nullptr;
     m_base_instruction[0xD8] = nullptr;
     m_base_instruction[0xD9] = nullptr;
-    m_base_instruction[0xDA] = nullptr;
+    m_base_instruction[0xDA] = bind( &CPU::_jump, this, JumpCondition::CARRY );
     m_base_instruction[0xDB] = nullptr;
     m_base_instruction[0xDC] = nullptr;
     m_base_instruction[0xDD] = nullptr;
@@ -282,7 +282,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xE6] = nullptr;
     m_base_instruction[0xE7] = nullptr; 
     m_base_instruction[0xE8] = bind( &CPU::_add_sp, this );
-    m_base_instruction[0xE9] = nullptr;
+    m_base_instruction[0xE9] = bind( &CPU::_jump_hl, this );
     m_base_instruction[0xEA] = nullptr;
     m_base_instruction[0xEB] = nullptr;
     m_base_instruction[0xEC] = nullptr;
@@ -1104,6 +1104,64 @@ u32 CPU::_reset_bit_hl( u8 const bit )
 
     return 16;
 }
+
+// Jumps
+bool CPU::_condition_passed( JumpCondition const condition ) const
+{
+    switch( condition )
+    {
+    case JumpCondition::CARRY:          return _is_flag_set( Flags::CARRY );    break;
+    case JumpCondition::NO_CARRY:       return !_is_flag_set( Flags::CARRY );   break;
+    case JumpCondition::ZERO:           return _is_flag_set( Flags::ZERO );     break;
+    case JumpCondition::NO_ZERO:        return !_is_flag_set( Flags::ZERO );    break;
+    case JumpCondition::NO_CONDITION:   return true;                            break;
+    default:
+        assert( false );
+        break;
+    }
+
+    return false;
+}
+
+u32 CPU::_jump( JumpCondition const condition )
+{
+    if( _condition_passed( condition ) )
+    {
+        m_registers.pc = m_memory.read_16( m_registers.pc );
+
+        return 16;
+    }
+    else
+    {
+        m_registers.pc += 2;
+    }
+
+    return 12;
+}
+
+u32 CPU::_jump_relative( JumpCondition const condition )
+{
+    if( _condition_passed( condition ) )
+    {
+        //m_registers.pc = m_registers.pc + static_cast<s8>( m_memory.read_8( m_registers.pc ) );
+        m_registers.pc = m_memory.read_8( m_registers.pc );
+        ++m_registers.pc; // For some reason this needs to be done here too...
+
+        return 12;
+    }
+
+    ++m_registers.pc;
+
+    return 8;
+}
+
+u32 CPU::_jump_hl()
+{
+    m_registers.pc = m_registers.hl;
+
+    return 4;
+}
+
 
 ////////////////////////
 

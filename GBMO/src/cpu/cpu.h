@@ -38,6 +38,16 @@ class CPU
         ZERO        = 1 << 7
     };
 
+    enum class JumpCondition : u8
+    {
+        NO_ZERO     = 0,
+        ZERO        = 1,
+        NO_CARRY    = 2,
+        CARRY       = 3,
+
+        NO_CONDITION = 0xFF,
+    };
+
     static float const CPU_SPEED;
     static float const CPU_SPEED_CGB_DOUBLE;
 
@@ -54,9 +64,12 @@ private:
     void _process_half_carry_flag( u8 const reg, u8 const value, u8 const carry, bool const is_addition );
     void _process_half_carry_flag( u16 const reg, u16 const value );
     void _set_flag( Flags const flag );
-    u8   _get_flag( Flags const flag );
+    u8   _get_flag( Flags const flag ) const;
     void _reset_flag( Flags const flag );
-    bool _is_flag_set( Flags const flag );
+    bool _is_flag_set( Flags const flag ) const;
+
+    // Helper functions
+    bool _condition_passed( JumpCondition const condition ) const;
 
     // Instruction set
     void _initialize_instruction_tables();
@@ -122,14 +135,14 @@ private:
     void _reset_bit( u8& reg, u8 const bit );
     u32 _reset_bit_hl( u8 const bit );
     // Jumps
+    u32 _jump( JumpCondition const condition = JumpCondition::NO_CONDITION );
+    u32 _jump_relative( JumpCondition const condition = JumpCondition::NO_CONDITION );
+    u32 _jump_hl();
 
     /////////////////
 
     // Jumps
-    void _jump( u16 address );
-    void _jump( s8 relative_address );
-    bool _conditional_jump( u16 addres );
-    bool _conditional_jump( s8 relative_addres );
+    
     // Call and Return
     void _call( u16 address );
     bool _conditional_call( u16 address );

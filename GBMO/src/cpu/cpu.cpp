@@ -127,7 +127,7 @@ void CPU::_set_flag( Flags const flag )
     m_registers.f |= flag;
 }
 
-u8 CPU::_get_flag( Flags const flag )
+u8 CPU::_get_flag( Flags const flag ) const
 {
     assert( flag >= Flags::CARRY && flag <= Flags::ZERO );
 
@@ -141,7 +141,7 @@ void CPU::_reset_flag( Flags const flag )
     m_registers.f &= ~flag;
 }
 
-bool CPU::_is_flag_set( Flags const flag )
+bool CPU::_is_flag_set( Flags const flag ) const
 {
     assert( flag >= Flags::CARRY && flag <= Flags::ZERO );
 
