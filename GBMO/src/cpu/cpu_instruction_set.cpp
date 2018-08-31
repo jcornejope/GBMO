@@ -59,7 +59,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x07] = bind( &CPU::_rla_rlca, this, true );
     m_base_instruction[0x08] = bind( &CPU::_ld_nn_sp, this );
     m_base_instruction[0x09] = bind( &CPU::_add_hl, this, cref( m_registers.bc ) );
-    m_base_instruction[0x0A] = nullptr;
+    m_base_instruction[0x0A] = bind( &CPU::_ld_a_mem, this, cref( m_registers.bc ) );
     m_base_instruction[0x0B] = bind( &CPU::_inc_dec, this, ref( m_registers.bc ), false );
     m_base_instruction[0x0C] = bind( &CPU::_inc_r, this, ref( m_registers.c ) );
     m_base_instruction[0x0D] = bind( &CPU::_dec_r, this, ref( m_registers.c ) );
@@ -75,7 +75,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x17] = bind( &CPU::_rla_rlca, this, false );
     m_base_instruction[0x18] = bind( &CPU::_jump_relative, this, JumpCondition::NO_CONDITION );
     m_base_instruction[0x19] = bind( &CPU::_add_hl, this, cref( m_registers.de ) );
-    m_base_instruction[0x1A] = nullptr;
+    m_base_instruction[0x1A] = bind( &CPU::_ld_a_mem, this, cref( m_registers.de ) );
     m_base_instruction[0x1B] = bind( &CPU::_inc_dec, this, ref( m_registers.de ), false );
     m_base_instruction[0x1C] = bind( &CPU::_inc_r, this, ref( m_registers.e ) );
     m_base_instruction[0x1D] = bind( &CPU::_dec_r, this, ref( m_registers.e ) );
@@ -299,7 +299,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xF7] = nullptr;
     m_base_instruction[0xF8] = bind( &CPU::_ldhl, this );
     m_base_instruction[0xF9] = nullptr;
-    m_base_instruction[0xFA] = nullptr;
+    m_base_instruction[0xFA] = bind( &CPU::_ld_a_nn, this );
     m_base_instruction[0xFB] = nullptr;
     m_base_instruction[0xFC] = nullptr;
     m_base_instruction[0xFD] = nullptr;
