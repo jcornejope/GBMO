@@ -175,7 +175,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x7B] = [this]() { m_registers.a = m_registers.e; return 4; };
     m_base_instruction[0x7C] = [this]() { m_registers.a = m_registers.h; return 4; };
     m_base_instruction[0x7D] = [this]() { m_registers.a = m_registers.l; return 4; };
-    m_base_instruction[0x7E] = nullptr;               
+    m_base_instruction[0x7E] = bind( &CPU::_ld_r_hl, this, ref( m_registers.a ) );
     m_base_instruction[0x7F] = [this]() { m_registers.a = m_registers.a; return 4; };
     m_base_instruction[0x80] = [this]() { _add( m_registers.b, false ); return 4; };
     m_base_instruction[0x81] = nullptr;
@@ -565,12 +565,6 @@ void CPU::_initialize_instruction_tables()
 }
 
 // 8Bit Transfer
-//u32 CPU::_ld_r_r( u8& lhs, u8 const rhs )
-//{
-//    lhs = rhs;
-//    return 4;
-//}
-
 u32 CPU::_ld_r_n( u8& reg )
 {
     reg = m_memory.read_8( m_registers.pc++ );
