@@ -55,7 +55,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x03] = bind( &CPU::_inc_dec, this, ref( m_registers.bc ), true );
     m_base_instruction[0x04] = bind( &CPU::_inc_r, this, ref( m_registers.b ) );
     m_base_instruction[0x05] = bind( &CPU::_dec_r, this, ref( m_registers.b ) );
-    m_base_instruction[0x06] = nullptr;
+    m_base_instruction[0x06] = bind( &CPU::_ld_r_n, this, ref( m_registers.b ) );
     m_base_instruction[0x07] = bind( &CPU::_rla_rlca, this, true );
     m_base_instruction[0x08] = bind( &CPU::_ld_nn_sp, this );
     m_base_instruction[0x09] = bind( &CPU::_add_hl, this, cref( m_registers.bc ) );
@@ -63,15 +63,15 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x0B] = bind( &CPU::_inc_dec, this, ref( m_registers.bc ), false );
     m_base_instruction[0x0C] = bind( &CPU::_inc_r, this, ref( m_registers.c ) );
     m_base_instruction[0x0D] = bind( &CPU::_dec_r, this, ref( m_registers.c ) );
-    m_base_instruction[0x0E] = nullptr;
+    m_base_instruction[0x0E] = bind( &CPU::_ld_r_n, this, ref( m_registers.c ) );
     m_base_instruction[0x0F] = nullptr;
     m_base_instruction[0x10] = nullptr;
     m_base_instruction[0x11] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.de ) );
-    m_base_instruction[0x12] = nullptr;
+    m_base_instruction[0x12] = [this]() { m_memory.write( m_registers.de, m_registers.a ); return 8; };
     m_base_instruction[0x13] = bind( &CPU::_inc_dec, this, ref( m_registers.de ), true );
     m_base_instruction[0x14] = bind( &CPU::_inc_r, this, ref( m_registers.d ) );
     m_base_instruction[0x15] = bind( &CPU::_dec_r, this, ref( m_registers.d ) );
-    m_base_instruction[0x16] = nullptr;
+    m_base_instruction[0x16] = bind( &CPU::_ld_r_n, this, ref( m_registers.d ) );
     m_base_instruction[0x17] = bind( &CPU::_rla_rlca, this, false );
     m_base_instruction[0x18] = bind( &CPU::_jump_relative, this, JumpCondition::NO_CONDITION );
     m_base_instruction[0x19] = bind( &CPU::_add_hl, this, cref( m_registers.de ) );
@@ -79,7 +79,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x1B] = bind( &CPU::_inc_dec, this, ref( m_registers.de ), false );
     m_base_instruction[0x1C] = bind( &CPU::_inc_r, this, ref( m_registers.e ) );
     m_base_instruction[0x1D] = bind( &CPU::_dec_r, this, ref( m_registers.e ) );
-    m_base_instruction[0x1E] = nullptr;
+    m_base_instruction[0x1E] = bind( &CPU::_ld_r_n, this, ref( m_registers.e ) );
     m_base_instruction[0x1F] = nullptr;
     m_base_instruction[0x20] = bind( &CPU::_jump_relative, this, JumpCondition::NO_ZERO );
     m_base_instruction[0x21] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.hl ) );
@@ -87,7 +87,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x23] = bind( &CPU::_inc_dec, this, ref( m_registers.hl ), true );
     m_base_instruction[0x24] = bind( &CPU::_inc_r, this, ref( m_registers.h ) );
     m_base_instruction[0x25] = bind( &CPU::_dec_r, this, ref( m_registers.h ) );
-    m_base_instruction[0x26] = nullptr;
+    m_base_instruction[0x26] = bind( &CPU::_ld_r_n, this, ref( m_registers.h ) );
     m_base_instruction[0x27] = bind( &CPU::_decimal_adjust_acc, this );
     m_base_instruction[0x28] = bind( &CPU::_jump_relative, this, JumpCondition::ZERO );
     m_base_instruction[0x29] = bind( &CPU::_add_hl, this, cref( m_registers.hl ) );
@@ -95,7 +95,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x2B] = bind( &CPU::_inc_dec, this, ref( m_registers.hl ), false );
     m_base_instruction[0x2C] = bind( &CPU::_inc_r, this, ref( m_registers.l ) );
     m_base_instruction[0x2D] = bind( &CPU::_dec_r, this, ref( m_registers.l ) );
-    m_base_instruction[0x2E] = nullptr;
+    m_base_instruction[0x2E] = bind( &CPU::_ld_r_n, this, ref( m_registers.l ) );
     m_base_instruction[0x2F] = nullptr;
     m_base_instruction[0x30] = bind( &CPU::_jump_relative, this, JumpCondition::NO_CARRY );
     m_base_instruction[0x31] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.sp ) );
@@ -103,7 +103,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x33] = bind( &CPU::_inc_dec, this, ref( m_registers.sp ), true );
     m_base_instruction[0x34] = bind( &CPU::_inc_hl, this );
     m_base_instruction[0x35] = bind( &CPU::_dec_hl, this );
-    m_base_instruction[0x36] = nullptr;
+    m_base_instruction[0x36] = bind( &CPU::_ld_hl_n, this );
     m_base_instruction[0x37] = nullptr;
     m_base_instruction[0x38] = bind( &CPU::_jump_relative, this, JumpCondition::CARRY );
     m_base_instruction[0x39] = bind( &CPU::_add_hl, this, cref( m_registers.sp ) );
@@ -111,72 +111,72 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x3B] = bind( &CPU::_inc_dec, this, ref( m_registers.sp ), false );
     m_base_instruction[0x3C] = bind( &CPU::_inc_r, this, ref( m_registers.a ) );
     m_base_instruction[0x3D] = bind( &CPU::_dec_r, this, ref( m_registers.a ) );
-    m_base_instruction[0x3E] = nullptr;
+    m_base_instruction[0x3E] = bind( &CPU::_ld_r_n, this, ref( m_registers.a ) );
     m_base_instruction[0x3F] = nullptr;
-    m_base_instruction[0x40] = nullptr;
-    m_base_instruction[0x41] = nullptr;
-    m_base_instruction[0x42] = nullptr;
-    m_base_instruction[0x43] = nullptr;
-    m_base_instruction[0x44] = nullptr;
-    m_base_instruction[0x45] = nullptr;
-    m_base_instruction[0x46] = nullptr;
-    m_base_instruction[0x47] = bind( &CPU::_ld_r_r, this, ref( m_registers.b ), cref( m_registers.a ) );
-    m_base_instruction[0x48] = nullptr;
-    m_base_instruction[0x49] = nullptr;
-    m_base_instruction[0x4A] = nullptr;
-    m_base_instruction[0x4B] = nullptr;
-    m_base_instruction[0x4C] = nullptr;
-    m_base_instruction[0x4D] = nullptr;
-    m_base_instruction[0x4E] = nullptr;
-    m_base_instruction[0x4F] = nullptr;
-    m_base_instruction[0x50] = nullptr;
-    m_base_instruction[0x51] = nullptr;
-    m_base_instruction[0x52] = nullptr;
-    m_base_instruction[0x53] = nullptr;
-    m_base_instruction[0x54] = nullptr;
-    m_base_instruction[0x55] = nullptr;
-    m_base_instruction[0x56] = nullptr;
-    m_base_instruction[0x57] = nullptr;
-    m_base_instruction[0x58] = nullptr;
-    m_base_instruction[0x59] = nullptr;
-    m_base_instruction[0x5A] = nullptr;
-    m_base_instruction[0x5B] = nullptr;
-    m_base_instruction[0x5C] = nullptr;
-    m_base_instruction[0x5D] = nullptr;
-    m_base_instruction[0x5E] = nullptr;
-    m_base_instruction[0x5F] = nullptr;
-    m_base_instruction[0x60] = nullptr;
-    m_base_instruction[0x61] = nullptr;
-    m_base_instruction[0x62] = nullptr;
-    m_base_instruction[0x63] = nullptr;
-    m_base_instruction[0x64] = nullptr;
-    m_base_instruction[0x65] = nullptr;
-    m_base_instruction[0x66] = nullptr;
-    m_base_instruction[0x67] = nullptr;
-    m_base_instruction[0x68] = nullptr;
-    m_base_instruction[0x69] = nullptr;
-    m_base_instruction[0x6A] = nullptr;
-    m_base_instruction[0x6B] = nullptr;
-    m_base_instruction[0x6C] = nullptr;
-    m_base_instruction[0x6D] = nullptr;
-    m_base_instruction[0x6E] = nullptr;
-    m_base_instruction[0x6F] = nullptr;
-    m_base_instruction[0x70] = nullptr;
-    m_base_instruction[0x71] = nullptr;
-    m_base_instruction[0x72] = nullptr;
-    m_base_instruction[0x73] = nullptr;
-    m_base_instruction[0x74] = nullptr;
-    m_base_instruction[0x75] = nullptr;
+    m_base_instruction[0x40] = [this]() { m_registers.b = m_registers.b; return 4; }; //_ld_r_r
+    m_base_instruction[0x41] = [this]() { m_registers.b = m_registers.c; return 4; };
+    m_base_instruction[0x42] = [this]() { m_registers.b = m_registers.d; return 4; };
+    m_base_instruction[0x43] = [this]() { m_registers.b = m_registers.e; return 4; };
+    m_base_instruction[0x44] = [this]() { m_registers.b = m_registers.h; return 4; };
+    m_base_instruction[0x45] = [this]() { m_registers.b = m_registers.l; return 4; };
+    m_base_instruction[0x46] = bind( &CPU::_ld_r_hl, this, ref( m_registers.b ) );
+    m_base_instruction[0x47] = [this]() { m_registers.b = m_registers.a; return 4; };
+    m_base_instruction[0x48] = [this]() { m_registers.c = m_registers.b; return 4; };
+    m_base_instruction[0x49] = [this]() { m_registers.c = m_registers.c; return 4; };
+    m_base_instruction[0x4A] = [this]() { m_registers.c = m_registers.d; return 4; };
+    m_base_instruction[0x4B] = [this]() { m_registers.c = m_registers.e; return 4; };
+    m_base_instruction[0x4C] = [this]() { m_registers.c = m_registers.h; return 4; };
+    m_base_instruction[0x4D] = [this]() { m_registers.c = m_registers.l; return 4; };
+    m_base_instruction[0x4E] = bind( &CPU::_ld_r_hl, this, ref( m_registers.c ) );
+    m_base_instruction[0x4F] = [this]() { m_registers.c = m_registers.a; return 4; };
+    m_base_instruction[0x50] = [this]() { m_registers.d = m_registers.b; return 4; };
+    m_base_instruction[0x51] = [this]() { m_registers.d = m_registers.c; return 4; };
+    m_base_instruction[0x52] = [this]() { m_registers.d = m_registers.d; return 4; };
+    m_base_instruction[0x53] = [this]() { m_registers.d = m_registers.e; return 4; };
+    m_base_instruction[0x54] = [this]() { m_registers.d = m_registers.h; return 4; };
+    m_base_instruction[0x55] = [this]() { m_registers.d = m_registers.l; return 4; };
+    m_base_instruction[0x56] = bind( &CPU::_ld_r_hl, this, ref( m_registers.d ) );
+    m_base_instruction[0x57] = [this]() { m_registers.d = m_registers.a; return 4; };
+    m_base_instruction[0x58] = [this]() { m_registers.e = m_registers.b; return 4; };
+    m_base_instruction[0x59] = [this]() { m_registers.e = m_registers.c; return 4; };
+    m_base_instruction[0x5A] = [this]() { m_registers.e = m_registers.d; return 4; };
+    m_base_instruction[0x5B] = [this]() { m_registers.e = m_registers.e; return 4; };
+    m_base_instruction[0x5C] = [this]() { m_registers.e = m_registers.h; return 4; };
+    m_base_instruction[0x5D] = [this]() { m_registers.e = m_registers.l; return 4; };
+    m_base_instruction[0x5E] = bind( &CPU::_ld_r_hl, this, ref( m_registers.e ) );
+    m_base_instruction[0x5F] = [this]() { m_registers.e = m_registers.a; return 4; };
+    m_base_instruction[0x60] = [this]() { m_registers.h = m_registers.b; return 4; };
+    m_base_instruction[0x61] = [this]() { m_registers.h = m_registers.c; return 4; };
+    m_base_instruction[0x62] = [this]() { m_registers.h = m_registers.d; return 4; };
+    m_base_instruction[0x63] = [this]() { m_registers.h = m_registers.e; return 4; };
+    m_base_instruction[0x64] = [this]() { m_registers.h = m_registers.h; return 4; };
+    m_base_instruction[0x65] = [this]() { m_registers.h = m_registers.l; return 4; };
+    m_base_instruction[0x66] = bind( &CPU::_ld_r_hl, this, ref( m_registers.h ) );
+    m_base_instruction[0x67] = [this]() { m_registers.h = m_registers.a; return 4; };
+    m_base_instruction[0x68] = [this]() { m_registers.l = m_registers.b; return 4; };
+    m_base_instruction[0x69] = [this]() { m_registers.l = m_registers.c; return 4; };
+    m_base_instruction[0x6A] = [this]() { m_registers.l = m_registers.d; return 4; };
+    m_base_instruction[0x6B] = [this]() { m_registers.l = m_registers.e; return 4; };
+    m_base_instruction[0x6C] = [this]() { m_registers.l = m_registers.h; return 4; };
+    m_base_instruction[0x6D] = [this]() { m_registers.l = m_registers.l; return 4; };
+    m_base_instruction[0x6E] = bind( &CPU::_ld_r_hl, this, ref( m_registers.l ) );
+    m_base_instruction[0x6F] = [this]() { m_registers.l = m_registers.a; return 4; };
+    m_base_instruction[0x70] = bind( &CPU::_ld_hl_r, this, cref( m_registers.b ) );
+    m_base_instruction[0x71] = bind( &CPU::_ld_hl_r, this, cref( m_registers.c ) );
+    m_base_instruction[0x72] = bind( &CPU::_ld_hl_r, this, cref( m_registers.d ) );
+    m_base_instruction[0x73] = bind( &CPU::_ld_hl_r, this, cref( m_registers.e ) );
+    m_base_instruction[0x74] = bind( &CPU::_ld_hl_r, this, cref( m_registers.h ) );
+    m_base_instruction[0x75] = bind( &CPU::_ld_hl_r, this, cref( m_registers.l ) );
     m_base_instruction[0x76] = nullptr;
-    m_base_instruction[0x77] = nullptr;
-    m_base_instruction[0x78] = nullptr;
-    m_base_instruction[0x79] = nullptr;
-    m_base_instruction[0x7A] = nullptr;
-    m_base_instruction[0x7B] = nullptr;
-    m_base_instruction[0x7C] = nullptr;
-    m_base_instruction[0x7D] = nullptr;
-    m_base_instruction[0x7E] = nullptr;
-    m_base_instruction[0x7F] = nullptr;
+    m_base_instruction[0x77] = bind( &CPU::_ld_hl_r, this, cref( m_registers.a ) );
+    m_base_instruction[0x78] = [this]() { m_registers.a = m_registers.b; return 4; };
+    m_base_instruction[0x79] = [this]() { m_registers.a = m_registers.c; return 4; };
+    m_base_instruction[0x7A] = [this]() { m_registers.a = m_registers.d; return 4; };
+    m_base_instruction[0x7B] = [this]() { m_registers.a = m_registers.e; return 4; };
+    m_base_instruction[0x7C] = [this]() { m_registers.a = m_registers.h; return 4; };
+    m_base_instruction[0x7D] = [this]() { m_registers.a = m_registers.l; return 4; };
+    m_base_instruction[0x7E] = nullptr;               
+    m_base_instruction[0x7F] = [this]() { m_registers.a = m_registers.a; return 4; };
     m_base_instruction[0x80] = [this]() { _add( m_registers.b, false ); return 4; };
     m_base_instruction[0x81] = nullptr;
     m_base_instruction[0x82] = nullptr;
@@ -565,11 +565,11 @@ void CPU::_initialize_instruction_tables()
 }
 
 // 8Bit Transfer
-u32 CPU::_ld_r_r( u8& lhs, u8 const rhs )
-{
-    lhs = rhs;
-    return 4;
-}
+//u32 CPU::_ld_r_r( u8& lhs, u8 const rhs )
+//{
+//    lhs = rhs;
+//    return 4;
+//}
 
 u32 CPU::_ld_r_n( u8& reg )
 {

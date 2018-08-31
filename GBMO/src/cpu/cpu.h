@@ -74,7 +74,7 @@ private:
     // Instruction set
     void _initialize_instruction_tables();
     // 8Bit Transfer
-    u32 _ld_r_r( u8& lhs, u8 const rhs );
+    //u32 _ld_r_r( u8& lhs, u8 const rhs );
     u32 _ld_r_n( u8& reg );
     u32 _ld_r_hl( u8& reg );
     u32 _ld_hl_r( u8 const reg );
