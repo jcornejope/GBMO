@@ -241,38 +241,38 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xBD] = [this]() { _cmp( m_registers.l ); return 4; };
     m_base_instruction[0xBE] = [this]() { _cmp( m_memory.read_8( m_registers.hl ) ); return 8; };
     m_base_instruction[0xBF] = [this]() { _cmp( m_registers.a ); return 4; };
-    m_base_instruction[0xC0] = nullptr;
+    m_base_instruction[0xC0] = bind( &CPU::_ret, this, JumpCondition::NO_ZERO );
     m_base_instruction[0xC1] = bind( &CPU::_pop, this, ref( m_registers.bc ) );
     m_base_instruction[0xC2] = bind( &CPU::_jump, this, JumpCondition::NO_ZERO );
     m_base_instruction[0xC3] = bind( &CPU::_jump, this, JumpCondition::NO_CONDITION );
-    m_base_instruction[0xC4] = nullptr;
+    m_base_instruction[0xC4] = bind( &CPU::_call, this, JumpCondition::NO_ZERO );
     m_base_instruction[0xC5] = bind( &CPU::_push, this, ref( m_registers.bc ) );
     m_base_instruction[0xC6] = [this]() { _add( m_memory.read_8( m_registers.pc++ ), false ); return 8; };
-    m_base_instruction[0xC7] = nullptr;
-    m_base_instruction[0xC8] = nullptr;
-    m_base_instruction[0xC9] = nullptr;
+    m_base_instruction[0xC7] = bind( &CPU::_call_routine, this, u8( 0x00 ) );
+    m_base_instruction[0xC8] = bind( &CPU::_ret, this, JumpCondition::ZERO );
+    m_base_instruction[0xC9] = bind( &CPU::_ret, this, JumpCondition::NO_CONDITION );
     m_base_instruction[0xCA] = bind( &CPU::_jump, this, JumpCondition::ZERO );
     m_base_instruction[0xCB] = nullptr;
-    m_base_instruction[0xCC] = nullptr;
-    m_base_instruction[0xCD] = nullptr;
+    m_base_instruction[0xCC] = bind( &CPU::_call, this, JumpCondition::ZERO );
+    m_base_instruction[0xCD] = bind( &CPU::_call, this, JumpCondition::NO_CONDITION );
     m_base_instruction[0xCE] = nullptr;
-    m_base_instruction[0xCF] = nullptr;
-    m_base_instruction[0xD0] = nullptr;
+    m_base_instruction[0xCF] = bind( &CPU::_call_routine, this, u8( 0x08 ) );
+    m_base_instruction[0xD0] = bind( &CPU::_ret, this, JumpCondition::NO_CARRY );
     m_base_instruction[0xD1] = bind( &CPU::_pop, this, ref( m_registers.de ) );
     m_base_instruction[0xD2] = bind( &CPU::_jump, this, JumpCondition::NO_CARRY );
     m_base_instruction[0xD3] = nullptr;
-    m_base_instruction[0xD4] = nullptr;
+    m_base_instruction[0xD4] = bind( &CPU::_call, this, JumpCondition::NO_CARRY );
     m_base_instruction[0xD5] = bind( &CPU::_push, this, ref( m_registers.bc ) );
     m_base_instruction[0xD6] = nullptr;
-    m_base_instruction[0xD7] = nullptr;
-    m_base_instruction[0xD8] = nullptr;
-    m_base_instruction[0xD9] = nullptr;
+    m_base_instruction[0xD7] = bind( &CPU::_call_routine, this, u8( 0x10 ) );
+    m_base_instruction[0xD8] = bind( &CPU::_ret, this, JumpCondition::CARRY );
+    m_base_instruction[0xD9] = bind( &CPU::_reti, this );
     m_base_instruction[0xDA] = bind( &CPU::_jump, this, JumpCondition::CARRY );
     m_base_instruction[0xDB] = nullptr;
-    m_base_instruction[0xDC] = nullptr;
+    m_base_instruction[0xDC] = bind( &CPU::_call, this, JumpCondition::CARRY );
     m_base_instruction[0xDD] = nullptr;
     m_base_instruction[0xDE] = nullptr;
-    m_base_instruction[0xDF] = nullptr;
+    m_base_instruction[0xDF] = bind( &CPU::_call_routine, this, u8( 0x18 ) );
     m_base_instruction[0xE0] = nullptr;
     m_base_instruction[0xE1] = bind( &CPU::_pop, this, ref( m_registers.hl ) );
     m_base_instruction[0xE2] = nullptr;
@@ -280,7 +280,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xE4] = nullptr;
     m_base_instruction[0xE5] = bind( &CPU::_push, this, ref( m_registers.hl ) );
     m_base_instruction[0xE6] = [this]() { _and( m_memory.read_8( m_registers.pc++ ) ); return 8; };
-    m_base_instruction[0xE7] = nullptr; 
+    m_base_instruction[0xE7] = bind( &CPU::_call_routine, this, u8( 0x20 ) );
     m_base_instruction[0xE8] = bind( &CPU::_add_sp, this );
     m_base_instruction[0xE9] = bind( &CPU::_jump_hl, this );
     m_base_instruction[0xEA] = nullptr;
@@ -288,7 +288,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xEC] = nullptr;
     m_base_instruction[0xED] = nullptr;
     m_base_instruction[0xEE] = [this]() { _xor( m_memory.read_8( m_registers.pc++ ) ); return 8; };
-    m_base_instruction[0xEF] = nullptr;
+    m_base_instruction[0xEF] = bind( &CPU::_call_routine, this, u8( 0x28 ) );
     m_base_instruction[0xF0] = nullptr;
     m_base_instruction[0xF1] = bind( &CPU::_pop, this, ref( m_registers.af ) );
     m_base_instruction[0xF2] = nullptr;
@@ -296,7 +296,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xF4] = nullptr;
     m_base_instruction[0xF5] = bind( &CPU::_push, this, ref( m_registers.af ) );
     m_base_instruction[0xF6] = [this]() { _or( m_memory.read_8( m_registers.pc++ ) ); return 8; };
-    m_base_instruction[0xF7] = nullptr;
+    m_base_instruction[0xF7] = bind( &CPU::_call_routine, this, u8( 0x30 ) );
     m_base_instruction[0xF8] = bind( &CPU::_ldhl, this );
     m_base_instruction[0xF9] = nullptr;
     m_base_instruction[0xFA] = bind( &CPU::_ld_a_nn, this );
@@ -304,7 +304,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xFC] = nullptr;
     m_base_instruction[0xFD] = nullptr;
     m_base_instruction[0xFE] = [this]() { _cmp( m_memory.read_8( m_registers.pc++ ) ); return 8; };
-    m_base_instruction[0xFF] = nullptr;
+    m_base_instruction[0xFF] = bind( &CPU::_call_routine, this, u8( 0x38 ) );
 
     m_cb_prefix_instruction[0x00] = [this]() { _rl_rlc( m_registers.b, true ); return 8; };
     m_cb_prefix_instruction[0x01] = [this]() { _rl_rlc( m_registers.c, true ); return 8; };
@@ -1125,10 +1125,8 @@ u32 CPU::_jump( JumpCondition const condition )
 
         return 16;
     }
-    else
-    {
-        m_registers.pc += 2;
-    }
+
+    m_registers.pc += 2;
 
     return 12;
 }
@@ -1156,50 +1154,67 @@ u32 CPU::_jump_hl()
     return 4;
 }
 
+// Call and Returns
+u32 CPU::_call( JumpCondition const condition )
+{
+    if( _condition_passed( condition ) )
+    {
+        _push( m_registers.pc );
+        _jump();
+
+        return 24;
+    }
+
+    m_registers.pc += 2;
+
+    return 12;
+}
+
+u32 CPU::_ret( JumpCondition const condition )
+{
+    if( _condition_passed( condition ) )
+    {
+        _pop( m_registers.pc );
+
+        return ( condition == JumpCondition::NO_CONDITION ) ? 16 : 20;
+    }
+
+    m_registers.pc += 2;
+
+    return 8;
+}
+
+u32 CPU::_reti()
+{
+    _pop( m_registers.pc );
+    m_ime = true;
+
+    return 16;
+}
+u32 CPU::_call_routine( u8 const routine_address )
+{
+    assert( routine_address == 0x00 || routine_address == 0x08 ||
+            routine_address == 0x10 || routine_address == 0x18 ||
+            routine_address == 0x20 || routine_address == 0x28 ||
+            routine_address == 0x30 || routine_address == 0x38 );
+
+    _push( m_registers.pc );
+    m_registers.pc = routine_address;
+
+    return 16;
+}
+
+// CPU Control
 
 ////////////////////////
-
-// Aritmethic
-
-/*
-void CPU::_add( u8 lhs, u16 rhs, bool carry ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_add( u16 lhs, u16 rhs, bool carry ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_add( u16 lhs, s8 rhs, bool carry ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_sub( u8 lhs, u8 rhs, bool carry ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_sub( u8 lhs, u16 rhs, bool carry ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_inc_dec( u8 lhs, u8 inc ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_inc_dec( u16 lhs, u8 inc ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_decimal_adjust_acc(){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_complement(){ assert( false ); } // NOT IMPLEMENTED
-// Rotate Shift
-void CPU::_rl( u8 lhs, bool carry ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_rr( u8 lhs, bool carry ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_shift_l( u8 lhs ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_shift_r( u8 lhs ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_shift_r_logical( u8 lhs ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_swap( u8 lhs ){ assert( false ); } // NOT IMPLEMENTED
-// Bit
-void CPU::_test_bit( u8 lhs ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_set_bit( u8 lhs ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_reset_bit( u8 lhs ){ assert( false ); } // NOT IMPLEMENTED
-// Jumps
-void CPU::_jump( u16 address ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_jump( s8 relative_address ){ assert( false ); } // NOT IMPLEMENTED
-bool CPU::_conditional_jump( u16 addres ){ return false; }
-bool CPU::_conditional_jump( s8 relative_addres ){ return false; }
 // Call and Return
+/*
 void CPU::_call( u16 address ){ assert( false ); } // NOT IMPLEMENTED
 bool CPU::_conditional_call( u16 address ) { return false; }
 void CPU::_call_routine( u8 routine_address ){ assert( false ); } // NOT IMPLEMENTED
 void CPU::_ret( bool enable_interruptions ){ assert( false ); } // NOT IMPLEMENTED
 bool CPU::_conditional_ret(){ return false; }
 // CPU Control
-u32 CPU::_noop()
-{
-    ++m_registers.pc;
-    return 4;
-}
-
 void CPU::_set_carry(){ assert( false ); } // NOT IMPLEMENTED
 void CPU::_halt(){ assert( false ); } // NOT IMPLEMENTED
 void CPU::_stop(){ assert( false ); } // NOT IMPLEMENTED

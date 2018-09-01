@@ -137,17 +137,15 @@ private:
     u32 _jump( JumpCondition const condition = JumpCondition::NO_CONDITION );
     u32 _jump_relative( JumpCondition const condition = JumpCondition::NO_CONDITION );
     u32 _jump_hl();
+    // Call and Returns
+    u32 _call( JumpCondition const condition = JumpCondition::NO_CONDITION );
+    u32 _ret( JumpCondition const condition = JumpCondition::NO_CONDITION );
+    u32 _reti();
+    u32 _call_routine( u8 const routine_address );
+    // CPU Control
 
     /////////////////
 
-    // Jumps
-    
-    // Call and Return
-    void _call( u16 address );
-    bool _conditional_call( u16 address );
-    void _call_routine( u8 routine_address );
-    void _ret( bool enable_interruptions );
-    bool _conditional_ret();
     // CPU Control
     void _set_carry();
     void _halt();
@@ -160,4 +158,8 @@ private:
 
     Registers m_registers;
     MemorySystem& m_memory;
+
+// TODO: REVIEW THIS - INTERRUPTIONS ENABLED TEMPORAL IMP. USED FOR RETI INSTRUCTION
+    bool m_ime;
+// TODO: REVIEW THIS - INTERRUPTIONS ENABLED TEMPORAL IMP. USED FOR RETI INSTRUCTION
 };
