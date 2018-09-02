@@ -73,6 +73,7 @@ private:
 
     // Instruction set
     void _initialize_instruction_tables();
+    u32 _reroute_to_cb_table();
     // 8Bit Transfer
     u32 _ld_r_n( u8& reg );
     u32 _ld_r_hl( u8& reg );
@@ -144,6 +145,7 @@ private:
     u32 _call_routine( u8 const routine_address );
     // CPU Control
     u32 _ccf();
+    u32 _scf();
 
     typedef std::function<u32( void )> Instruction;
     Instruction m_base_instruction[0xFF + 1];
@@ -152,7 +154,7 @@ private:
     Registers m_registers;
     MemorySystem& m_memory;
 
-// TODO: REVIEW THIS - INTERRUPTIONS ENABLED TEMPORAL IMP. USED FOR RETI INSTRUCTION
+// TODO: REVIEW THIS - INTERRUPTIONS ENABLED TEMPORAL IMP. USED FOR RETI, EI and DI INSTRUCTIONS
     bool m_ime;
-// TODO: REVIEW THIS - INTERRUPTIONS ENABLED TEMPORAL IMP. USED FOR RETI INSTRUCTION
+// TODO: REVIEW THIS - INTERRUPTIONS ENABLED TEMPORAL IMP. USED FOR RETI, EI and DI INSTRUCTIONS
 };
