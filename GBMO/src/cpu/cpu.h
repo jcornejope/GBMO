@@ -143,14 +143,7 @@ private:
     u32 _reti();
     u32 _call_routine( u8 const routine_address );
     // CPU Control
-
-    /////////////////
-
-    // CPU Control
-    void _set_carry();
-    void _halt();
-    void _stop();
-    void _set_interrupts( bool enable );
+    u32 _ccf();
 
     typedef std::function<u32( void )> Instruction;
     Instruction m_base_instruction[0xFF + 1];

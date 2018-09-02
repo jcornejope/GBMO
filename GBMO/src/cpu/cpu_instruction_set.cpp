@@ -104,7 +104,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x34] = bind( &CPU::_inc_hl, this );
     m_base_instruction[0x35] = bind( &CPU::_dec_hl, this );
     m_base_instruction[0x36] = bind( &CPU::_ld_hl_n, this );
-    m_base_instruction[0x37] = nullptr; // scf
+    m_base_instruction[0x37] = [this]() { _set_flag( Flags::CARRY ); return 4; };
     m_base_instruction[0x38] = bind( &CPU::_jump_relative, this, JumpCondition::CARRY );
     m_base_instruction[0x39] = bind( &CPU::_add_hl, this, cref( m_registers.sp ) );
     m_base_instruction[0x3A] = bind( &CPU::_ld_inc_dec_a_hl, this, s8( -1 ) );
@@ -112,7 +112,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x3C] = bind( &CPU::_inc_r, this, ref( m_registers.a ) );
     m_base_instruction[0x3D] = bind( &CPU::_dec_r, this, ref( m_registers.a ) );
     m_base_instruction[0x3E] = bind( &CPU::_ld_r_n, this, ref( m_registers.a ) );
-    m_base_instruction[0x3F] = nullptr; // ccf
+    m_base_instruction[0x3F] = bind( &CPU::_ccf, this );
     m_base_instruction[0x40] = [this]() { m_registers.b = m_registers.b; return 4; }; //_ld_r_r
     m_base_instruction[0x41] = [this]() { m_registers.b = m_registers.c; return 4; };
     m_base_instruction[0x42] = [this]() { m_registers.b = m_registers.d; return 4; };
@@ -292,7 +292,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xF0] = nullptr;
     m_base_instruction[0xF1] = bind( &CPU::_pop, this, ref( m_registers.af ) );
     m_base_instruction[0xF2] = nullptr; // NO INSTRUCTION
-    m_base_instruction[0xF3] = nullptr;
+    m_base_instruction[0xF3] = [this]() { m_ime = false; return 4; };
     m_base_instruction[0xF4] = nullptr; // NO INSTRUCTION
     m_base_instruction[0xF5] = bind( &CPU::_push, this, ref( m_registers.af ) );
     m_base_instruction[0xF6] = [this]() { _or( m_memory.read_8( m_registers.pc++ ) ); return 8; };
@@ -300,7 +300,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xF8] = bind( &CPU::_ldhl, this );
     m_base_instruction[0xF9] = nullptr;
     m_base_instruction[0xFA] = bind( &CPU::_ld_a_nn, this );
-    m_base_instruction[0xFB] = nullptr;
+    m_base_instruction[0xFB] = [this]() { m_ime = true; return 4; };
     m_base_instruction[0xFC] = nullptr; // NO INSTRUCTION
     m_base_instruction[0xFD] = nullptr; // NO INSTRUCTION
     m_base_instruction[0xFE] = [this]() { _cmp( m_memory.read_8( m_registers.pc++ ) ); return 8; };
@@ -1205,18 +1205,12 @@ u32 CPU::_call_routine( u8 const routine_address )
 }
 
 // CPU Control
+u32 CPU::_ccf()
+{
+    if( _is_flag_set( Flags::CARRY ) )
+        _reset_flag( Flags::CARRY );
+    else
+        _set_flag( Flags::CARRY );
 
-////////////////////////
-// Call and Return
-/*
-void CPU::_call( u16 address ){ assert( false ); } // NOT IMPLEMENTED
-bool CPU::_conditional_call( u16 address ) { return false; }
-void CPU::_call_routine( u8 routine_address ){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_ret( bool enable_interruptions ){ assert( false ); } // NOT IMPLEMENTED
-bool CPU::_conditional_ret(){ return false; }
-// CPU Control
-void CPU::_set_carry(){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_halt(){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_stop(){ assert( false ); } // NOT IMPLEMENTED
-void CPU::_set_interrupts( bool enable ){ assert( false ); } // NOT IMPLEMENTED
-*/
+    return 4;
+}
