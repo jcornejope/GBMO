@@ -49,7 +49,7 @@ void CPU::_initialize_instruction_tables()
 {
     using namespace std;
 
-    m_base_instruction[0x00] = [this]() { ++m_registers.pc; return 4; };
+    m_base_instruction[0x00] = [this]() { return 4; };
     m_base_instruction[0x01] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.bc ) );
     m_base_instruction[0x02] = [this]() { m_memory.write( m_registers.bc, m_registers.a ); return 8; };
     m_base_instruction[0x03] = bind( &CPU::_inc_dec, this, ref( m_registers.bc ), true );
@@ -65,7 +65,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x0D] = bind( &CPU::_dec_r, this, ref( m_registers.c ) );
     m_base_instruction[0x0E] = bind( &CPU::_ld_r_n, this, ref( m_registers.c ) );
     m_base_instruction[0x0F] = bind( &CPU::_rra_rrca, this, false );
-    m_base_instruction[0x10] = [this]() { assert( false ); m_registers.pc++; return 0; }; // STOP - IMPLEMENT THIS!!
+    m_base_instruction[0x10] = [this]() { m_mode = CPUMode::STOP; return 0; };
     m_base_instruction[0x11] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.de ) );
     m_base_instruction[0x12] = [this]() { m_memory.write( m_registers.de, m_registers.a ); return 8; };
     m_base_instruction[0x13] = bind( &CPU::_inc_dec, this, ref( m_registers.de ), true );
@@ -167,7 +167,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x73] = bind( &CPU::_ld_hl_r, this, cref( m_registers.e ) );
     m_base_instruction[0x74] = bind( &CPU::_ld_hl_r, this, cref( m_registers.h ) );
     m_base_instruction[0x75] = bind( &CPU::_ld_hl_r, this, cref( m_registers.l ) );
-    m_base_instruction[0x76] = [this]() { assert( false ); m_registers.pc++; return 0; }; // HALT - IMPLEMENT THIS!!
+    m_base_instruction[0x76] = [this]() { m_mode = CPUMode::HALT; return 4; };
     m_base_instruction[0x77] = bind( &CPU::_ld_hl_r, this, cref( m_registers.a ) );
     m_base_instruction[0x78] = [this]() { m_registers.a = m_registers.b; return 4; };
     m_base_instruction[0x79] = [this]() { m_registers.a = m_registers.c; return 4; };
