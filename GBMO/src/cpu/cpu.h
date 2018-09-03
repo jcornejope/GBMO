@@ -48,11 +48,22 @@ class CPU
         NO_CONDITION = 0xFF,
     };
 
+    enum class CPUMode : u8
+    {
+        NORMAL,     // Normal cpu operations
+        STOP,       // stop mode active: switch the gameboy into VERY low power standby mode. The STOP state is terminated by interrupt events - in this case this would be commonly a joypad interrupt
+        HALT,       // halt mode active: stops the system clock reducing the power consumption of both the CPU and ROM. The CPU will remain suspended until an interrupt occurs at which point the interrupt is serviced and then the instruction immediately following the HALT is executed.
+        LOCKED      // something went wrong and the cpu locks itself up (for instance executing one of the non-implemented instructions like D3).
+    };
+
     static float const CPU_SPEED;
     static float const CPU_SPEED_CGB_DOUBLE;
 
 public:
     CPU( MemorySystem& memory );
+
+    void reset();
+    u32 update();
 
 private:
     // Flags manipulation
@@ -153,6 +164,8 @@ private:
 
     Registers m_registers;
     MemorySystem& m_memory;
+
+    CPUMode m_mode;
 
 // TODO: REVIEW THIS - INTERRUPTIONS ENABLED TEMPORAL IMP. USED FOR RETI, EI and DI INSTRUCTIONS
     bool m_ime;

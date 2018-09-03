@@ -10,3 +10,10 @@ GBMO::GBMO( Options const& options )
     // Quita esto de aqui
     m_cartridge.print_header_values();
 }
+
+bool GBMO::update()
+{
+    u32 cycles = m_cpu.update();
+
+    return cycles != 0;
+}

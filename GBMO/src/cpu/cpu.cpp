@@ -3,13 +3,18 @@
 #include "memory/memory_system.h"
 
 #include <cassert>
+#include <iostream>
 
 float const CPU::CPU_SPEED              = 4.194304f;
 float const CPU::CPU_SPEED_CGB_DOUBLE   = 8.4f;
 
 CPU::CPU( MemorySystem& memory )
     : m_memory( memory )
+    , m_mode( CPUMode::NORMAL )
+    , m_ime( false )
 {
+    reset();
+
     m_registers.a = 0x0F;
     m_registers.b = 0xFF;
 
@@ -65,6 +70,76 @@ CPU::CPU( MemorySystem& memory )
     assert( m_registers.af == 0x4540 );
 
     m_base_instruction[0xC6]();
+}
+
+void CPU::reset()
+{
+    m_mode = CPUMode::NORMAL;
+
+    m_registers.af = 0x01B0;
+    m_registers.bc = 0x0013;
+    m_registers.de = 0x00D8;
+    m_registers.hl = 0x014D;
+    m_registers.sp = 0xFFFE;
+    m_memory.write( 0xFF05, static_cast<u8>( 0x00 ) ); // TIMA
+    m_memory.write( 0xFF06, static_cast<u8>( 0x00 ) ); // TMA
+    m_memory.write( 0xFF07, static_cast<u8>( 0x00 ) ); // TAC
+    m_memory.write( 0xFF10, static_cast<u8>( 0x80 ) ); // NR10
+    m_memory.write( 0xFF11, static_cast<u8>( 0xBF ) ); // NR11
+    m_memory.write( 0xFF12, static_cast<u8>( 0xF3 ) ); // NR12
+    m_memory.write( 0xFF14, static_cast<u8>( 0xBF ) ); // NR14
+    m_memory.write( 0xFF16, static_cast<u8>( 0x3F ) ); // NR21
+    m_memory.write( 0xFF17, static_cast<u8>( 0x00 ) ); // NR22
+    m_memory.write( 0xFF19, static_cast<u8>( 0xBF ) ); // NR24
+    m_memory.write( 0xFF1A, static_cast<u8>( 0x7F ) ); // NR30
+    m_memory.write( 0xFF1B, static_cast<u8>( 0xFF ) ); // NR31
+    m_memory.write( 0xFF1C, static_cast<u8>( 0x9F ) ); // NR32
+    m_memory.write( 0xFF1E, static_cast<u8>( 0xBF ) ); // NR33
+    m_memory.write( 0xFF20, static_cast<u8>( 0xFF ) ); // NR41
+    m_memory.write( 0xFF21, static_cast<u8>( 0x00 ) ); // NR42
+    m_memory.write( 0xFF22, static_cast<u8>( 0x00 ) ); // NR43
+    m_memory.write( 0xFF23, static_cast<u8>( 0xBF ) ); // NR30
+    m_memory.write( 0xFF24, static_cast<u8>( 0x77 ) ); // NR50
+    m_memory.write( 0xFF25, static_cast<u8>( 0xF3 ) ); // NR51
+    m_memory.write( 0xFF26, static_cast<u8>( 0xF1 ) ); // NR52 // $F1 - GB, $F0 - SGB
+    m_memory.write( 0xFF40, static_cast<u8>( 0x91 ) ); // LCDC
+    m_memory.write( 0xFF42, static_cast<u8>( 0x00 ) ); // SCY
+    m_memory.write( 0xFF43, static_cast<u8>( 0x00 ) ); // SCX
+    m_memory.write( 0xFF45, static_cast<u8>( 0x00 ) ); // LYC
+    m_memory.write( 0xFF47, static_cast<u8>( 0xFC ) ); // BGP
+    m_memory.write( 0xFF48, static_cast<u8>( 0xFF ) ); // OBP0
+    m_memory.write( 0xFF49, static_cast<u8>( 0xFF ) ); // OBP1
+    m_memory.write( 0xFF4A, static_cast<u8>( 0x00 ) ); // WY
+    m_memory.write( 0xFF4B, static_cast<u8>( 0x00 ) ); // WX
+    m_memory.write( 0xFFFF, static_cast<u8>( 0x00 ) ); // IE
+}
+
+u32 CPU::update()
+{
+    switch( m_mode )
+    {
+    case CPUMode::NORMAL:
+    {
+        u8 opcode = m_memory.read_8( m_registers.pc++ );
+        if( m_base_instruction[opcode] == nullptr )
+        {
+            m_mode = CPUMode::LOCKED;
+            return 0;
+        }
+        u32 cycles = m_base_instruction[opcode]();
+        std::cout << std::hex << int(opcode) << " : " << std::dec << cycles << std::endl;
+        return cycles;
+
+        //return m_base_instruction[opcode]();
+        break;
+    }
+    case CPUMode::HALT:     return 4;   break;
+    case CPUMode::STOP:     return 0;   break;
+    case CPUMode::LOCKED:   return 0;   break;
+    }
+
+    assert( false );
+    return 0;
 }
 
 void CPU::_process_zero_flag()

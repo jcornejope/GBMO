@@ -26,6 +26,12 @@ int main( int argc, char* argv[] )
     options.m_rom_path = "D:\\Dev\\GBMO\\rom_t.gb";
     GBMO emulator(options);
 
+    bool emulator_running = true;
+    while( emulator_running )
+    {
+        emulator_running = emulator.update();
+    }
+
     getchar();
 
     SDL_Quit();

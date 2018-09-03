@@ -11,6 +11,8 @@ class GBMO
 public:
     GBMO( Options const& options );
 
+    bool update();
+
 private:
     Cartridge m_cartridge;
     MemorySystem m_memory_system;
