@@ -142,6 +142,46 @@ u32 CPU::update()
     return 0;
 }
 
+u32 CPU::process_interrupts()
+{
+    if( m_mode == CPUMode::LOCKED )
+        return 0;
+
+    if( m_ime == true )
+    {
+        u8 if_register = m_memory.read_8( IF_ADDR );
+        u8 ie_register = m_memory.read_8( IE_ADDR );
+
+        for( u8 bit = 0; bit < 5; ++bit )
+        { 
+            if( ( if_register & bit ) != 0 && 
+                ( ie_register & bit ) != 0 )
+            {
+                _call_routine( _get_interrupt_jump_vector_address( bit ) );
+
+                m_ime = false;
+                if_register &= ~bit;
+                m_memory.write( IF_ADDR, if_register );
+
+                // Back to normal if we serviced an interrupt and we were on halt or stop mode.
+                if( m_mode != CPUMode::NORMAL )
+                    m_mode = CPUMode::NORMAL;
+
+                return 20; // TODO DOUBLECHECK THIS!: Z80 is supposed to consume 5 cycles here (2 NOP, 2 PUSH, 1 PC LOAD)
+            }
+        }
+    }
+
+    return 0;
+}
+
+u8 CPU::_get_interrupt_jump_vector_address( u8 const bit_index ) const
+{
+    assert( bit_index >= 0 && bit_index < 5 );
+
+    return static_cast<u8>( 0x40 + ( 0x08 * bit_index ) );
+}
+
 void CPU::_process_zero_flag()
 {
     _process_zero_flag( m_registers.a ); 

@@ -31,12 +31,21 @@ class CPU
 
     enum Flags : u8
     {
-        NONE        = 0x0F,      // Not used( always zero )
+        NONE        = 0x0F,     // Not used( always zero )
         CARRY       = 1 << 4,
         HALF_CARRY  = 1 << 5,   // BCD
         ADD_SUB     = 1 << 6,   // BCD
         ZERO        = 1 << 7
     };
+
+    //enum Interrupts : u8
+    //{
+    //    V_BLANK     = 0,
+    //    LCD_STAT    = 1,
+    //    TIMER       = 1 << 1,
+    //    SERIAL      = 1 << 2,
+    //    JOYPAD      = 1 << 3
+    //};
 
     enum class JumpCondition : u8
     {
@@ -59,11 +68,15 @@ class CPU
     static float const CPU_SPEED;
     static float const CPU_SPEED_CGB_DOUBLE;
 
+    static u16 const IE_ADDR = 0xFFFF;
+    static u16 const IF_ADDR = 0xFF0F;
+
 public:
     CPU( MemorySystem& memory );
 
     void reset();
     u32 update();
+    u32 process_interrupts();
 
 private:
     // Flags manipulation
@@ -81,6 +94,7 @@ private:
 
     // Helper functions
     bool _condition_passed( JumpCondition const condition ) const;
+    u8 _get_interrupt_jump_vector_address( u8 const bit_index ) const;
 
     // Instruction set
     void _initialize_instruction_tables();

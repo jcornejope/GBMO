@@ -1199,10 +1199,15 @@ u32 CPU::_reti()
 }
 u32 CPU::_call_routine( u8 const routine_address )
 {
-    assert( routine_address == 0x00 || routine_address == 0x08 ||
+    assert( // RST Commands
+            routine_address == 0x00 || routine_address == 0x08 ||
             routine_address == 0x10 || routine_address == 0x18 ||
             routine_address == 0x20 || routine_address == 0x28 ||
-            routine_address == 0x30 || routine_address == 0x38 );
+            routine_address == 0x30 || routine_address == 0x38 ||
+            // Interrupts
+            routine_address == 0x40 || routine_address == 0x48 ||
+            routine_address == 0x50 || routine_address == 0x58 ||
+            routine_address == 0x60 );
 
     _push( m_registers.pc );
     m_registers.pc = routine_address;

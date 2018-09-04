@@ -13,7 +13,8 @@ GBMO::GBMO( Options const& options )
 
 bool GBMO::update()
 {
-    u32 cycles = m_cpu.update();
+    u32 cycles = m_cpu.process_interrupts();
+    cycles += m_cpu.update();
 
     return cycles != 0;
 }
