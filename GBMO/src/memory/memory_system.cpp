@@ -49,9 +49,24 @@ void MemorySystem::write( u16 address, u8 data )
     if( _is_memory_handled_by_cartridge( address ) )
     {
         m_cartridge._write( address, data );
+        return;
     }
     
-    assert( false ); // NOT IMPLEMENTED!!
+    if( address >= 0xFEA0 && address <= 0xFEFF )
+    {
+        assert( false ); // THIS SHOULDN'T BE HAPPENING. THIS IS PROHIBITED!!
+        return;
+    }
+
+    u16 mapped_address = address - CARTRIDGE_ROM_MAP_SIZE;
+    if( address >= 0xC000 )
+        mapped_address -= CARTRIDGE_RAM_MAP_SIZE;
+    if( address >= 0xE000 && address <= 0xFDFF )
+        mapped_address -= address - 0x2000;
+
+    // TODO: ALL THE SPECIAL CASES (DIV, TIMERS, LCD REGS. ETC.)
+
+    m_memory[mapped_address] = data;
 }
 
 void MemorySystem::write( u16 address, u16 data )
