@@ -1141,9 +1141,8 @@ u32 CPU::_jump_relative( JumpCondition const condition )
 {
     if( _condition_passed( condition ) )
     {
-        //m_registers.pc = m_registers.pc + static_cast<s8>( m_memory.read_8( m_registers.pc ) );
-        m_registers.pc = m_memory.read_8( m_registers.pc );
-        ++m_registers.pc; // For some reason this needs to be done here too...
+        m_registers.pc = m_registers.pc + static_cast<s8>( m_memory.read_8( m_registers.pc ) );
+        ++m_registers.pc; // This needs to be done here too...
 
         return 12;
     }
