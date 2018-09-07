@@ -14,7 +14,9 @@ CPU::CPU( MemorySystem& memory )
     , m_ime( false )
 {
     reset();
+    _initialize_instruction_tables();
 
+/*
     m_registers.a = 0x0F;
     m_registers.b = 0xFF;
 
@@ -70,11 +72,15 @@ CPU::CPU( MemorySystem& memory )
     assert( m_registers.af == 0x4540 );
 
     m_base_instruction[0xC6]();
+ */
 }
 
 void CPU::reset()
 {
     m_mode = CPUMode::NORMAL;
+
+    // TODO: This is set manually to 100 by now - change this when implementing the bootstrap.
+    m_registers.pc = 0x0100;
 
     m_registers.af = 0x01B0;
     m_registers.bc = 0x0013;
@@ -120,6 +126,7 @@ u32 CPU::update()
     {
     case CPUMode::NORMAL:
     {
+        u16 pc_addr = m_registers.pc;
         u8 opcode = m_memory.read_8( m_registers.pc++ );
         if( m_base_instruction[opcode] == nullptr )
         {
@@ -127,7 +134,7 @@ u32 CPU::update()
             return 0;
         }
         u32 cycles = m_base_instruction[opcode]();
-        std::cout << std::hex << int(opcode) << " : " << std::dec << cycles << std::endl;
+        std::cout << std::hex << int( pc_addr ) << ": " << int( opcode ) << " -> " << std::dec << cycles << std::endl;
         return cycles;
 
         //return m_base_instruction[opcode]();
