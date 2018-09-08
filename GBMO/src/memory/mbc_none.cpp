@@ -17,6 +17,6 @@ u8 MBC_None::read( u16 address )
 
 void MBC_None::write( u16 /*address*/, u8 /*data*/ )
 {
-    // Do nothing. NOT ALLOWED
+    // TODO handle ram
     assert( false );
 }

@@ -23,14 +23,8 @@ u8 MemorySystem::read_8( u16 address )
         return 0xFF;
     }
 
-    u16 mapped_address = address - CARTRIDGE_ROM_MAP_SIZE;
-    if( address >= 0xC000 )
-        mapped_address -= CARTRIDGE_RAM_MAP_SIZE;
-    if( address >= 0xE000 && address <= 0xFDFF )
-        mapped_address -= address - 0x2000;
-    else
-        mapped_address -= ECHO_RAM_SIZE;
-
+    u16 mapped_address = _remap_address( address );
+    assert( mapped_address < SYSTEM_MEMORY_SIZE );
     return m_memory[mapped_address];
 }
 
@@ -58,14 +52,10 @@ void MemorySystem::write( u16 address, u8 data )
         return;
     }
 
-    u16 mapped_address = address - CARTRIDGE_ROM_MAP_SIZE;
-    if( address >= 0xC000 )
-        mapped_address -= CARTRIDGE_RAM_MAP_SIZE;
-    if( address >= 0xE000 && address <= 0xFDFF )
-        mapped_address -= address - 0x2000;
-
     // TODO: ALL THE SPECIAL CASES (DIV, TIMERS, LCD REGS. ETC.)
 
+    u16 mapped_address = _remap_address( address );
+    assert( mapped_address < SYSTEM_MEMORY_SIZE );
     m_memory[mapped_address] = data;
 }
 
@@ -80,4 +70,20 @@ void MemorySystem::write( u16 address, u16 data )
 bool MemorySystem::_is_memory_handled_by_cartridge( u16 const address ) const
 {
     return ( address < 0x8000 ) || ( address >= 0xA000 && address < 0xC000 );
+}
+
+u16 MemorySystem::_remap_address( u16 const address ) const
+{
+    u16 mapped_address = address - CARTRIDGE_ROM_MAP_SIZE;
+    if( address >= 0xC000 )
+        mapped_address -= CARTRIDGE_RAM_MAP_SIZE;
+    if( address >= 0xE000 )
+    {
+        if( address <= 0xFDFF )
+            mapped_address -= 0x2000;
+        else
+            mapped_address -= ECHO_RAM_SIZE;
+    }
+
+    return mapped_address;
 }

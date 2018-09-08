@@ -8,7 +8,7 @@ class MemorySystem final
 {
     static u16 const CARTRIDGE_ROM_MAP_SIZE = 0x8000;
     static u16 const CARTRIDGE_RAM_MAP_SIZE = 0xC000 - 0xA000;
-    static u16 const ECHO_RAM_SIZE          = 0xFDFF - 0xE000;
+    static u16 const ECHO_RAM_SIZE          = 0xFE00 - 0xE000;
     static u16 const SYSTEM_MEMORY_SIZE     = 0x10000 - CARTRIDGE_ROM_MAP_SIZE - CARTRIDGE_RAM_MAP_SIZE - ECHO_RAM_SIZE;
 
 public:
@@ -24,6 +24,7 @@ public:
 
 private:
     bool _is_memory_handled_by_cartridge( u16 const address ) const;
+    u16 _remap_address( u16 const address ) const;
 
     u8 m_memory[SYSTEM_MEMORY_SIZE];
     Cartridge& m_cartridge;
