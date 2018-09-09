@@ -5,17 +5,19 @@
 #include <cassert>
 #include <iostream>
 
-float const CPU::CPU_SPEED              = 4.194304f;
-float const CPU::CPU_SPEED_CGB_DOUBLE   = 8.4f;
+u32 const CPU::CPU_SPEED              = 4194304;
+u32 const CPU::CPU_SPEED_CGB_DOUBLE   = 8400000;
 
 CPU::CPU( MemorySystem& memory )
     : m_memory( memory )
     , m_mode( CPUMode::NORMAL )
+    , m_div_cycle_counter( 0 )
+    , m_tima_cycle_counter( 0 )
     , m_ime( false )
 {
-    reset();
     _initialize_instruction_tables();
 
+    reset();
 /*
     m_registers.a = 0x0F;
     m_registers.b = 0xFF;
@@ -182,11 +184,62 @@ u32 CPU::process_interrupts()
     return 0;
 }
 
+void CPU::update_timer_registers( u32 const cycles )
+{
+    // TODO CGB: DOUBLE SPEED - Do we need to change cycles_to_increment to 8400000/Freq ? (2050.78;32;128;512.69)
+
+    u8 tac = m_memory.read_8( TAC_ADDR );
+    if( ( tac & 0x4 ) != 0 )
+    {
+        m_tima_cycle_counter += cycles;
+        u32 cycles_to_increment = 0;
+        switch( tac & 0x3 )
+        {
+        case 0: cycles_to_increment = 1024u;  break;  // 4096 Hz    (4194304/4096)
+        case 1: cycles_to_increment = 16u;    break;  // 262144 Hz
+        case 2: cycles_to_increment = 64u;    break;  // 65536 Hz
+        case 3: cycles_to_increment = 256u;   break;  // 16384 Hz
+        }
+
+        if( m_tima_cycle_counter >= cycles_to_increment )
+        {
+            u8 tima = m_memory.read_8( TIMA_ADDR ) + 1;
+            if( tima == 0 )
+            {
+                tima = m_memory.read_8( TMA_ADDR );
+                m_memory.write( TIMA_ADDR, tima );
+                
+                _request_interrupt( Interrupts::TIMER );
+            }
+        }
+    }
+}
+
+void CPU::update_divider_register( u32 const cycles )
+{
+    // DMG                  CPU_SPEED / 16384 = 256
+    // CGB DOUBLE SPEED     CPU_SPEED_CGB_DOUBLE / 32768 = 256
+    m_div_cycle_counter += cycles;
+    if( m_div_cycle_counter >= 256 )
+    {
+        m_div_cycle_counter -= 256;
+        u8 div_register = m_memory.read_8( 0xFF04 ) + 1;
+        m_memory.write( 0xFF04, div_register );
+    }
+}
+
 u8 CPU::_get_interrupt_jump_vector_address( u8 const bit_index ) const
 {
     assert( bit_index >= 0 && bit_index < 5 );
 
     return static_cast<u8>( 0x40 + ( 0x08 * bit_index ) );
+}
+
+void CPU::_request_interrupt( Interrupts const interrupt ) const
+{
+    u8 if_register = m_memory.read_8( IF_ADDR );
+    if_register |= interrupt;
+    m_memory.write( IF_ADDR, if_register );
 }
 
 void CPU::_process_zero_flag()

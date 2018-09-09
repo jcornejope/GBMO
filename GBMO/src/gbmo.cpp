@@ -15,6 +15,8 @@ bool GBMO::update()
 {
     u32 cycles = m_cpu.process_interrupts();
     cycles += m_cpu.update();
+    m_cpu.update_timer_registers( cycles );
+    m_cpu.update_divider_register( cycles );
 
     return cycles != 0;
 }

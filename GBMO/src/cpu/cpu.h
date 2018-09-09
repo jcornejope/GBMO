@@ -38,14 +38,14 @@ class CPU
         ZERO        = 1 << 7
     };
 
-    //enum Interrupts : u8
-    //{
-    //    V_BLANK     = 0,
-    //    LCD_STAT    = 1,
-    //    TIMER       = 1 << 1,
-    //    SERIAL      = 1 << 2,
-    //    JOYPAD      = 1 << 3
-    //};
+    enum Interrupts : u8
+    {
+        V_BLANK     = 0,
+        LCD_STAT    = 1,
+        TIMER       = 1 << 1,
+        SERIAL      = 1 << 2,
+        JOYPAD      = 1 << 3
+    };
 
     enum class JumpCondition : u8
     {
@@ -65,11 +65,16 @@ class CPU
         LOCKED      // something went wrong and the cpu locks itself up (for instance executing one of the non-implemented instructions like D3).
     };
 
-    static float const CPU_SPEED;
-    static float const CPU_SPEED_CGB_DOUBLE;
+    static u32 const CPU_SPEED;
+    static u32 const CPU_SPEED_CGB_DOUBLE;
 
     static u16 const IE_ADDR = 0xFFFF;
     static u16 const IF_ADDR = 0xFF0F;
+
+    static u16 const DIV_ADDR   = 0xFF04;
+    static u16 const TIMA_ADDR  = 0xFF05;
+    static u16 const TMA_ADDR   = 0xFF06;
+    static u16 const TAC_ADDR   = 0xFF07;
 
 public:
     CPU( MemorySystem& memory );
@@ -77,6 +82,8 @@ public:
     void reset();
     u32 update();
     u32 process_interrupts();
+    void update_timer_registers( u32 const cycles );
+    void update_divider_register( u32 const cycles );
 
 private:
     // Flags manipulation
@@ -95,6 +102,7 @@ private:
     // Helper functions
     bool _condition_passed( JumpCondition const condition ) const;
     u8 _get_interrupt_jump_vector_address( u8 const bit_index ) const;
+    void _request_interrupt( Interrupts const interrupt ) const;
 
     // Instruction set
     void _initialize_instruction_tables();
@@ -181,7 +189,8 @@ private:
 
     CPUMode m_mode;
 
-// TODO: REVIEW THIS - INTERRUPTIONS ENABLED TEMPORAL IMP. USED FOR RETI, EI and DI INSTRUCTIONS
+    u32 m_div_cycle_counter;
+    u32 m_tima_cycle_counter;
+
     bool m_ime;
-// TODO: REVIEW THIS - INTERRUPTIONS ENABLED TEMPORAL IMP. USED FOR RETI, EI and DI INSTRUCTIONS
 };

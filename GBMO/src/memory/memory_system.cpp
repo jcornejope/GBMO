@@ -53,6 +53,10 @@ void MemorySystem::write( u16 address, u8 data )
     }
 
     // TODO: ALL THE SPECIAL CASES (DIV, TIMERS, LCD REGS. ETC.)
+    if( address == 0xFF04 ) // Divider Reg
+    {
+        data = 0x00;
+    }
 
     u16 mapped_address = _remap_address( address );
     assert( mapped_address < SYSTEM_MEMORY_SIZE );
