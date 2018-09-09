@@ -68,14 +68,6 @@ class CPU
     static u32 const CPU_SPEED;
     static u32 const CPU_SPEED_CGB_DOUBLE;
 
-    static u16 const IE_ADDR = 0xFFFF;
-    static u16 const IF_ADDR = 0xFF0F;
-
-    static u16 const DIV_ADDR   = 0xFF04;
-    static u16 const TIMA_ADDR  = 0xFF05;
-    static u16 const TMA_ADDR   = 0xFF06;
-    static u16 const TAC_ADDR   = 0xFF07;
-
 public:
     CPU( MemorySystem& memory );
 

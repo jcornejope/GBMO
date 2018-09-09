@@ -25,3 +25,16 @@ typedef union
 #endif
     };
 } word;
+
+enum ADDRESSES : u16
+{
+    IO_ADDRESS_START = 0xFF00,
+
+    DIV_ADDR  = 0xFF04,
+    TIMA_ADDR = 0xFF05,
+    TMA_ADDR  = 0xFF06,
+    TAC_ADDR  = 0xFF07,
+
+    IF_ADDR = 0xFF0F,
+    IE_ADDR = 0xFFFF,
+};

@@ -649,28 +649,28 @@ u32 CPU::_ld_inc_dec_a_hl( s8 inc )
 u32 CPU::_ld_a_io_n()
 {
     u8 const address_offset = m_memory.read_8( m_registers.pc++ );
-    m_registers.a = m_memory.read_8( m_memory.IO_ADDRESS_START + address_offset );
+    m_registers.a = m_memory.read_8( IO_ADDRESS_START + address_offset );
 
     return 12;
 }
 
 u32 CPU::_ld_a_io_c()
 {
-    m_registers.a = m_memory.read_8( m_memory.IO_ADDRESS_START + m_registers.c );
+    m_registers.a = m_memory.read_8( IO_ADDRESS_START + m_registers.c );
     return 8;
 }
 
 u32 CPU::_ld_io_n_a()
 {
     u8 const address_offset = m_memory.read_8( m_registers.pc++ );
-    m_memory.write( m_memory.IO_ADDRESS_START + address_offset, m_registers.a );
+    m_memory.write( IO_ADDRESS_START + address_offset, m_registers.a );
 
     return 12;
 }
 
 u32 CPU::_ld_io_c_a()
 {
-    m_memory.write( m_memory.IO_ADDRESS_START + m_registers.c, m_registers.a );
+    m_memory.write( IO_ADDRESS_START + m_registers.c, m_registers.a );
     return 8;
 }
 

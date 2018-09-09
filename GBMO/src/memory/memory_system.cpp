@@ -53,7 +53,7 @@ void MemorySystem::write( u16 address, u8 data )
     }
 
     // TODO: ALL THE SPECIAL CASES (DIV, TIMERS, LCD REGS. ETC.)
-    if( address == 0xFF04 ) // Divider Reg
+    if( address == DIV_ADDR )
     {
         data = 0x00;
     }
