@@ -13,6 +13,7 @@ int foo(int param)
 
 int main( int argc, char* argv[] )
 {
+    // TODO: SUPPORT args
     (void)argc;
     (void)argv;
 
@@ -25,7 +26,7 @@ int main( int argc, char* argv[] )
     SDL_Window* window = 0;
     window = SDL_CreateWindow( "GBMO v0.1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 160, 144, SDL_WINDOW_SHOWN );
     //SDL_Renderer* renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
-    SDL_Event events;
+    SDL_Event event;
 
     Options options;
     options.m_rom_path = "D:\\Dev\\GBMO\\rom_t.gb";
@@ -36,12 +37,16 @@ int main( int argc, char* argv[] )
     {
         // Check for user KB quit.
         SDL_PumpEvents();
-        while( SDL_PollEvent( &events ) ) 
+        while( SDL_PollEvent( &event ) ) 
         {
-            if( ( events.type == SDL_QUIT ) ||
-                ( events.type == SDL_KEYDOWN && events.key.keysym.sym == SDLK_ESCAPE ) )
+            if( ( event.type == SDL_QUIT ) ||
+                ( event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE ) )
             {
                 emulator_running = false;
+            }
+            else
+            {
+                emulator.handle_input_event( event );
             }
         }
 

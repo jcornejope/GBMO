@@ -6,7 +6,10 @@ GBMO::GBMO( Options const& options )
     : m_cartridge( options.m_rom_path )
     , m_memory_system( m_cartridge )
     , m_cpu( m_memory_system )
+    , m_joypad( m_cpu, m_memory_system )
 {
+    m_joypad.parse_input_mapping( options.m_input_config_file_path );
+
     // Quita esto de aqui
     m_cartridge.print_header_values();
 }
@@ -19,4 +22,14 @@ bool GBMO::update()
     m_cpu.update_divider_register( cycles );
 
     return cycles != 0;
+}
+
+void GBMO::handle_input_event( SDL_Event & event )
+{
+    if( event.type == SDL_KEYDOWN || event.type == SDL_KEYUP ||
+        event.type == SDL_JOYBUTTONDOWN || event.type == SDL_JOYBUTTONUP || 
+        event.type == SDL_JOYAXISMOTION )
+    {
+        m_joypad.handle_input_event( event );
+    }
 }
