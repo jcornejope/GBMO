@@ -22,6 +22,11 @@ int main( int argc, char* argv[] )
         return 1;
     }
 
+    SDL_Window* window = 0;
+    window = SDL_CreateWindow( "GBMO v0.1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 160, 144, SDL_WINDOW_SHOWN );
+    //SDL_Renderer* renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+    SDL_Event events;
+
     Options options;
     options.m_rom_path = "D:\\Dev\\GBMO\\rom_t.gb";
     GBMO emulator(options);
@@ -29,10 +34,20 @@ int main( int argc, char* argv[] )
     bool emulator_running = true;
     while( emulator_running )
     {
-        emulator_running = emulator.update();
-    }
+        // Check for user KB quit.
+        SDL_PumpEvents();
+        while( SDL_PollEvent( &events ) ) 
+        {
+            if( ( events.type == SDL_QUIT ) ||
+                ( events.type == SDL_KEYDOWN && events.key.keysym.sym == SDLK_ESCAPE ) )
+            {
+                emulator_running = false;
+            }
+        }
 
-    getchar();
+        // Run the emulator
+        emulator.update();
+    }
 
     SDL_Quit();
     return 0;
