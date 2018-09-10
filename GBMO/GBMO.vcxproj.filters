@@ -21,6 +21,9 @@
       <Filter>cpu</Filter>
     </ClCompile>
     <ClCompile Include="src\gbmo.cpp" />
+    <ClCompile Include="src\joypad\joypad.cpp">
+      <Filter>joypad</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="memory">
@@ -34,6 +37,15 @@
     </Filter>
     <Filter Include="cpu">
       <UniqueIdentifier>{257f3193-41ec-4524-81ed-ecb85301eabf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sound">
+      <UniqueIdentifier>{4663059a-6a0e-4364-b089-c6a8fd3de40d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="joypad">
+      <UniqueIdentifier>{f84941da-2f24-4788-a6ef-e109db6ada33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="display">
+      <UniqueIdentifier>{3bcc8206-e629-4cac-8d47-56dbdf7873dd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -63,5 +75,8 @@
       <Filter>cpu</Filter>
     </ClInclude>
     <ClInclude Include="src\options.h" />
+    <ClInclude Include="src\joypad\joypad.h">
+      <Filter>joypad</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -25,6 +25,7 @@
     <ClCompile Include="src\cpu\cpu_instruction_set.cpp" />
     <ClCompile Include="src\entry.cpp" />
     <ClCompile Include="src\gbmo.cpp" />
+    <ClCompile Include="src\joypad\joypad.cpp" />
     <ClCompile Include="src\memory\mbc_none.cpp" />
     <ClCompile Include="src\memory\memory_system.cpp" />
   </ItemGroup>
@@ -33,6 +34,7 @@
     <ClInclude Include="src\cartridge\catridge_utils.h" />
     <ClInclude Include="src\cpu\cpu.h" />
     <ClInclude Include="src\gbmo.h" />
+    <ClInclude Include="src\joypad\joypad.h" />
     <ClInclude Include="src\memory\mbc.h" />
     <ClInclude Include="src\memory\mbc_none.h" />
     <ClInclude Include="src\memory\memory_system.h" />
