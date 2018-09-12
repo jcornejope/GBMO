@@ -209,7 +209,7 @@ void CPU::update_timer_registers( u32 const cycles )
                 tima = m_memory.read_8( TMA_ADDR );
                 m_memory.write( TIMA_ADDR, tima );
                 
-                _request_interrupt( Interrupts::TIMER );
+                request_interrupt( Interrupts::TIMER );
             }
         }
     }
@@ -235,7 +235,7 @@ u8 CPU::_get_interrupt_jump_vector_address( u8 const bit_index ) const
     return static_cast<u8>( 0x40 + ( 0x08 * bit_index ) );
 }
 
-void CPU::_request_interrupt( Interrupts const interrupt ) const
+void CPU::request_interrupt( Interrupts const interrupt ) const
 {
     u8 if_register = m_memory.read_8( IF_ADDR );
     if_register |= interrupt;

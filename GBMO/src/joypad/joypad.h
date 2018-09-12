@@ -3,6 +3,8 @@
 #include <SDL_events.h>
 #include <string>
 
+#include "options.h"
+
 class CPU;
 class MemorySystem;
 
@@ -12,9 +14,14 @@ public:
     Joypad( CPU& cpu, MemorySystem& memory );
 
     void handle_input_event( SDL_Event& event );
-    bool parse_input_mapping( std::string const& config_file_path );
+    void set_inputs_on_memory();
+
+    void set_input_bindings( InputsConfig const& new_inputs );
 
 private:
     CPU& m_cpu;
     MemorySystem& m_memory;
+
+    InputsConfig m_inputs;
+    u8 m_input_flags;
 };

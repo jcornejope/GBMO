@@ -30,6 +30,8 @@ enum ADDRESSES : u16
 {
     IO_ADDRESS_START = 0xFF00,
 
+    P1_JOYP_ADDR = 0xFF00,
+
     DIV_ADDR  = 0xFF04,
     TIMA_ADDR = 0xFF05,
     TMA_ADDR  = 0xFF06,
@@ -37,4 +39,13 @@ enum ADDRESSES : u16
 
     IF_ADDR = 0xFF0F,
     IE_ADDR = 0xFFFF,
+};
+
+enum Interrupts : u8
+{
+    V_BLANK     = 0,
+    LCD_STAT    = 1,
+    TIMER       = 1 << 1,
+    SERIAL      = 1 << 2,
+    JOYPAD      = 1 << 3
 };

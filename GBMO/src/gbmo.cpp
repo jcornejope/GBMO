@@ -8,7 +8,7 @@ GBMO::GBMO( Options const& options )
     , m_cpu( m_memory_system )
     , m_joypad( m_cpu, m_memory_system )
 {
-    m_joypad.parse_input_mapping( options.m_input_config_file_path );
+    m_joypad.set_input_bindings( options.m_inputs );
 
     // Quita esto de aqui
     m_cartridge.print_header_values();

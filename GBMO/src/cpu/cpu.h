@@ -38,15 +38,6 @@ class CPU
         ZERO        = 1 << 7
     };
 
-    enum Interrupts : u8
-    {
-        V_BLANK     = 0,
-        LCD_STAT    = 1,
-        TIMER       = 1 << 1,
-        SERIAL      = 1 << 2,
-        JOYPAD      = 1 << 3
-    };
-
     enum class JumpCondition : u8
     {
         NO_ZERO     = 0,
@@ -77,6 +68,8 @@ public:
     void update_timer_registers( u32 const cycles );
     void update_divider_register( u32 const cycles );
 
+    void request_interrupt( Interrupts const interrupt ) const;
+
 private:
     // Flags manipulation
     void _process_zero_flag();
@@ -94,7 +87,6 @@ private:
     // Helper functions
     bool _condition_passed( JumpCondition const condition ) const;
     u8 _get_interrupt_jump_vector_address( u8 const bit_index ) const;
-    void _request_interrupt( Interrupts const interrupt ) const;
 
     // Instruction set
     void _initialize_instruction_tables();
