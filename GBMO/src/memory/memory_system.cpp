@@ -1,12 +1,15 @@
 
 #include "memory/memory_system.h"
+
 #include "cartridge/cartridge.h"
+#include "gbmo.h"
+#include "joypad/joypad.h"
 
 #include <cstring>
 #include <cassert>
 
-MemorySystem::MemorySystem( Cartridge& cartridge )
-    : m_cartridge( cartridge )
+MemorySystem::MemorySystem( GBMO& gameboy )
+    : m_gameboy( gameboy )
 {
     std::memset( &m_memory, 0, SYSTEM_MEMORY_SIZE );
 }
@@ -15,12 +18,7 @@ u8 MemorySystem::read_8( u16 address )
 {
     if( _is_memory_handled_by_cartridge( address ) )
     {
-        return m_cartridge._read( address );
-    }
-    else if( address == 0xFF00 )
-    {
-        assert( false ); // Need to implement the joypad.
-        return 0xFF;
+        return m_gameboy.get_cartridge()._read( address );
     }
 
     u16 mapped_address = _remap_address( address );
@@ -42,7 +40,7 @@ void MemorySystem::write( u16 address, u8 data )
 {
     if( _is_memory_handled_by_cartridge( address ) )
     {
-        m_cartridge._write( address, data );
+        m_gameboy.get_cartridge()._write( address, data );
         return;
     }
     
@@ -56,6 +54,18 @@ void MemorySystem::write( u16 address, u8 data )
     if( address == DIV_ADDR )
     {
         data = 0x00;
+    }
+    else if( address == P1_JOYP_ADDR )
+    {
+        // Remove the low part of data as it is read only.
+
+        if( ( ( data & 0x30 ) ^ 0x30 ) != 0 )
+        {
+            u8 low_data = m_gameboy.get_joypad().get_inputs_for_memory( data );
+            data = ( data & 0xF0 ) | low_data;
+        }
+        else
+            data &= 0xF0;
     }
 
     u16 mapped_address = _remap_address( address );

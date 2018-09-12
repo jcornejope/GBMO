@@ -4,7 +4,7 @@
 
 GBMO::GBMO( Options const& options )
     : m_cartridge( options.m_rom_path )
-    , m_memory_system( m_cartridge )
+    , m_memory_system( *this )
     , m_cpu( m_memory_system )
     , m_joypad( m_cpu, m_memory_system )
 {

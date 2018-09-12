@@ -2,7 +2,7 @@
 
 #include "utils/types.h"
 
-class Cartridge;
+class GBMO;
 
 class MemorySystem final
 {
@@ -12,7 +12,7 @@ class MemorySystem final
     static u16 const SYSTEM_MEMORY_SIZE     = 0x10000 - CARTRIDGE_ROM_MAP_SIZE - CARTRIDGE_RAM_MAP_SIZE - ECHO_RAM_SIZE;
 
 public:
-    MemorySystem( Cartridge& cartridge );
+    MemorySystem( GBMO& gameboy );
 
     u8  read_8( u16 address );
     u16 read_16( u16 address );
@@ -25,5 +25,5 @@ private:
     u16 _remap_address( u16 const address ) const;
 
     u8 m_memory[SYSTEM_MEMORY_SIZE];
-    Cartridge& m_cartridge;
+    GBMO& m_gameboy;
 };

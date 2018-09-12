@@ -14,7 +14,7 @@ public:
     Joypad( CPU& cpu, MemorySystem& memory );
 
     void handle_input_event( SDL_Event& event );
-    void set_inputs_on_memory();
+    u8 get_inputs_for_memory( u8 joyp );
 
     void set_input_bindings( InputsConfig const& new_inputs );
 

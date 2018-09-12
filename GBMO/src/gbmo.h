@@ -17,6 +17,9 @@ public:
     bool update();
     void handle_input_event( SDL_Event& event );
 
+    Cartridge& get_cartridge() { return m_cartridge;  }
+    Joypad& get_joypad() { return m_joypad; }
+
 private:
     Cartridge m_cartridge;
     MemorySystem m_memory_system;

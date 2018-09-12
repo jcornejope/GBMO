@@ -6,7 +6,7 @@
 Joypad::Joypad( CPU& cpu, MemorySystem& memory )
     : m_cpu( cpu )
     , m_memory( memory )
-    , m_input_flags( 0 )
+    , m_input_flags( 0xFF )
 {
 }
 
@@ -29,13 +29,12 @@ void Joypad::handle_input_event( SDL_Event & event )
         }
     }
 
-    set_inputs_on_memory();
+    // This will trigger the memory_system to request an update on the inputs and store in memory.
+    m_memory.write( P1_JOYP_ADDR, m_memory.read_8( P1_JOYP_ADDR ) );
 }
 
-void Joypad::set_inputs_on_memory()
+u8 Joypad::get_inputs_for_memory( u8 joyp )
 {
-    u8 joyp = m_memory.read_8( P1_JOYP_ADDR );
-
     auto create_new_joyp_and_request_interrupt = [&joyp, this]( u8 const new_low_joyp )
     {
         if( ( new_low_joyp & ( new_low_joyp ^ ( joyp & 0x0F ) ) ) != 0 )
@@ -55,7 +54,7 @@ void Joypad::set_inputs_on_memory()
         create_new_joyp_and_request_interrupt( ( m_input_flags & 0x0F ) );
     }
 
-    m_memory.write( P1_JOYP_ADDR, joyp );
+    return joyp;
 }
 
 void Joypad::set_input_bindings( InputsConfig const& new_inputs )
