@@ -31,7 +31,10 @@ typedef SDL_Keycode InputBind;
 
 typedef InputBind InputsConfig[Inputs::NUM_INPUTS];
 
-static InputsConfig const default_inputs = { SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, SDLK_z, SDLK_x, SDLK_LSHIFT, SDLK_RETURN };
+namespace
+{
+    InputsConfig const default_inputs = { SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, SDLK_z, SDLK_x, SDLK_RSHIFT, SDLK_RETURN };
+};
 
 struct Options
 {
@@ -40,7 +43,7 @@ struct Options
         , m_volume( 0.f )
         , m_log( true )
     {
-        std::memcpy( m_inputs, default_inputs, Inputs::NUM_INPUTS );
+        std::memcpy( m_inputs, default_inputs, sizeof( InputBind ) * Inputs::NUM_INPUTS );
     }
 
     std::string m_rom_path;

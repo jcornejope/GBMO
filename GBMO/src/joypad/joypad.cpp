@@ -12,19 +12,26 @@ Joypad::Joypad( CPU& cpu, MemorySystem& memory )
 
 void Joypad::handle_input_event( SDL_Event & event )
 {
+    // Don't care about repeats so early exit
+    if( event.key.repeat != 0 )
+        return;
+
     for( u32 i = 0; i < Inputs::NUM_INPUTS; ++i )
     {
         // TODO: Check if the input is key or gamepad button or gamepad axis.
         // assume key for now.
+        u8 bit = ( 1 << i );
         if( event.key.keysym.sym == m_inputs[i] )
         {
-            if( event.type == SDL_KEYDOWN && ( m_input_flags & i ) != 0 )
+            if( event.type == SDL_KEYDOWN && ( m_input_flags & bit ) != 0 )
             {
-                m_input_flags &= ~i; // 0 is pressed!
+                m_input_flags &= ~bit; // 0 is pressed!
+                break;
             }
             else if( event.type == SDL_KEYUP )
             {
-                m_input_flags |= i;
+                m_input_flags |= bit;
+                break;
             }
         }
     }
@@ -54,11 +61,17 @@ u8 Joypad::get_inputs_for_memory( u8 joyp )
         create_new_joyp_and_request_interrupt( ( m_input_flags & 0x0F ) );
     }
 
+    //for( u32 i = 0; i < Inputs::NUM_INPUTS; ++i )
+    //{
+    //    std::cout << i << " : " << ((m_input_flags & (1 << i)) >> i ) << " | ";
+    //}
+    //std::cout << std::hex << int(joyp) << std::endl;
+
     return joyp;
 }
 
 void Joypad::set_input_bindings( InputsConfig const& new_inputs )
 {
-    std::memcpy( m_inputs, new_inputs, Inputs::NUM_INPUTS );
+    std::memcpy( m_inputs, new_inputs, sizeof( InputBind ) * Inputs::NUM_INPUTS );
 }
 

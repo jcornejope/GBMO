@@ -12,6 +12,11 @@ MemorySystem::MemorySystem( GBMO& gameboy )
     : m_gameboy( gameboy )
 {
     std::memset( &m_memory, 0, SYSTEM_MEMORY_SIZE );
+
+    // TODO: REMOVE THIS FROM HERE
+    u16 mapped_address = _remap_address( P1_JOYP_ADDR );
+    assert( mapped_address < SYSTEM_MEMORY_SIZE );
+    m_memory[mapped_address] = 0xFF;
 }
 
 u8 MemorySystem::read_8( u16 address )
