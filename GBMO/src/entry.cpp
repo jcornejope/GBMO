@@ -4,13 +4,6 @@
 #include "gbmo.h"
 #include "options.h"
 
-int foo(int param)
-{
-    std::cout << param << std::endl;
-
-    return 3;
-}
-
 int main( int argc, char* argv[] )
 {
     // TODO: SUPPORT args
@@ -23,14 +16,17 @@ int main( int argc, char* argv[] )
         return 1;
     }
 
-    SDL_Window* window = 0;
-    window = SDL_CreateWindow( "GBMO v0.1", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 160, 144, SDL_WINDOW_SHOWN );
-    //SDL_Renderer* renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
-    SDL_Event event;
-
     Options options;
     options.m_rom_path = "D:\\Dev\\GBMO\\rom_t.gb";
     GBMO emulator(options);
+
+    SDL_Window* window = 0;
+    window = SDL_CreateWindow( "GBMO v0.1", 
+                               SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 
+                               160 * options.m_resolution_scale, 144 * options.m_resolution_scale,
+                               SDL_WINDOW_SHOWN );
+    //SDL_Renderer* renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+    SDL_Event event;
 
     bool emulator_running = true;
     while( emulator_running )
