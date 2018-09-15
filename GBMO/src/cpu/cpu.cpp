@@ -1,8 +1,8 @@
 
 #include "cpu/cpu.h"
 #include "memory/memory_system.h"
+#include "utils/assert.h"
 
-#include <cassert>
 #include <iostream>
 
 #define LOG_CPU_INSTRUCTIONS
@@ -151,7 +151,7 @@ u32 CPU::update()
     case CPUMode::LOCKED:   return 0;   break;
     }
 
-    assert( false );
+    ERROR_MSG( "Invalid CPU Mode [%d]", static_cast<int>( m_mode ) );
     return 0;
 }
 
@@ -234,7 +234,7 @@ void CPU::update_divider_register( u32 const cycles )
 
 u8 CPU::_get_interrupt_jump_vector_address( u8 const bit_index ) const
 {
-    assert( bit_index >= 0 && bit_index < 5 );
+    ASSERT_MSG( bit_index >= 0 && bit_index < 5, "Bit index out of range on [_get_interrupt_jump_vector_address]" );
 
     return static_cast<u8>( 0x40 + ( 0x08 * bit_index ) );
 }
@@ -282,7 +282,7 @@ void CPU::_process_half_carry_flag( u8 const value, u8 const carry, bool const i
 
 void CPU::_process_half_carry_flag( u8 const reg, u8 const value, u8 const carry, bool const is_addition )
 {
-    assert( carry == 0 || carry == 1 );
+    ASSERT( carry == 0 || carry == 1 );
 
     if( ( is_addition  && ( ( ( reg & 0x0F ) + ( value & 0x0F ) + carry ) > 0x0F ) ) ||
         ( !is_addition && ( ( ( reg & 0x0F ) - ( value & 0x0F ) - carry ) < 0x00 ) ) )
@@ -301,28 +301,28 @@ void CPU::_process_half_carry_flag( u16 const reg, u16 const value )
 
 void CPU::_set_flag( Flags const flag )
 {
-    assert( flag >= Flags::CARRY && flag <= Flags::ZERO );
+    ASSERT_MSG( flag >= Flags::CARRY && flag <= Flags::ZERO, "flag [%d] is not valid", flag );
 
     m_registers.f |= flag;
 }
 
 u8 CPU::_get_flag( Flags const flag ) const
 {
-    assert( flag >= Flags::CARRY && flag <= Flags::ZERO );
+    ASSERT_MSG( flag >= Flags::CARRY && flag <= Flags::ZERO, "flag [%d] is not valid", flag );
 
     return m_registers.f & flag;
 }
 
 void CPU::_reset_flag( Flags const flag )
 {
-    assert( flag >= Flags::CARRY && flag <= Flags::ZERO );
+    ASSERT_MSG( flag >= Flags::CARRY && flag <= Flags::ZERO, "flag [%d] is not valid", flag );
 
     m_registers.f &= ~flag;
 }
 
 bool CPU::_is_flag_set( Flags const flag ) const
 {
-    assert( flag >= Flags::CARRY && flag <= Flags::ZERO );
+    ASSERT_MSG( flag >= Flags::CARRY && flag <= Flags::ZERO, "flag [%d] is not valid", flag );
 
     return ( m_registers.f & flag ) != 0;
 }

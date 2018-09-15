@@ -1,36 +1,45 @@
 #pragma once
 
 #ifdef NDEBUG
+
 #define ASSERT_MSG(exp, msg, ...) ((void)0)
+
 #else
-#include <cassert>
-#include <cstdio>
+
+#include <iostream>
+
 #define MAX_ASSERT_MSG_LENGTH 256
-#define ASSERT_MSG(exp, msg, ...) assert_msg_impl(#exp, (exp), __FILE__, __LINE__, msg, __VA_ARGS__)
 
-template <typename... Args>
-void assert_msg_impl( const char* exp_str, bool exp, const char* file, int line, const char* msg, Args... args )
+#define ASSERT( exp )               assert_msg_impl( "Assert failed", #exp, exp, __FILE__, __LINE__, #exp );
+#define ASSERT_MSG( exp, msg, ... ) assert_msg_impl( "Assert failed", #exp, (exp), __FILE__, __LINE__, msg, __VA_ARGS__ )
+#define ERROR_MSG( msg, ... )       assert_msg_impl( "ERROR\t", "ERROR", false, __FILE__, __LINE__, msg, __VA_ARGS__ )
+
+namespace
 {
-    if( !exp )
+    template <typename... Args>
+    void assert_msg_impl( char const* assert_type, char const* exp_str, bool exp, char const* file, int line, char const* msg, Args... args )
     {
-        std::cerr << "=========================================" << std::endl;
-        std::cerr << "Assert failed:\t";
-        constexpr bool zero_args = sizeof...( args ) == 0;
-        if( zero_args )
+        if( !exp )
         {
-            std::cerr << msg << std::endl;
-        }
-        else
-        {
-            char buf[MAX_ASSERT_MSG_LENGTH];
-            std::snprintf( buf, MAX_ASSERT_MSG_LENGTH, msg, args... );
-            std::cerr << buf << std::endl;
-        }
-        std::cerr << "Expected:\t" << exp_str << std::endl
-            << "Source:\t\t" << file << ", line " << line << std::endl;
-        std::cerr << "=========================================" << std::endl;
+            std::cerr << "===========================================================" << std::endl;
+            std::cerr << assert_type << ":\t";
+            constexpr bool zero_args = sizeof...( args ) == 0;
+            if( zero_args )
+            {
+                std::cerr << msg << std::endl;
+            }
+            else
+            {
+                char buf[MAX_ASSERT_MSG_LENGTH];
+                std::snprintf( buf, MAX_ASSERT_MSG_LENGTH, msg, args... );
+                std::cerr << buf << std::endl;
+            }
+            std::cerr << "Expected:\t" << exp_str << std::endl
+                << "Source:\t\t" << file << ", line " << line << std::endl;
+            std::cerr << "===========================================================" << std::endl;
 
-        abort();
+            abort();
+        }
     }
 }
 #undef MAX_ASSERT_MSG_LENGTH

@@ -41,8 +41,7 @@ Fx 	SET 6,B     SET 6,C     SET 6,D     SET 6,E     SET 6,H     SET 6,L     SET 
 
 #include "cpu.h"
 #include "memory/memory_system.h"
-
-#include <cassert>
+#include "utils/assert.h"
 
 // Instruction set
 void CPU::_initialize_instruction_tables()
@@ -629,7 +628,7 @@ u32 CPU::_ld_nn_a()
 
 u32 CPU::_ld_inc_dec_hl_a( s8 inc )
 {
-    assert( inc == 1 || inc == -1 );
+    ASSERT_MSG( inc == 1 || inc == -1, "inc value [%d] must be 1 or -1", inc );
     m_memory.write( m_registers.hl, m_registers.a );
     m_registers.hl += inc;
 
@@ -638,7 +637,7 @@ u32 CPU::_ld_inc_dec_hl_a( s8 inc )
 
 u32 CPU::_ld_inc_dec_a_hl( s8 inc )
 {
-    assert( inc == 1 || inc == -1 );
+    ASSERT_MSG( inc == 1 || inc == -1, "inc value [%d] must be 1 or -1", inc );
     m_registers.a = m_memory.read_8( m_registers.hl );
     m_registers.hl += inc;
 
@@ -1116,7 +1115,7 @@ bool CPU::_condition_passed( JumpCondition const condition ) const
     case JumpCondition::NO_ZERO:        return !_is_flag_set( Flags::ZERO );    break;
     case JumpCondition::NO_CONDITION:   return true;                            break;
     default:
-        assert( false );
+        ERROR_MSG( "Invalid Jump condition [%d]!", static_cast<int>( condition ) );
         break;
     }
 
@@ -1198,7 +1197,7 @@ u32 CPU::_reti()
 }
 u32 CPU::_call_routine( u8 const routine_address )
 {
-    //assert( // RST Commands
+    //ASSERT( // RST Commands
     //        routine_address == 0x00 || routine_address == 0x08 ||
     //        routine_address == 0x10 || routine_address == 0x18 ||
     //        routine_address == 0x20 || routine_address == 0x28 ||
@@ -1209,7 +1208,7 @@ u32 CPU::_call_routine( u8 const routine_address )
     //        routine_address == 0x60 );
 
     // Same but shorter
-    assert( routine_address <= 0x60 && ( routine_address & 0x07 ) == 0 );
+    ASSERT_MSG( routine_address <= 0x60 && ( routine_address & 0x07 ) == 0, "Invalid routine or interrupt address [%#06x]", routine_address );
 
     _push( m_registers.pc );
     m_registers.pc = routine_address;

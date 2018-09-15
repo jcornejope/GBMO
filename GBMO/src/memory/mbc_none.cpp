@@ -1,22 +1,23 @@
 
 #include "memory/mbc_none.h"
-#include <cassert>
+#include "utils/assert.h"
 
 u8 MBC_None::read( u16 address )
 {
-    assert( ( address < 0x8000 ) || ( address >= 0xA000 && address < 0xC000 ) );
+    ASSERT_MSG( ( address < 0x8000 ) || ( address >= 0xA000 && address < 0xC000 ), 
+                "Address [%#06x] is not a valid cartridge address", address );
 
     if( address < 0x8000 )
         return m_cartridge_rom[address];
     else if( m_cartridge_ram != nullptr && address >= 0xA000 && address < 0xC000 )
         return m_cartridge_ram[address - 0xA000];
 
-    assert( false );
+    //ERROR_MSG( "This shouldn't happen and is already asserted" );
     return 0xFF;
 }
 
 void MBC_None::write( u16 /*address*/, u8 /*data*/ )
 {
     // TODO handle ram
-    assert( false );
+    ERROR_MSG( "NOT IMPLEMENTED!" );
 }

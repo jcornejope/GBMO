@@ -2,8 +2,8 @@
 #include "cartridge.h"
 
 #include "memory/mbc_none.h"
+#include "utils/assert.h"
 
-#include <assert.h>
 #include <fstream>
 #include <iostream>
 
@@ -132,7 +132,7 @@ u16 Cartridge::get_cartridge_checksum() const
 
 u8 Cartridge::_read( u16 address )
 {
-    assert( m_mbc );
+    ASSERT( m_mbc );
     if( m_mbc == nullptr )
         return 0xFF;
     return m_mbc->read( address );
@@ -140,7 +140,7 @@ u8 Cartridge::_read( u16 address )
 
 void Cartridge::_write( u16 address, u8 data )
 {
-    assert( m_mbc );
+    ASSERT( m_mbc );
     if( m_mbc != nullptr )
         m_mbc->write( address, data );
 }

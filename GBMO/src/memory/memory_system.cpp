@@ -4,9 +4,7 @@
 #include "cartridge/cartridge.h"
 #include "gbmo.h"
 #include "joypad/joypad.h"
-
-#include <cstring>
-#include <cassert>
+#include "utils/assert.h"
 
 MemorySystem::MemorySystem( GBMO& gameboy )
     : m_gameboy( gameboy )
@@ -15,7 +13,6 @@ MemorySystem::MemorySystem( GBMO& gameboy )
 
     // TODO: REMOVE THIS FROM HERE
     u16 mapped_address = _remap_address( P1_JOYP_ADDR );
-    assert( mapped_address < SYSTEM_MEMORY_SIZE );
     m_memory[mapped_address] = 0xFF;
 }
 
@@ -27,7 +24,6 @@ u8 MemorySystem::read_8( u16 address )
     }
 
     u16 mapped_address = _remap_address( address );
-    assert( mapped_address < SYSTEM_MEMORY_SIZE );
     return m_memory[mapped_address];
 }
 
@@ -51,7 +47,7 @@ void MemorySystem::write( u16 address, u8 data )
     
     if( address >= 0xFEA0 && address <= 0xFEFF )
     {
-        assert( false ); // THIS SHOULDN'T BE HAPPENING. THIS IS PROHIBITED!!
+        ERROR_MSG( "Trying to write on PROHIBITED address [%#06x]", address );
         return;
     }
 
@@ -74,7 +70,6 @@ void MemorySystem::write( u16 address, u8 data )
     }
 
     u16 mapped_address = _remap_address( address );
-    assert( mapped_address < SYSTEM_MEMORY_SIZE );
     m_memory[mapped_address] = data;
 }
 
@@ -104,5 +99,6 @@ u16 MemorySystem::_remap_address( u16 const address ) const
             mapped_address -= ECHO_RAM_SIZE;
     }
 
+    ASSERT_MSG( mapped_address < SYSTEM_MEMORY_SIZE, "mapped_address [%#06x] out of bounds!", mapped_address );
     return mapped_address;
 }
