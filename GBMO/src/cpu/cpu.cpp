@@ -5,6 +5,8 @@
 #include <cassert>
 #include <iostream>
 
+#define LOG_CPU_INSTRUCTIONS
+
 u32 const CPU::CPU_SPEED              = 4194304;
 u32 const CPU::CPU_SPEED_CGB_DOUBLE   = 8400000;
 
@@ -128,18 +130,20 @@ u32 CPU::update()
     {
     case CPUMode::NORMAL:
     {
-        u16 pc_addr = m_registers.pc;
         u8 opcode = m_memory.read_8( m_registers.pc++ );
         if( m_base_instruction[opcode] == nullptr )
         {
             m_mode = CPUMode::LOCKED;
             return 0;
         }
+#ifdef LOG_CPU_INSTRUCTIONS
+        u16 pc_addr = m_registers.pc - 1;
         u32 cycles = m_base_instruction[opcode]();
         std::cout << std::hex << int( pc_addr ) << ": " << int( opcode ) << " -> " << std::dec << cycles << std::endl;
         return cycles;
-
-        //return m_base_instruction[opcode]();
+#else
+        return m_base_instruction[opcode]();
+#endif
         break;
     }
     case CPUMode::HALT:     return 4;   break;
