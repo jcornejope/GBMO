@@ -39,6 +39,7 @@
     <ClInclude Include="src\memory\mbc_none.h" />
     <ClInclude Include="src\memory\memory_system.h" />
     <ClInclude Include="src\options.h" />
+    <ClInclude Include="src\utils\assert.h" />
     <ClInclude Include="src\utils\types.h" />
     <ClInclude Include="src\utils\utils.h" />
   </ItemGroup>

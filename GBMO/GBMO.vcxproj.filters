@@ -78,5 +78,8 @@
     <ClInclude Include="src\joypad\joypad.h">
       <Filter>joypad</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils\assert.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
