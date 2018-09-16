@@ -2,7 +2,9 @@
 
 #ifdef NDEBUG
 
-#define ASSERT_MSG(exp, msg, ...) ((void)0)
+#define ASSERT( exp ) ((void)0)
+#define ASSERT_MSG( exp, msg, ... ) ((void)0)
+#define ERROR_MSG( msg, ... ) ((void)0)
 
 #else
 
@@ -10,7 +12,7 @@
 
 #define MAX_ASSERT_MSG_LENGTH 256
 
-#define ASSERT( exp )               assert_msg_impl( "Assert failed", #exp, exp, __FILE__, __LINE__, #exp );
+#define ASSERT( exp )               assert_msg_impl( "Assert failed", #exp, exp, __FILE__, __LINE__, #exp )
 #define ASSERT_MSG( exp, msg, ... ) assert_msg_impl( "Assert failed", #exp, (exp), __FILE__, __LINE__, msg, __VA_ARGS__ )
 #define ERROR_MSG( msg, ... )       assert_msg_impl( "ERROR\t", "ERROR", false, __FILE__, __LINE__, msg, __VA_ARGS__ )
 

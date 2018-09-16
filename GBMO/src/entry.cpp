@@ -1,3 +1,6 @@
+
+#include <SDL.h>
+
 #include <iostream>
 
 #include "gbmo.h"
