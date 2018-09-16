@@ -24,6 +24,9 @@
     <ClCompile Include="src\joypad\joypad.cpp">
       <Filter>joypad</Filter>
     </ClCompile>
+    <ClCompile Include="src\display\display.cpp">
+      <Filter>display</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="memory">
@@ -80,6 +83,9 @@
     </ClInclude>
     <ClInclude Include="src\utils\assert.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\display\display.h">
+      <Filter>display</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

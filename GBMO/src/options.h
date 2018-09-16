@@ -1,6 +1,8 @@
 #pragma once
 
 #include "utils/types.h"
+
+#include <SDL_keycode.h>
 #include <string>
 //#include <variant>
 
