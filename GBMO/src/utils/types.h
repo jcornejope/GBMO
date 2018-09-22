@@ -39,6 +39,19 @@ enum ADDRESSES : u16
 
     IF_ADDR = 0xFF0F,
     IE_ADDR = 0xFFFF,
+
+    LCD_CONTROL_ADDR    = 0xFF40,
+    LCDC_STAT_ADDR      = 0xFF41,
+    SCROLL_Y_ADDR       = 0xFF42,
+    SCROLL_X_ADDR       = 0xFF43,
+    LCDC_Y_ADDR         = 0xFF44,
+    LY_COMPARE_ADDR     = 0xFF45,
+    DMA_TRANSFER_ADDR   = 0xFF46,
+    BG_PALETTE_ADDR     = 0xFF47,
+    OBJ_1_PALETTE_ADDR  = 0xFF48,
+    OBJ_2_PALETTE_ADDR  = 0xFF49,
+    WINDOW_Y_ADDR       = 0xFF4A,
+    WINDOW_X_ADDR       = 0xFF4B,
 };
 
 enum Interrupts : u8
