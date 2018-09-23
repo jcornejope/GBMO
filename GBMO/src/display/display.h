@@ -3,6 +3,7 @@
 #include "utils/types.h"
 
 class MemorySystem;
+class CPU;
 struct Options;
 
 struct SDL_Window;
@@ -51,16 +52,37 @@ class Display
     static u32 const SCREEN_WIDTH   = 160;
     static u32 const SCREEN_HEIGHT  = 144;
 
+    static u32 const H_BLANK_MIN_CYCLES     = 201;
+    static u32 const OAM_MIN_CYCLES         = 77;
+    static u32 const TRANSFER_MIN_CYCLES    = 169;
+    static u32 const CYCLES_BEFORE_V_BLANK  = 456;
+    static u32 const V_BLANK_MAX_CYCLES     = 4560;
+
 public:
-    Display( MemorySystem& memory );
+    Display( CPU& cpu, MemorySystem& memory );
     ~Display();
 
     bool init( Options const& options );
-    void update();
+    void update( u32 cycles );
     void render();
 
 private:
+    void _set_mode( Mode new_mode );
+    void _process_ly_lyc();
+    
+    // Mode update
+    void _update_h_blank();
+    void _update_v_blank();
+    void _update_oam_ram();
+    void _update_transferring();
+
+    // Draw to the current scanline in the frame buffer
+    void _draw_background_to_frame_buffer();
+    void _draw_window_to_frame_buffer();
+    void _draw_sprites_to_frame_buffer();
+
     MemorySystem& m_memory;
+    CPU& m_cpu;
 
     SDL_Window* m_window;
     SDL_Renderer* m_renderer;
@@ -69,4 +91,7 @@ private:
     Pixel m_frame_buffer[SCREEN_WIDTH * SCREEN_HEIGHT];
 
     Mode m_mode;
+
+    u32 m_display_cycles;
+    u32 m_debug_display_cycles_before_v_blank;
 };

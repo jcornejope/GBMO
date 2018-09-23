@@ -10,7 +10,7 @@ GBMO::GBMO( Options const& options )
     , m_memory_system( *this )
     , m_cpu( m_memory_system )
     , m_joypad( m_cpu, m_memory_system )
-    , m_display( m_memory_system )
+    , m_display( m_cpu, m_memory_system )
 {
     m_joypad.set_input_bindings( options.m_inputs );
 
@@ -39,11 +39,16 @@ bool GBMO::update()
     if( !handle_input_event() )
         return false;
 
-    u32 cycles = m_cpu.process_interrupts();
-    cycles += m_cpu.update();
-    m_cpu.update_timer_registers( cycles );
-    m_cpu.update_divider_register( cycles );
-    m_display.update();
+    u32 cycles = 0;
+    while( cycles < 70224 )
+    {
+        cycles += m_cpu.process_interrupts();
+        cycles += m_cpu.update();
+        m_cpu.update_timer_registers( cycles );
+        m_cpu.update_divider_register( cycles );
+        m_display.update( cycles );
+    }
+    m_display.render();
 
     return true;
 }
