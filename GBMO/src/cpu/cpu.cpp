@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-#define LOG_CPU_INSTRUCTIONS
+//#define LOG_CPU_INSTRUCTIONS
 
 u32 const CPU::CPU_SPEED              = 4194304;
 u32 const CPU::CPU_SPEED_CGB_DOUBLE   = 8400000;
