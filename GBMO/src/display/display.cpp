@@ -7,6 +7,7 @@
 #include "utils/assert.h"
 
 #include <SDL.h>
+#include <iostream>  // FOR THE DEBUG CYCLES... REMOVE LATER PLEASE
 
 Display::Display( CPU& cpu, MemorySystem & memory )
     : m_memory( memory )
