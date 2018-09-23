@@ -7,7 +7,6 @@
 #include "utils/assert.h"
 
 #include <SDL.h>
-#include <iostream>  // FOR THE DEBUG CYCLES... REMOVE LATER PLEASE
 
 Display::Display( CPU& cpu, MemorySystem & memory )
     : m_memory( memory )
@@ -17,7 +16,6 @@ Display::Display( CPU& cpu, MemorySystem & memory )
     , m_texture( nullptr )
     , m_mode( Mode::SEARCHING_OAM_RAM )
     , m_display_cycles(0)
-    , m_debug_display_cycles_before_v_blank(0)
 {
     std::memset( m_frame_buffer, 0xFF, sizeof( m_frame_buffer ) );
 }
@@ -54,7 +52,6 @@ void Display::update( u32 cycles )
     if( ( lcdc & DISPLAY_ENABLE ) != 0 )
     {
         m_display_cycles += cycles;
-        m_debug_display_cycles_before_v_blank += cycles;
         m_mode = static_cast<Mode>( lcdc & MODE );
 
         switch( m_mode )
@@ -71,7 +68,6 @@ void Display::update( u32 cycles )
     else
     {
         m_display_cycles = 0;
-        m_debug_display_cycles_before_v_blank = 0;
         m_memory.write( LCDC_Y_ADDR, u8( 0 ) );
         _set_mode( Mode::H_BLANK );
         _process_ly_lyc();
@@ -121,16 +117,8 @@ void Display::_update_h_blank()
 
         if( ly == SCREEN_HEIGHT )
         {
-            if( m_debug_display_cycles_before_v_blank != CYCLES_BEFORE_V_BLANK )
-            {
-                std::cout << "There were [" << m_debug_display_cycles_before_v_blank 
-                          << "] cycles before V-Blank instead of [" << CYCLES_BEFORE_V_BLANK 
-                          << "]" << std::endl;
-            }
-
             _set_mode( Mode::V_BLANK );
-            m_display_cycles = 0;
-            m_debug_display_cycles_before_v_blank = 0;
+            //m_display_cycles = 0; / need this?
 
             u8 lcdc_stat = m_memory.read_8( LCDC_STAT_ADDR );
             if( ( lcdc_stat & V_BLANK_INT ) != 0 )
@@ -153,6 +141,33 @@ void Display::_update_h_blank()
 
 void Display::_update_v_blank()
 {
+    if( m_display_cycles >= CYCLES_TO_LY_INCREMENT )
+    {
+        m_display_cycles -= CYCLES_TO_LY_INCREMENT;
+
+        // V-BLANK lasts 10 times CYCLES_TO_LY_INCREMENT (V_BLANK_CYCLES = 4560)
+        // that means the LY increases from 144 to 153 during V-Blank.
+        // the following increment will change LY to 0 and change mode.
+        u8 ly = m_memory.read_8( LCDC_Y_ADDR ) + 1;
+        if( ly == 153 )
+        {
+            ly = 0;
+        }
+
+        m_memory.write( LCDC_Y_ADDR, ly );
+        _process_ly_lyc();
+
+        if( ly == 0 )
+        {
+            _set_mode( Mode::SEARCHING_OAM_RAM );
+
+            u8 lcdc_stat = m_memory.read_8( LCDC_STAT_ADDR );
+            if( ( lcdc_stat & OAM_INT ) != 0 )
+            {
+                m_cpu.request_interrupt( Interrupts::LCD_STAT );
+            }
+        }
+    }
 }
 
 void Display::_update_oam_ram()

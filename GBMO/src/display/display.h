@@ -55,8 +55,8 @@ class Display
     static u32 const H_BLANK_MIN_CYCLES     = 201;
     static u32 const OAM_MIN_CYCLES         = 77;
     static u32 const TRANSFER_MIN_CYCLES    = 169;
-    static u32 const CYCLES_BEFORE_V_BLANK  = 456;
-    static u32 const V_BLANK_MAX_CYCLES     = 4560;
+    static u32 const CYCLES_TO_LY_INCREMENT = 456;
+    static u32 const V_BLANK_CYCLES         = 4560;
 
 public:
     Display( CPU& cpu, MemorySystem& memory );
@@ -93,5 +93,4 @@ private:
     Mode m_mode;
 
     u32 m_display_cycles;
-    u32 m_debug_display_cycles_before_v_blank;
 };
