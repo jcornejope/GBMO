@@ -52,9 +52,10 @@ class Display
     static u32 const SCREEN_WIDTH   = 160;
     static u32 const SCREEN_HEIGHT  = 144;
 
-    static u32 const H_BLANK_MIN_CYCLES     = 201;
-    static u32 const OAM_MIN_CYCLES         = 77;
-    static u32 const TRANSFER_MIN_CYCLES    = 169;
+    // Using average value for now...
+    static u32 const H_BLANK_MIN_CYCLES     = 204;  // 201 - 207
+    static u32 const OAM_MIN_CYCLES         = 80;   //  77 -  83
+    static u32 const TRANSFER_MIN_CYCLES    = 172;  // 169 - 175
     static u32 const CYCLES_TO_LY_INCREMENT = 456;
     static u32 const V_BLANK_CYCLES         = 4560;
 

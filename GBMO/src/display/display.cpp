@@ -49,10 +49,10 @@ bool Display::init( Options const & options )
 void Display::update( u32 cycles )
 {
     u8 lcdc = m_memory.read_8( LCD_CONTROL_ADDR );
-    if( ( lcdc & DISPLAY_ENABLE ) != 0 )
+    if( ( lcdc & LCDC::DISPLAY_ENABLE ) != 0 )
     {
         m_display_cycles += cycles;
-        m_mode = static_cast<Mode>( lcdc & MODE );
+        m_mode = static_cast<Mode>( lcdc & LCDC_STAT::MODE );
 
         switch( m_mode )
         {
@@ -83,13 +83,21 @@ void Display::render()
     SDL_RenderCopy( m_renderer, m_texture, NULL, NULL );
     SDL_RenderPresent( m_renderer );
 
-    std::memset( m_frame_buffer, m_frame_buffer[0].r + 1, sizeof( m_frame_buffer ) );
+    //std::memset( m_frame_buffer, m_frame_buffer[0].r + 1, sizeof( m_frame_buffer ) );
+    for( auto& p : m_frame_buffer )
+    {
+        p.r += 1;
+        p.g += 2;
+        p.b += 3;
+    }
 }
 
 void Display::_set_mode( Mode new_mode )
 {
     u32 new_mode_u32 = static_cast<u32>( new_mode );
-    ASSERT_MSG( ( new_mode_u32 & 0xFC ) == 0, "Trying to set an invalid mode [%d], it will be clamped! [%d]", new_mode_u32, new_mode_u32 & 0x03 );
+    ASSERT_MSG( ( new_mode_u32 & 0xFC ) == 0, 
+                "Trying to set an invalid mode [%d], it will be clamped! [%d]", 
+                new_mode_u32, new_mode_u32 & 0x03 );
 
     if( m_mode != new_mode )
     {
@@ -103,6 +111,27 @@ void Display::_set_mode( Mode new_mode )
 
 void Display::_process_ly_lyc()
 {
+    ASSERT_MSG( ( m_memory.read_8( LCD_CONTROL_ADDR ) & LCDC::DISPLAY_ENABLE ) != 0, 
+                "LCD display needs to be enabled to compare ly and lyc!. It doesn't make sense to do it otherwise." );
+
+    u8 ly = m_memory.read_8( LCDC_Y_ADDR );
+    u8 lyc = m_memory.read_8( LY_COMPARE_ADDR );
+    u8 lcdc_stat = m_memory.read_8( LCDC_STAT_ADDR );
+
+    if( ly == lyc )
+    {
+        lcdc_stat |= LCDC_STAT::LY_LYC_CONICIDENCE;
+        if( ( lcdc_stat & LCDC_STAT::LYC_INT ) != 0 )
+        {
+            m_cpu.request_interrupt( Interrupts::LCD_STAT );
+        }
+    }
+    else
+    {
+        lcdc_stat &= ~LCDC_STAT::LY_LYC_CONICIDENCE;
+    }
+
+    m_memory.write( LCDC_STAT_ADDR, lcdc_stat );
 }
 
 void Display::_update_h_blank()
@@ -121,7 +150,7 @@ void Display::_update_h_blank()
             //m_display_cycles = 0; / need this?
 
             u8 lcdc_stat = m_memory.read_8( LCDC_STAT_ADDR );
-            if( ( lcdc_stat & V_BLANK_INT ) != 0 )
+            if( ( lcdc_stat & LCDC_STAT::V_BLANK_INT ) != 0 )
             {
                 m_cpu.request_interrupt( Interrupts::V_BLANK );
             }
@@ -131,7 +160,7 @@ void Display::_update_h_blank()
             _set_mode( Mode::SEARCHING_OAM_RAM );
 
             u8 lcdc_stat = m_memory.read_8( LCDC_STAT_ADDR );
-            if( ( lcdc_stat & OAM_INT ) != 0 )
+            if( ( lcdc_stat & LCDC_STAT::OAM_INT ) != 0 )
             {
                 m_cpu.request_interrupt( Interrupts::LCD_STAT );
             }
@@ -162,7 +191,7 @@ void Display::_update_v_blank()
             _set_mode( Mode::SEARCHING_OAM_RAM );
 
             u8 lcdc_stat = m_memory.read_8( LCDC_STAT_ADDR );
-            if( ( lcdc_stat & OAM_INT ) != 0 )
+            if( ( lcdc_stat & LCDC_STAT::OAM_INT ) != 0 )
             {
                 m_cpu.request_interrupt( Interrupts::LCD_STAT );
             }
