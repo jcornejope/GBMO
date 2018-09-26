@@ -8,6 +8,9 @@
 
 #include <SDL.h>
 
+Display::Palette const Display::GREEN_PALETTE = { { 155,188,15 },{ 139,172,15 },{ 48,98,48 },{ 15,56,15 } };
+Display::Palette const Display::BW_PALETTE = { { 255,255,255 },{ 0xCC,0xCC,0xCC },{ 0x77,0x77,0x77 },{ 0x0,0x0,0x0 } };
+
 Display::Display( CPU& cpu, MemorySystem & memory )
     : m_memory( memory )
     , m_cpu( cpu )
@@ -70,7 +73,7 @@ void Display::update( u32 cycles )
         m_display_cycles = 0;
         m_memory.write( LCDC_Y_ADDR, u8( 0 ) );
         _set_mode( Mode::H_BLANK );
-        _process_ly_lyc();
+        //_process_ly_lyc();    // Don't think we need this here...
     }
 }
 
@@ -83,13 +86,13 @@ void Display::render()
     SDL_RenderCopy( m_renderer, m_texture, NULL, NULL );
     SDL_RenderPresent( m_renderer );
 
-    //std::memset( m_frame_buffer, m_frame_buffer[0].r + 1, sizeof( m_frame_buffer ) );
-    for( auto& p : m_frame_buffer )
-    {
-        p.r += 1;
-        p.g += 2;
-        p.b += 3;
-    }
+    ////std::memset( m_frame_buffer, m_frame_buffer[0].r + 1, sizeof( m_frame_buffer ) );
+    //for( auto& p : m_frame_buffer )
+    //{
+    //    p.r += 1;
+    //    p.g += 2;
+    //    p.b += 3;
+    //}
 }
 
 void Display::_set_mode( Mode new_mode )
@@ -112,7 +115,7 @@ void Display::_set_mode( Mode new_mode )
 void Display::_process_ly_lyc()
 {
     ASSERT_MSG( ( m_memory.read_8( LCD_CONTROL_ADDR ) & LCDC::DISPLAY_ENABLE ) != 0, 
-                "LCD display needs to be enabled to compare ly and lyc!. It doesn't make sense to do it otherwise." );
+                "LCD display needs to be enabled to compare ly and lyc!. It doesn't make sense to do it." );
 
     u8 ly = m_memory.read_8( LCDC_Y_ADDR );
     u8 lyc = m_memory.read_8( LY_COMPARE_ADDR );
@@ -147,7 +150,7 @@ void Display::_update_h_blank()
         if( ly == SCREEN_HEIGHT )
         {
             _set_mode( Mode::V_BLANK );
-            //m_display_cycles = 0; / need this?
+            //m_display_cycles = 0; // need this?
 
             u8 lcdc_stat = m_memory.read_8( LCDC_STAT_ADDR );
             if( ( lcdc_stat & LCDC_STAT::V_BLANK_INT ) != 0 )
@@ -225,6 +228,42 @@ void Display::_update_transferring()
 
 void Display::_draw_background_to_frame_buffer()
 {
+    u8 const lcdc = m_memory.read_8( LCD_CONTROL_ADDR );
+    ASSERT( lcdc & LCDC::DISPLAY_ENABLE );
+    if( ( lcdc & LCDC::BG_DISPLAY ) == 0 )
+    {
+        return;
+    }
+    
+    u8 const scroll_y = m_memory.read_8( SCROLL_Y_ADDR );
+    u8 const scroll_x = m_memory.read_8( SCROLL_X_ADDR );
+    u8 const lcd_y = m_memory.read_8( LCDC_Y_ADDR );
+    u8 const dmg_palette = m_memory.read_8( BG_PALETTE_ADDR );
+
+    u16 const tile_map_address = ( lcdc & LCDC::BG_TILE_MAP_SELECT ) == 0 ? 0x9800 : 0x9C00;
+    u16 const tile_data_address = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0 ? 0x8800 : 0x8000;
+
+    u8 const y_start_tile = ( ( scroll_y + lcd_y ) >> 3 ) << 5; // ((y / 8) * 32)
+
+    for( u8 i = 0; i < SCREEN_WIDTH; ++i )
+    {
+        u8 const x = ( scroll_x + i ) >> 3;
+        u8 const map_id = y_start_tile + x;
+        ASSERT( map_id < 1024 );
+
+        u16 const tile_address = tile_map_address + map_id;
+        u8 const tile_data_id = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0
+                        ? static_cast<u8>( static_cast<s16>( m_memory.read_8( tile_address ) ) + 128 )
+                        : m_memory.read_8( tile_address );
+
+        word const tile_data = { m_memory.read_16( tile_data_address + ( tile_data_id << 4 ) ) };
+        u8 const pixel_in_tile = ( scroll_x + i ) % 8;
+        u8 colour = ( ( tile_data.lo >> pixel_in_tile ) & 1 ) << 1;
+        colour |= ( tile_data.hi >> pixel_in_tile ) & 1;
+
+        u32 const frame_buffer_idx = i + ( lcd_y * SCREEN_HEIGHT );
+        m_frame_buffer[frame_buffer_idx] = _get_current_palette()[colour];
+    }
 }
 
 void Display::_draw_window_to_frame_buffer()
@@ -233,4 +272,10 @@ void Display::_draw_window_to_frame_buffer()
 
 void Display::_draw_sprites_to_frame_buffer()
 {
+}
+
+Display::Palette const& Display::_get_current_palette() const
+{
+    // TODO: have a palette selector
+    return GREEN_PALETTE;
 }
