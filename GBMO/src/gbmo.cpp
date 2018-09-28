@@ -39,14 +39,17 @@ bool GBMO::update()
     if( !handle_input_event() )
         return false;
 
+    u32 cycles_to_render = 0;
     u32 cycles = 0;
-    while( cycles < 70224 )
+    while( cycles_to_render < 70224 )
     {
-        cycles += m_cpu.process_interrupts();
+        cycles = m_cpu.process_interrupts();
         cycles += m_cpu.update();
         m_cpu.update_timer_registers( cycles );
         m_cpu.update_divider_register( cycles );
         m_display.update( cycles );
+
+        cycles_to_render += cycles;
     }
     m_display.render();
 

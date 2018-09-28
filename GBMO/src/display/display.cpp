@@ -55,7 +55,8 @@ void Display::update( u32 cycles )
     if( ( lcdc & LCDC::DISPLAY_ENABLE ) != 0 )
     {
         m_display_cycles += cycles;
-        m_mode = static_cast<Mode>( lcdc & LCDC_STAT::MODE );
+        u8 lcdc_stat = m_memory.read_8( LCDC_STAT_ADDR );
+        m_mode = static_cast<Mode>( lcdc_stat & LCDC_STAT::MODE );
 
         switch( m_mode )
         {
@@ -81,7 +82,7 @@ void Display::render()
 {
     ASSERT( m_texture && m_renderer );
 
-    SDL_UpdateTexture( m_texture, NULL, m_frame_buffer, SCREEN_WIDTH * sizeof( Pixel ) );
+    SDL_UpdateTexture( m_texture, NULL, m_frame_buffer, SCREEN_WIDTH * sizeof( Colour ) );
     SDL_RenderClear( m_renderer );
     SDL_RenderCopy( m_renderer, m_texture, NULL, NULL );
     SDL_RenderPresent( m_renderer );
@@ -258,11 +259,11 @@ void Display::_draw_background_to_frame_buffer()
 
         word const tile_data = { m_memory.read_16( tile_data_address + ( tile_data_id << 4 ) ) };
         u8 const pixel_in_tile = ( scroll_x + i ) % 8;
-        u8 colour = ( ( tile_data.lo >> pixel_in_tile ) & 1 ) << 1;
-        colour |= ( tile_data.hi >> pixel_in_tile ) & 1;
+        u8 colour_id = ( ( tile_data.lo >> pixel_in_tile ) & 1 ) << 1;
+        colour_id |= ( tile_data.hi >> pixel_in_tile ) & 1;
 
-        u32 const frame_buffer_idx = i + ( lcd_y * SCREEN_HEIGHT );
-        m_frame_buffer[frame_buffer_idx] = _get_current_palette()[colour];
+        u32 const frame_buffer_idx = i + ( lcd_y * SCREEN_WIDTH );
+        m_frame_buffer[frame_buffer_idx] = _get_current_palette()[colour_id];
     }
 }
 

@@ -10,7 +10,7 @@ struct SDL_Window;
 struct SDL_Renderer;
 struct SDL_Texture;
 
-struct Pixel
+struct Colour
 {
     u8 r;
     u8 g;
@@ -75,7 +75,7 @@ class Display
     static u32 const CYCLES_TO_LY_INCREMENT = 456;
     static u32 const V_BLANK_CYCLES         = 4560;
 
-    typedef Pixel Palette[4];
+    typedef Colour Palette[4];
     static Palette const GREEN_PALETTE;
     static Palette const BW_PALETTE;
 
@@ -111,7 +111,7 @@ private:
     SDL_Renderer* m_renderer;
     SDL_Texture* m_texture;
 
-    Pixel m_frame_buffer[SCREEN_WIDTH * SCREEN_HEIGHT];
+    Colour m_frame_buffer[SCREEN_WIDTH * SCREEN_HEIGHT];
 
     Mode m_mode;
 
