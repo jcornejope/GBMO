@@ -8,6 +8,7 @@
 
 #include <SDL.h>
 
+Display::Palette const Display::PALE_GREEN_PALETTE = { { 215,245,215 },{ 108,166,108 },{ 30,89,74 },{ 0,19,26 } };
 Display::Palette const Display::GREEN_PALETTE = { { 155,188,15 },{ 139,172,15 },{ 48,98,48 },{ 15,56,15 } };
 Display::Palette const Display::BW_PALETTE = { { 255,255,255 },{ 0xCC,0xCC,0xCC },{ 0x77,0x77,0x77 },{ 0x0,0x0,0x0 } };
 
@@ -219,9 +220,15 @@ void Display::_update_transferring()
     {
         m_display_cycles -= TRANSFER_MIN_CYCLES;
 
-        _draw_background_to_frame_buffer();
-        _draw_window_to_frame_buffer();
-        _draw_sprites_to_frame_buffer();
+        u8 const lcdc = m_memory.read_8( LCD_CONTROL_ADDR );
+        if( lcdc & LCDC::BG_DISPLAY )
+            _draw_background_to_frame_buffer();
+
+        if( lcdc & LCDC::WINDOW_DISPLAY_ENABLE )
+            _draw_window_to_frame_buffer();
+
+        if( lcdc & LCDC::OBJ_DISPLAY_ENABLE )
+            _draw_sprites_to_frame_buffer();
 
         _set_mode( Mode::H_BLANK );
     }
@@ -231,27 +238,23 @@ void Display::_draw_background_to_frame_buffer()
 {
     u8 const lcdc = m_memory.read_8( LCD_CONTROL_ADDR );
     ASSERT( lcdc & LCDC::DISPLAY_ENABLE );
-    if( ( lcdc & LCDC::BG_DISPLAY ) == 0 )
-    {
-        return;
-    }
     
     u8 const scroll_y = m_memory.read_8( SCROLL_Y_ADDR );
     u8 const scroll_x = m_memory.read_8( SCROLL_X_ADDR );
     u8 const lcd_y = m_memory.read_8( LCDC_Y_ADDR );
-    u8 const dmg_palette = m_memory.read_8( BG_PALETTE_ADDR );
-
+    u8 const y_start_tile = ( ( scroll_y + lcd_y ) >> 3 ) << 5; // ((y / 8) * 32)
+    
     u16 const tile_map_address = ( lcdc & LCDC::BG_TILE_MAP_SELECT ) == 0 ? 0x9800 : 0x9C00;
     u16 const tile_data_address = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0 ? 0x8800 : 0x8000;
 
-    u8 const y_start_tile = ( ( scroll_y + lcd_y ) >> 3 ) << 5; // ((y / 8) * 32)
+    u8 const dmg_palette = m_memory.read_8( BG_PALETTE_ADDR );
     Palette const& current_bg_palette = _get_current_palette();
     Palette const palette = 
     { 
         current_bg_palette[dmg_palette & PALETTE::COLOUR_0],
-        current_bg_palette[dmg_palette & PALETTE::COLOUR_1],
-        current_bg_palette[dmg_palette & PALETTE::COLOUR_2],
-        current_bg_palette[dmg_palette & PALETTE::COLOUR_3] 
+        current_bg_palette[(dmg_palette & PALETTE::COLOUR_1) >> 2],
+        current_bg_palette[(dmg_palette & PALETTE::COLOUR_2) >> 4],
+        current_bg_palette[(dmg_palette & PALETTE::COLOUR_3) >> 6]
     };
 
     for( u8 i = 0; i < SCREEN_WIDTH; ++i )
@@ -277,14 +280,22 @@ void Display::_draw_background_to_frame_buffer()
 
 void Display::_draw_window_to_frame_buffer()
 {
+    u8 const lcdc = m_memory.read_8( LCD_CONTROL_ADDR );
+    ASSERT( lcdc & LCDC::WINDOW_DISPLAY_ENABLE );
+    
+    (void)lcdc;
 }
 
 void Display::_draw_sprites_to_frame_buffer()
 {
+    u8 const lcdc = m_memory.read_8( LCD_CONTROL_ADDR );
+    ASSERT( lcdc & LCDC::OBJ_DISPLAY_ENABLE );
+    
+    (void)lcdc;
 }
 
 Display::Palette const& Display::_get_current_palette() const
 {
     // TODO: have a palette selector
-    return GREEN_PALETTE;
+    return PALE_GREEN_PALETTE;
 }

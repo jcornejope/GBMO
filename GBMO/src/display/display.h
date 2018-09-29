@@ -76,6 +76,7 @@ class Display
     static u32 const V_BLANK_CYCLES         = 4560;
 
     typedef Colour Palette[4];
+    static Palette const PALE_GREEN_PALETTE;
     static Palette const GREEN_PALETTE;
     static Palette const BW_PALETTE;
 
