@@ -1163,8 +1163,10 @@ u32 CPU::_call( JumpCondition const condition )
 {
     if( _condition_passed( condition ) )
     {
+        u16 call_addr = m_memory.read_16( m_registers.pc );
+        m_registers.pc += 2;
         _push( m_registers.pc );
-        _jump();
+        m_registers.pc = call_addr;
 
         return 24;
     }
