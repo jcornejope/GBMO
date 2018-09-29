@@ -261,7 +261,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xD2] = bind( &CPU::_jump, this, JumpCondition::NO_CARRY );
     m_base_instruction[0xD3] = nullptr; // NO INSTRUCTION
     m_base_instruction[0xD4] = bind( &CPU::_call, this, JumpCondition::NO_CARRY );
-    m_base_instruction[0xD5] = bind( &CPU::_push, this, ref( m_registers.bc ) );
+    m_base_instruction[0xD5] = bind( &CPU::_push, this, ref( m_registers.de ) );
     m_base_instruction[0xD6] = [this]() { _sub( m_memory.read_8( m_registers.pc++ ), false ); return 8; };
     m_base_instruction[0xD7] = bind( &CPU::_call_routine, this, u8( 0x10 ) );
     m_base_instruction[0xD8] = bind( &CPU::_ret, this, JumpCondition::CARRY );
