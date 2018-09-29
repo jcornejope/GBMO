@@ -245,6 +245,14 @@ void Display::_draw_background_to_frame_buffer()
     u16 const tile_data_address = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0 ? 0x8800 : 0x8000;
 
     u8 const y_start_tile = ( ( scroll_y + lcd_y ) >> 3 ) << 5; // ((y / 8) * 32)
+    Palette const& current_bg_palette = _get_current_palette();
+    Palette const palette = 
+    { 
+        current_bg_palette[dmg_palette & PALETTE::COLOUR_0],
+        current_bg_palette[dmg_palette & PALETTE::COLOUR_1],
+        current_bg_palette[dmg_palette & PALETTE::COLOUR_2],
+        current_bg_palette[dmg_palette & PALETTE::COLOUR_3] 
+    };
 
     for( u8 i = 0; i < SCREEN_WIDTH; ++i )
     {
@@ -263,7 +271,7 @@ void Display::_draw_background_to_frame_buffer()
         colour_id |= ( tile_data.hi >> pixel_in_tile ) & 1;
 
         u32 const frame_buffer_idx = i + ( lcd_y * SCREEN_WIDTH );
-        m_frame_buffer[frame_buffer_idx] = _get_current_palette()[colour_id];
+        m_frame_buffer[frame_buffer_idx] = palette[colour_id];
     }
 }
 
