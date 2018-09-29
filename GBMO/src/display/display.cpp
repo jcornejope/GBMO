@@ -243,7 +243,8 @@ void Display::_draw_background_to_frame_buffer()
     u8 const scroll_x = m_memory.read_8( SCROLL_X_ADDR );
     u8 const lcd_y = m_memory.read_8( LCDC_Y_ADDR );
     u8 const y_start_tile = ( ( scroll_y + lcd_y ) >> 3 ) << 5; // ((y / 8) * 32)
-    
+    u8 const tile_y_offset = ( ( scroll_y + lcd_y ) % 8 ) << 1;
+
     u16 const tile_map_address = ( lcdc & LCDC::BG_TILE_MAP_SELECT ) == 0 ? 0x9800 : 0x9C00;
     u16 const tile_data_address = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0 ? 0x8800 : 0x8000;
 
@@ -268,8 +269,8 @@ void Display::_draw_background_to_frame_buffer()
                         ? static_cast<u8>( static_cast<s16>( m_memory.read_8( tile_address ) ) + 128 )
                         : m_memory.read_8( tile_address );
 
-        word const tile_data = { m_memory.read_16( tile_data_address + ( tile_data_id << 4 ) ) };
-        u8 const pixel_in_tile = ( scroll_x + i ) % 8;
+        word const tile_data = { m_memory.read_16( tile_data_address + ( tile_data_id << 4 ) + tile_y_offset ) };
+        s32 const pixel_in_tile = ( ( ( scroll_x + i ) % 8 ) - 7 ) * -1; // Get the pixel and mirror the byte.
         u8 colour_id = ( ( tile_data.lo >> pixel_in_tile ) & 1 ) << 1;
         colour_id |= ( tile_data.hi >> pixel_in_tile ) & 1;
 
