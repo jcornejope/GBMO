@@ -242,7 +242,7 @@ void Display::_draw_background_to_frame_buffer()
     u8 const scroll_y = m_memory.read_8( SCROLL_Y_ADDR );
     u8 const scroll_x = m_memory.read_8( SCROLL_X_ADDR );
     u8 const lcd_y = m_memory.read_8( LCDC_Y_ADDR );
-    u8 const y_start_tile = ( ( scroll_y + lcd_y ) >> 3 ) << 5; // ((y / 8) * 32)
+    u16 const y_start_tile = ( ( scroll_y + lcd_y ) >> 3 ) << 5; // ((y / 8) * 32)
     u8 const tile_y_offset = ( ( scroll_y + lcd_y ) % 8 ) << 1;
 
     u16 const tile_map_address = ( lcdc & LCDC::BG_TILE_MAP_SELECT ) == 0 ? 0x9800 : 0x9C00;
@@ -261,7 +261,7 @@ void Display::_draw_background_to_frame_buffer()
     for( u8 i = 0; i < SCREEN_WIDTH; ++i )
     {
         u8 const x = ( scroll_x + i ) >> 3;
-        u8 const map_id = y_start_tile + x;
+        u16 const map_id = y_start_tile + x;
         ASSERT( map_id < 1024 );
 
         u16 const tile_address = tile_map_address + map_id;
