@@ -12,14 +12,14 @@
 
 #define MAX_ASSERT_MSG_LENGTH 256
 
-#define ASSERT( exp )               assert_msg_impl( "Assert failed", #exp, exp, __FILE__, __LINE__, #exp )
-#define ASSERT_MSG( exp, msg, ... ) assert_msg_impl( "Assert failed", #exp, (exp), __FILE__, __LINE__, msg, __VA_ARGS__ )
-#define ERROR_MSG( msg, ... )       assert_msg_impl( "ERROR\t", "ERROR", false, __FILE__, __LINE__, msg, __VA_ARGS__ )
+#define ASSERT( exp )               if( assert_msg_impl( "Assert failed", false, #exp, exp, __FILE__, __LINE__, #exp ) ) __debugbreak()
+#define ASSERT_MSG( exp, msg, ... ) if( assert_msg_impl( "Assert failed", false, #exp, (exp), __FILE__, __LINE__, msg, __VA_ARGS__ ) ) __debugbreak()
+#define ERROR_MSG( msg, ... )       assert_msg_impl( "ERROR\t", true, "ERROR", false, __FILE__, __LINE__, msg, __VA_ARGS__ )
 
 namespace
 {
     template <typename... Args>
-    void assert_msg_impl( char const* assert_type, char const* exp_str, bool exp, char const* file, int line, char const* msg, Args... args )
+    bool assert_msg_impl( char const* assert_type, bool const fatal, char const* exp_str, bool exp, char const* file, int line, char const* msg, Args... args )
     {
         if( !exp )
         {
@@ -40,9 +40,16 @@ namespace
                 << "Source:\t\t" << file << ", line " << line << std::endl;
             std::cerr << "===========================================================" << std::endl;
 
-            abort();
+            if( fatal ) 
+                abort();
+            
+            return !fatal;
         }
+
+        return false;
     }
 }
+
 #undef MAX_ASSERT_MSG_LENGTH
+
 #endif

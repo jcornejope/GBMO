@@ -16,8 +16,11 @@ u8 MBC_None::read( u16 address )
     return 0xFF;
 }
 
-void MBC_None::write( u16 /*address*/, u8 /*data*/ )
+void MBC_None::write( u16 address, u8 /*data*/ )
 {
     // TODO handle ram
-    ERROR_MSG( "NOT IMPLEMENTED!" );
+    if( address < 0x8000 )
+        return;
+
+    //ERROR_MSG( "NOT IMPLEMENTED!" );
 }

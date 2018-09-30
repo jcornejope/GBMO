@@ -47,7 +47,7 @@ void MemorySystem::write( u16 address, u8 data )
     
     if( address >= 0xFEA0 && address <= 0xFEFF )
     {
-        ERROR_MSG( "Trying to write on PROHIBITED address [%#06x]", address );
+        //ASSERT_MSG( false, "Trying to write on PROHIBITED address [%#06x]", address );
         return;
     }
 
@@ -59,7 +59,6 @@ void MemorySystem::write( u16 address, u8 data )
     else if( address == P1_JOYP_ADDR )
     {
         // Remove the low part of data as it is read only.
-
         if( ( ( data & 0x30 ) ^ 0x30 ) != 0 )
         {
             u8 low_data = m_gameboy.get_joypad().get_inputs_for_memory( data );
