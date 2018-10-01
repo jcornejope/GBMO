@@ -2,6 +2,7 @@
 #include "cartridge.h"
 
 #include "memory/mbc_none.h"
+#include "memory/mbc_1.h"
 #include "utils/assert.h"
 
 #include <fstream>
@@ -171,9 +172,9 @@ bool Cartridge::_create_ram()
     switch( get_ram_size_type() )
     {
     case RAMSize::NONE:     return true;                break;
-    case RAMSize::RAM_2:    m_ram = new u8[1024 * 2];   break;
-    case RAMSize::RAM_8:    m_ram = new u8[1024 * 8];   break;
-    case RAMSize::RAM_32:   m_ram = new u8[1024 * 32];  break;
+    case RAMSize::RAM_2:
+    case RAMSize::RAM_8:
+    case RAMSize::RAM_32:   m_ram = new u8[_get_ram_size()];  break;
     }
 
     if( m_ram != nullptr )
@@ -186,10 +187,26 @@ bool Cartridge::_create_mbc()
 {
     switch( get_cartridge_type() )
     {
-    case CartridgeType::ROM_ONLY: m_mbc = new MBC_None(m_rom, m_ram);   break;
+    case CartridgeType::ROM_ONLY:           m_mbc = new MBC_None( m_rom, m_ram );   break;
+    case CartridgeType::MBC1:
+    case CartridgeType::MBC1_RAM:
+    case CartridgeType::MBC1_RAM_BATTERY:   m_mbc = new MBC_1( m_rom, m_ram, get_rom_size(), _get_ram_size() );      break;
     }
 
     return m_mbc != nullptr;
+}
+
+s32 Cartridge::_get_ram_size() const
+{
+    s32 ret = 0;
+    switch( get_ram_size_type() )
+    {
+    case RAMSize::RAM_2:    ret = 1024 * 2;   break;
+    case RAMSize::RAM_8:    ret = 1024 * 8;   break;
+    case RAMSize::RAM_32:   ret = 1024 * 32;  break;
+    }
+
+    return ret;
 }
 
 void Cartridge::print_header_values() const

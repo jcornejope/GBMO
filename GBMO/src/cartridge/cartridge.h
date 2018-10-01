@@ -46,6 +46,8 @@ private:
     bool _create_ram();
     bool _create_mbc();
 
+    s32 _get_ram_size() const;
+
     /// Path to the file in disk which contains the rom.
     std::string m_file_path;
     /// Name of the game stored in the cartridge header.
