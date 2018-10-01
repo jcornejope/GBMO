@@ -11,6 +11,8 @@ public:
     virtual void write( u16 address, u8 data ) override;
 
 private:
+    u16 _get_ram_mapped_address( u16 const address ) const;
+
     u8 m_rom_bank;
     union
     {
