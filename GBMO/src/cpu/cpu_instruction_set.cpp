@@ -289,7 +289,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xEE] = [this]() { _xor( m_memory.read_8( m_registers.pc++ ) ); return 8; };
     m_base_instruction[0xEF] = bind( &CPU::_call_routine, this, u8( 0x28 ) );
     m_base_instruction[0xF0] = bind( &CPU::_ld_a_io_n, this );
-    m_base_instruction[0xF1] = bind( &CPU::_pop, this, ref( m_registers.af ) );
+    m_base_instruction[0xF1] = [this]() { u32 ret = _pop( m_registers.af ); m_registers.f &= 0xF0; return ret; };
     m_base_instruction[0xF2] = bind( &CPU::_ld_a_io_c, this );
     m_base_instruction[0xF3] = [this]() { m_ime = false; return 4; }; // TODO: Review DI implementation once interrupts are implemented
     m_base_instruction[0xF4] = nullptr; // NO INSTRUCTION
