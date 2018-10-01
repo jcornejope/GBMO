@@ -236,14 +236,16 @@ void Display::_update_transferring()
 
 void Display::_draw_background_to_frame_buffer()
 {
+    // Bear in mind that every operation here is power of 2 so we use shifts.
     u8 const lcdc = m_memory.read_8( LCD_CONTROL_ADDR );
     ASSERT( lcdc & LCDC::DISPLAY_ENABLE );
     
     u8 const scroll_y = m_memory.read_8( SCROLL_Y_ADDR );
     u8 const scroll_x = m_memory.read_8( SCROLL_X_ADDR );
     u8 const lcd_y = m_memory.read_8( LCDC_Y_ADDR );
-    u16 const y_start_tile = ( ( scroll_y + lcd_y ) >> 3 ) << 5; // ((y / 8) * 32)
-    u8 const tile_y_offset = ( ( scroll_y + lcd_y ) % 8 ) << 1;
+    u8 const y = scroll_y + lcd_y;
+    u16 const y_start_tile = ( y >> 3 ) << 5;
+    u8 const tile_y_offset = ( y % 8 ) << 1;
 
     u16 const tile_map_address = ( lcdc & LCDC::BG_TILE_MAP_SELECT ) == 0 ? 0x9800 : 0x9C00;
     u16 const tile_data_address = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0 ? 0x8800 : 0x8000;
