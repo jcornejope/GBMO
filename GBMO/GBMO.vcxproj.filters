@@ -27,6 +27,9 @@
     <ClCompile Include="src\display\display.cpp">
       <Filter>display</Filter>
     </ClCompile>
+    <ClCompile Include="src\memory\mbc_1.cpp">
+      <Filter>memory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="memory">
@@ -86,6 +89,9 @@
     </ClInclude>
     <ClInclude Include="src\display\display.h">
       <Filter>display</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\mbc_1.h">
+      <Filter>memory</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

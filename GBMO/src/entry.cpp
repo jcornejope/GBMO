@@ -13,7 +13,7 @@ int main( int argc, char* argv[] )
     (void)argv;
 
     Options options;
-    options.m_rom_path = "D:\\Dev\\GBMO\\rom_t.gb";
+    options.m_rom_path = "D:\\Dev\\GBMO\\rom_b_cpu_instrs.gb";
     GBMO emulator(options);
 
     emulator.init();
