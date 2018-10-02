@@ -721,7 +721,8 @@ u32 CPU::_ldhl()
 
 u32 CPU::_ld_nn_sp()
 {
-    u8 const mem_address = m_memory.read_8( m_registers.pc++ );
+    u16 const mem_address = m_memory.read_16( m_registers.pc );
+    m_registers.pc += 2;
     m_memory.write( mem_address, m_registers.sp );
 
     return 20;
