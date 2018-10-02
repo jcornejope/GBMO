@@ -813,30 +813,26 @@ u32 CPU::_dec_hl()
 
 u32 CPU::_decimal_adjust_acc()
 {
-    if( _is_flag_set( Flags::ADD_SUB ) )
-    {
-        if( _is_flag_set( Flags::HALF_CARRY ) )
-            m_registers.a += 0xFA;
+    if( _is_flag_set( Flags::ADD_SUB ) ) 
+    {  
+        // after a subtraction, only adjust if (half-)carry occurred
         if( _is_flag_set( Flags::CARRY ) )
-            m_registers.a += 0xA0;
+            m_registers.a -= 0x60;
+
+        if( _is_flag_set( Flags::HALF_CARRY ) )
+            m_registers.a -= 0x6;
     }
-    else
-    {
-        // This impl looks like a simplified version of the table in the gb manual... 
-        // I think there's some gaps that this is mistakenly modifying the A reg
-        // (FI: With H: 0x94 - 0x9F && 0xF4 - 0xFF we are adding 6 when we shouldn't)
-        // Maybe I'm missing something... ??
-
-        u16 aux = m_registers.a;
-        if( _is_flag_set( Flags::HALF_CARRY ) || ( aux & 0x0F ) > 0x09 )
-            aux += 0x06;
-        if( _is_flag_set( Flags::CARRY ) || ( aux > 0x9F ) )
-            aux += 0x60;
-
-        if( ( aux & 0x100 ) == 0x100 )
+    else 
+    {  
+        // after an addition, adjust if (half-)carry occurred or if result is out of bounds
+        if( _is_flag_set( Flags::CARRY ) || m_registers.a > 0x99 )
+        {
+            m_registers.a += 0x60;
             _set_flag( Flags::CARRY );
+        }
 
-        m_registers.a = static_cast<u8>( aux );
+        if( _is_flag_set( Flags::HALF_CARRY ) || ( m_registers.a & 0x0F ) > 0x09 )
+            m_registers.a += 0x6;
     }
 
     _process_zero_flag();
