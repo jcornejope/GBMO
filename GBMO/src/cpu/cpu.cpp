@@ -293,7 +293,7 @@ void CPU::_process_half_carry_flag( u8 const reg, u8 const value, u8 const carry
 
 void CPU::_process_half_carry_flag( u16 const reg, u16 const value )
 {
-    if( ( reg & 0x0FFF ) + ( value & 0x0FFF ) > 0x0FFF )
+    if( ( reg & 0x000F ) + ( value & 0x000F ) > 0x000F )
         _set_flag( Flags::HALF_CARRY );
     else
         _reset_flag( Flags::HALF_CARRY );
