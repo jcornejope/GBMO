@@ -87,14 +87,6 @@ void Display::render()
     SDL_RenderClear( m_renderer );
     SDL_RenderCopy( m_renderer, m_texture, NULL, NULL );
     SDL_RenderPresent( m_renderer );
-
-    ////std::memset( m_frame_buffer, m_frame_buffer[0].r + 1, sizeof( m_frame_buffer ) );
-    //for( auto& p : m_frame_buffer )
-    //{
-    //    p.r += 1;
-    //    p.g += 2;
-    //    p.b += 3;
-    //}
 }
 
 void Display::_set_mode( Mode new_mode )
