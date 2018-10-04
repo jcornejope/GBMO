@@ -63,7 +63,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x0C] = bind( &CPU::_inc_r, this, ref( m_registers.c ) );
     m_base_instruction[0x0D] = bind( &CPU::_dec_r, this, ref( m_registers.c ) );
     m_base_instruction[0x0E] = bind( &CPU::_ld_r_n, this, ref( m_registers.c ) );
-    m_base_instruction[0x0F] = bind( &CPU::_rra_rrca, this, false );
+    m_base_instruction[0x0F] = bind( &CPU::_rra_rrca, this, true );
     m_base_instruction[0x10] = [this]() { m_mode = CPUMode::STOP; return 0; };
     m_base_instruction[0x11] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.de ) );
     m_base_instruction[0x12] = [this]() { m_memory.write( m_registers.de, m_registers.a ); return 8; };
@@ -79,7 +79,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x1C] = bind( &CPU::_inc_r, this, ref( m_registers.e ) );
     m_base_instruction[0x1D] = bind( &CPU::_dec_r, this, ref( m_registers.e ) );
     m_base_instruction[0x1E] = bind( &CPU::_ld_r_n, this, ref( m_registers.e ) );
-    m_base_instruction[0x1F] = bind( &CPU::_rra_rrca, this, true );
+    m_base_instruction[0x1F] = bind( &CPU::_rra_rrca, this, false );
     m_base_instruction[0x20] = bind( &CPU::_jump_relative, this, JumpCondition::NO_ZERO );
     m_base_instruction[0x21] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.hl ) );
     m_base_instruction[0x22] = bind( &CPU::_ld_inc_dec_hl_a, this, s8( 1 ) );
@@ -935,7 +935,7 @@ u32 CPU::_rla_rlca( bool through_carry )
 {
     u8 carry = ( m_registers.a & 0x80 ) >> 7;
     m_registers.a <<= 1;
-    m_registers.a |= through_carry ? carry : _get_flag( Flags::CARRY );
+    m_registers.a |= through_carry ? carry : _get_flag( Flags::CARRY ) >> 4;
 
     carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
     _reset_flag( Flags::ADD_SUB );
@@ -949,7 +949,7 @@ void CPU::_rl_rlc( u8& reg, bool through_carry )
 {
     u8 carry = ( reg & 0x80 ) >> 7;
     reg <<= 1;
-    reg |= through_carry ? carry : _get_flag( Flags::CARRY );
+    reg |= through_carry ? carry : _get_flag( Flags::CARRY ) >> 4;
 
     carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
     _reset_flag( Flags::ADD_SUB );
@@ -970,7 +970,7 @@ u32 CPU::_rra_rrca( bool through_carry )
 {
     u8 carry = (m_registers.a & 0x01) << 7;
     m_registers.a >>= 1;
-    m_registers.a |= through_carry ? carry : _get_flag( Flags::CARRY ) << 7; // OR works cos is unsigned
+    m_registers.a |= through_carry ? carry : _get_flag( Flags::CARRY ) << 3; // OR works cos is unsigned
 
     carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
     _reset_flag( Flags::ADD_SUB );
@@ -984,7 +984,7 @@ void CPU::_rr_rrc( u8& reg, bool through_carry )
 {
     u8 carry = ( m_registers.a & 0x01 ) << 7;
     reg >>= 1;
-    reg |= through_carry ? carry : _get_flag( Flags::CARRY ) << 7;
+    reg |= through_carry ? carry : _get_flag( Flags::CARRY ) << 3;
 
     carry != 0 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
     _reset_flag( Flags::ADD_SUB );
