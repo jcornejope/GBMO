@@ -51,7 +51,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x00] = [this]() { return 4; };
     m_base_instruction[0x01] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.bc ) );
     m_base_instruction[0x02] = [this]() { m_memory.write( m_registers.bc, m_registers.a ); return 8; };
-    m_base_instruction[0x03] = bind( &CPU::_inc_dec, this, ref( m_registers.bc ), true );
+    m_base_instruction[0x03] = bind( &CPU::_inc_dec, this, ref( m_registers.bc ), s8( 1 ) );
     m_base_instruction[0x04] = bind( &CPU::_inc_r, this, ref( m_registers.b ) );
     m_base_instruction[0x05] = bind( &CPU::_dec_r, this, ref( m_registers.b ) );
     m_base_instruction[0x06] = bind( &CPU::_ld_r_n, this, ref( m_registers.b ) );
@@ -59,7 +59,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x08] = bind( &CPU::_ld_nn_sp, this );
     m_base_instruction[0x09] = bind( &CPU::_add_hl, this, cref( m_registers.bc ) );
     m_base_instruction[0x0A] = bind( &CPU::_ld_a_mem, this, cref( m_registers.bc ) );
-    m_base_instruction[0x0B] = bind( &CPU::_inc_dec, this, ref( m_registers.bc ), false );
+    m_base_instruction[0x0B] = bind( &CPU::_inc_dec, this, ref( m_registers.bc ), s8( -1 ) );
     m_base_instruction[0x0C] = bind( &CPU::_inc_r, this, ref( m_registers.c ) );
     m_base_instruction[0x0D] = bind( &CPU::_dec_r, this, ref( m_registers.c ) );
     m_base_instruction[0x0E] = bind( &CPU::_ld_r_n, this, ref( m_registers.c ) );
@@ -67,7 +67,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x10] = [this]() { m_mode = CPUMode::STOP; return 0; };
     m_base_instruction[0x11] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.de ) );
     m_base_instruction[0x12] = [this]() { m_memory.write( m_registers.de, m_registers.a ); return 8; };
-    m_base_instruction[0x13] = bind( &CPU::_inc_dec, this, ref( m_registers.de ), true );
+    m_base_instruction[0x13] = bind( &CPU::_inc_dec, this, ref( m_registers.de ), s8( 1 ) );
     m_base_instruction[0x14] = bind( &CPU::_inc_r, this, ref( m_registers.d ) );
     m_base_instruction[0x15] = bind( &CPU::_dec_r, this, ref( m_registers.d ) );
     m_base_instruction[0x16] = bind( &CPU::_ld_r_n, this, ref( m_registers.d ) );
@@ -75,7 +75,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x18] = bind( &CPU::_jump_relative, this, JumpCondition::NO_CONDITION );
     m_base_instruction[0x19] = bind( &CPU::_add_hl, this, cref( m_registers.de ) );
     m_base_instruction[0x1A] = bind( &CPU::_ld_a_mem, this, cref( m_registers.de ) );
-    m_base_instruction[0x1B] = bind( &CPU::_inc_dec, this, ref( m_registers.de ), false );
+    m_base_instruction[0x1B] = bind( &CPU::_inc_dec, this, ref( m_registers.de ), s8( -1 ) );
     m_base_instruction[0x1C] = bind( &CPU::_inc_r, this, ref( m_registers.e ) );
     m_base_instruction[0x1D] = bind( &CPU::_dec_r, this, ref( m_registers.e ) );
     m_base_instruction[0x1E] = bind( &CPU::_ld_r_n, this, ref( m_registers.e ) );
@@ -83,7 +83,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x20] = bind( &CPU::_jump_relative, this, JumpCondition::NO_ZERO );
     m_base_instruction[0x21] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.hl ) );
     m_base_instruction[0x22] = bind( &CPU::_ld_inc_dec_hl_a, this, s8( 1 ) );
-    m_base_instruction[0x23] = bind( &CPU::_inc_dec, this, ref( m_registers.hl ), true );
+    m_base_instruction[0x23] = bind( &CPU::_inc_dec, this, ref( m_registers.hl ), s8( 1 ) );
     m_base_instruction[0x24] = bind( &CPU::_inc_r, this, ref( m_registers.h ) );
     m_base_instruction[0x25] = bind( &CPU::_dec_r, this, ref( m_registers.h ) );
     m_base_instruction[0x26] = bind( &CPU::_ld_r_n, this, ref( m_registers.h ) );
@@ -91,7 +91,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x28] = bind( &CPU::_jump_relative, this, JumpCondition::ZERO );
     m_base_instruction[0x29] = bind( &CPU::_add_hl, this, cref( m_registers.hl ) );
     m_base_instruction[0x2A] = bind( &CPU::_ld_inc_dec_a_hl, this, s8( 1 ) );
-    m_base_instruction[0x2B] = bind( &CPU::_inc_dec, this, ref( m_registers.hl ), false );
+    m_base_instruction[0x2B] = bind( &CPU::_inc_dec, this, ref( m_registers.hl ), s8( -1 ) );
     m_base_instruction[0x2C] = bind( &CPU::_inc_r, this, ref( m_registers.l ) );
     m_base_instruction[0x2D] = bind( &CPU::_dec_r, this, ref( m_registers.l ) );
     m_base_instruction[0x2E] = bind( &CPU::_ld_r_n, this, ref( m_registers.l ) );
@@ -99,7 +99,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x30] = bind( &CPU::_jump_relative, this, JumpCondition::NO_CARRY );
     m_base_instruction[0x31] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.sp ) );
     m_base_instruction[0x32] = bind( &CPU::_ld_inc_dec_hl_a, this, s8( -1 ) );
-    m_base_instruction[0x33] = bind( &CPU::_inc_dec, this, ref( m_registers.sp ), true );
+    m_base_instruction[0x33] = bind( &CPU::_inc_dec, this, ref( m_registers.sp ), s8( 1 ) );
     m_base_instruction[0x34] = bind( &CPU::_inc_hl, this );
     m_base_instruction[0x35] = bind( &CPU::_dec_hl, this );
     m_base_instruction[0x36] = bind( &CPU::_ld_hl_n, this );
@@ -107,7 +107,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x38] = bind( &CPU::_jump_relative, this, JumpCondition::CARRY );
     m_base_instruction[0x39] = bind( &CPU::_add_hl, this, cref( m_registers.sp ) );
     m_base_instruction[0x3A] = bind( &CPU::_ld_inc_dec_a_hl, this, s8( -1 ) );
-    m_base_instruction[0x3B] = bind( &CPU::_inc_dec, this, ref( m_registers.sp ), false );
+    m_base_instruction[0x3B] = bind( &CPU::_inc_dec, this, ref( m_registers.sp ), s8( -1 ) );
     m_base_instruction[0x3C] = bind( &CPU::_inc_r, this, ref( m_registers.a ) );
     m_base_instruction[0x3D] = bind( &CPU::_dec_r, this, ref( m_registers.a ) );
     m_base_instruction[0x3E] = bind( &CPU::_ld_r_n, this, ref( m_registers.a ) );
@@ -626,7 +626,7 @@ u32 CPU::_ld_nn_a()
     return 8;
 }
 
-u32 CPU::_ld_inc_dec_hl_a( s8 inc )
+u32 CPU::_ld_inc_dec_hl_a( s8 const inc )
 {
     ASSERT_MSG( inc == 1 || inc == -1, "inc value [%d] must be 1 or -1", inc );
     m_memory.write( m_registers.hl, m_registers.a );
@@ -635,7 +635,7 @@ u32 CPU::_ld_inc_dec_hl_a( s8 inc )
     return 8;
 }
 
-u32 CPU::_ld_inc_dec_a_hl( s8 inc )
+u32 CPU::_ld_inc_dec_a_hl( s8 const inc )
 {
     ASSERT_MSG( inc == 1 || inc == -1, "inc value [%d] must be 1 or -1", inc );
     m_registers.a = m_memory.read_8( m_registers.hl );
@@ -922,9 +922,10 @@ u32 CPU::_add_sp()
     return 16;
 }
 
-u32 CPU::_inc_dec( u16& reg, bool inc )
+u32 CPU::_inc_dec( u16& reg, s8 const inc )
 {
-    inc ? ++reg : --reg;
+    ASSERT_MSG( inc == 1 || inc == -1, "inc value [%d] must be 1 or -1", inc );
+    reg += inc;
 
     return 8;
 }

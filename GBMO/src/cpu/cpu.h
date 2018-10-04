@@ -100,8 +100,8 @@ private:
     u32 _ld_a_nn();
     u32 _ld_mem_a( u16 const address );
     u32 _ld_nn_a();
-    u32 _ld_inc_dec_hl_a( s8 inc );
-    u32 _ld_inc_dec_a_hl( s8 inc );
+    u32 _ld_inc_dec_hl_a( s8 const inc );
+    u32 _ld_inc_dec_a_hl( s8 const inc );
     // I/O instructions
     u32 _ld_a_io_n(); // read from io
     u32 _ld_a_io_c(); // read from io
@@ -131,7 +131,7 @@ private:
     // 16Bit Aritmethic
     u32 _add_hl( u16 const reg );
     u32 _add_sp();
-    u32 _inc_dec( u16& reg, bool inc );
+    u32 _inc_dec( u16& reg, s8 const inc );
     // Rotate Shift
     u32 _rla_rlca( bool through_carry );
     void _rl_rlc( u8& reg, bool through_carry );
