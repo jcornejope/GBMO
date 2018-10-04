@@ -133,6 +133,7 @@ u32 CPU::update()
         u8 opcode = m_memory.read_8( m_registers.pc++ );
         if( m_base_instruction[opcode] == nullptr )
         {
+            ASSERT( false );
             m_mode = CPUMode::LOCKED;
             return 0;
         }
