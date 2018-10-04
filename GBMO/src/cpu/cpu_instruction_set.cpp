@@ -757,7 +757,7 @@ void CPU::_sub( u8 const rhs, bool const carry )
 
 u32 CPU::_inc_r( u8& reg )
 {
-    _process_half_carry_flag( reg, 1, 0, false );
+    _process_half_carry_flag( reg, 1, 0, true );
 
     ++reg;
 
@@ -776,7 +776,7 @@ u32 CPU::_inc_hl()
     m_memory.write( m_registers.hl, inc_mem_value );
 
     _process_zero_flag( inc_mem_value );
-    _process_half_carry_flag( mem_value, 1, 0, false );
+    _process_half_carry_flag( mem_value, 1, 0, true );
     _reset_flag( Flags::ADD_SUB );
     // ignore carry flag
 
@@ -785,7 +785,7 @@ u32 CPU::_inc_hl()
 
 u32 CPU::_dec_r( u8& reg )
 {
-    _process_half_carry_flag( reg, 1, 0, true );
+    _process_half_carry_flag( reg, 1, 0, false );
 
     --reg;
 
@@ -804,7 +804,7 @@ u32 CPU::_dec_hl()
     m_memory.write( m_registers.hl, dec_mem_value );
 
     _process_zero_flag( dec_mem_value );
-    _process_half_carry_flag( mem_value, 1, 0, true );
+    _process_half_carry_flag( mem_value, 1, 0, false );
     _set_flag( Flags::ADD_SUB );
     // ignore carry flag
 
