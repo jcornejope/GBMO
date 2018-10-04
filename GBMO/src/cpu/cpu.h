@@ -78,7 +78,7 @@ private:
     void _process_carry_flag_16( u32 const value );
     void _process_half_carry_flag( u8 const value, u8 const carry, bool const is_addition );
     void _process_half_carry_flag( u8 const reg, u8 const value, u8 const carry, bool const is_addition );
-    void _process_half_carry_flag( u16 const reg, u16 const value );
+    void _process_half_carry_flag( u16 const reg, u16 const value, u16 const mask_to_test );
     void _set_flag( Flags const flag );
     u8   _get_flag( Flags const flag ) const;
     void _reset_flag( Flags const flag );

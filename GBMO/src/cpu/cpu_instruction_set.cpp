@@ -64,7 +64,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x0D] = bind( &CPU::_dec_r, this, ref( m_registers.c ) );
     m_base_instruction[0x0E] = bind( &CPU::_ld_r_n, this, ref( m_registers.c ) );
     m_base_instruction[0x0F] = bind( &CPU::_rra_rrca, this, true );
-    m_base_instruction[0x10] = [this]() { m_mode = CPUMode::STOP; return 0; };
+    m_base_instruction[0x10] = [this]() { m_mode = CPUMode::STOP; ++m_registers.pc; return 0; };
     m_base_instruction[0x11] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.de ) );
     m_base_instruction[0x12] = [this]() { m_memory.write( m_registers.de, m_registers.a ); return 8; };
     m_base_instruction[0x13] = bind( &CPU::_inc_dec, this, ref( m_registers.de ), s8( 1 ) );
@@ -709,7 +709,7 @@ u32 CPU::_ldhl()
     u8 const mem_value = m_memory.read_8( m_registers.pc++ );
 
     _process_carry_flag_16( m_registers.sp + mem_value );
-    _process_half_carry_flag( m_registers.sp, mem_value );
+    _process_half_carry_flag( m_registers.sp, static_cast<u16>( mem_value ), 0x000F );
 
     m_registers.hl = m_registers.sp + mem_value;
 
@@ -895,7 +895,7 @@ void CPU::_cmp( u8 const rhs )
 // 16Bit Aritmethic
 u32 CPU::_add_hl( u16 const reg )
 {
-    _process_half_carry_flag( m_registers.hl, reg );
+    _process_half_carry_flag( m_registers.hl, reg, 0x0FFF );
     _process_carry_flag_16( m_registers.sp + reg );
 
     m_registers.hl += reg;
@@ -911,7 +911,7 @@ u32 CPU::_add_sp()
     u8 value = m_memory.read_8( m_registers.pc++ );
 
     // Apparently this needs to be bit 3 not bit 11 for reg SP.
-    _process_half_carry_flag( static_cast<u8>( m_registers.sp ), value );
+    _process_half_carry_flag( m_registers.sp, static_cast<u16>( value ), 0x000F );
     _process_carry_flag_16( m_registers.sp + value );
 
     m_registers.sp += value;

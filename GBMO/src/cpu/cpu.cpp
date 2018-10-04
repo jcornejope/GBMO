@@ -292,9 +292,9 @@ void CPU::_process_half_carry_flag( u8 const reg, u8 const value, u8 const carry
         _reset_flag( Flags::HALF_CARRY );
 }
 
-void CPU::_process_half_carry_flag( u16 const reg, u16 const value )
+void CPU::_process_half_carry_flag( u16 const reg, u16 const value, u16 const mask_to_test )
 {
-    if( ( reg & 0x000F ) + ( value & 0x000F ) > 0x000F )
+    if( ( reg & mask_to_test ) + ( value & mask_to_test ) > mask_to_test )
         _set_flag( Flags::HALF_CARRY );
     else
         _reset_flag( Flags::HALF_CARRY );
