@@ -710,7 +710,7 @@ u32 CPU::_ldhl()
 
     // Register SP is treated as 8 bit for carry and half-carry flags
     _process_carry_flag_8( m_registers.sp + mem_value );
-    _process_half_carry_flag_8( m_registers.sp, mem_value, 0, true );
+    _process_half_carry_flag_8( static_cast<u8>( m_registers.sp ), mem_value, 0, true );
 
     m_registers.hl = m_registers.sp + mem_value;
 
@@ -912,7 +912,7 @@ u32 CPU::_add_sp()
     u8 value = m_memory.read_8( m_registers.pc++ );
 
     // Register SP is treated as 8 bit for carry and half-carry flags
-    _process_half_carry_flag_8( m_registers.sp, value, 0, true );
+    _process_half_carry_flag_8( static_cast<u8>( m_registers.sp ), value, 0, true );
     _process_carry_flag_8( m_registers.sp + value );
 
     m_registers.sp += value;
