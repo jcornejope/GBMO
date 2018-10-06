@@ -771,15 +771,9 @@ u32 CPU::_inc_r( u8& reg )
 
 u32 CPU::_inc_hl()
 {
-    u8 const mem_value = m_memory.read_8( m_registers.hl );
-    u8 const inc_mem_value = mem_value + 1;
-
-    m_memory.write( m_registers.hl, inc_mem_value );
-
-    _process_zero_flag( inc_mem_value );
-    _process_half_carry_flag_8( mem_value, 1, 0, true );
-    _reset_flag( Flags::ADD_SUB );
-    // ignore carry flag
+    u8 mem_value = m_memory.read_8( m_registers.hl );
+    _inc_r( mem_value );
+    m_memory.write( m_registers.hl, mem_value );
 
     return 12;
 }
@@ -799,15 +793,9 @@ u32 CPU::_dec_r( u8& reg )
 
 u32 CPU::_dec_hl()
 {
-    u8 const mem_value = m_memory.read_8( m_registers.hl );
-    u8 const dec_mem_value = mem_value - 1;
-
-    m_memory.write( m_registers.hl, dec_mem_value );
-
-    _process_zero_flag( dec_mem_value );
-    _process_half_carry_flag_8( mem_value, 1, 0, false );
-    _set_flag( Flags::ADD_SUB );
-    // ignore carry flag
+    u8 mem_value = m_memory.read_8( m_registers.hl );
+    _dec_r( mem_value );
+    m_memory.write( m_registers.hl, mem_value );
 
     return 12;
 }
