@@ -708,8 +708,9 @@ u32 CPU::_ldhl()
 {
     u8 const mem_value = m_memory.read_8( m_registers.pc++ );
 
-    _process_carry_flag_16( m_registers.sp + mem_value );
-    _process_half_carry_flag( m_registers.sp, static_cast<u16>( mem_value ), 0x000F );
+    // Register SP is treated as 8 bit for carry and half-carry flags
+    _process_carry_flag_8( m_registers.sp + mem_value );
+    _process_half_carry_flag_8( m_registers.sp, mem_value, 0, true );
 
     m_registers.hl = m_registers.sp + mem_value;
 
@@ -734,7 +735,7 @@ void CPU::_add( u8 const rhs, bool const carry )
     u8 const carry_value = carry && _is_flag_set( Flags::CARRY ) ? 1 : 0;
 
     _process_carry_flag_8( m_registers.a + rhs + carry_value );
-    _process_half_carry_flag( rhs, carry_value, true );
+    _process_half_carry_flag_8( rhs, carry_value, true );
 
     m_registers.a += rhs + carry_value;
 
@@ -747,7 +748,7 @@ void CPU::_sub( u8 const rhs, bool const carry )
     u8 const carry_value = carry && _is_flag_set( Flags::CARRY ) ? 1 : 0;
 
     _process_carry_flag_8( m_registers.a - rhs - carry_value );
-    _process_half_carry_flag( rhs, carry_value, false );
+    _process_half_carry_flag_8( rhs, carry_value, false );
 
     m_registers.a = m_registers.a - rhs - carry_value;
 
@@ -757,7 +758,7 @@ void CPU::_sub( u8 const rhs, bool const carry )
 
 u32 CPU::_inc_r( u8& reg )
 {
-    _process_half_carry_flag( reg, 1, 0, true );
+    _process_half_carry_flag_8( reg, 1, 0, true );
 
     ++reg;
 
@@ -776,7 +777,7 @@ u32 CPU::_inc_hl()
     m_memory.write( m_registers.hl, inc_mem_value );
 
     _process_zero_flag( inc_mem_value );
-    _process_half_carry_flag( mem_value, 1, 0, true );
+    _process_half_carry_flag_8( mem_value, 1, 0, true );
     _reset_flag( Flags::ADD_SUB );
     // ignore carry flag
 
@@ -785,7 +786,7 @@ u32 CPU::_inc_hl()
 
 u32 CPU::_dec_r( u8& reg )
 {
-    _process_half_carry_flag( reg, 1, 0, false );
+    _process_half_carry_flag_8( reg, 1, 0, false );
 
     --reg;
 
@@ -804,7 +805,7 @@ u32 CPU::_dec_hl()
     m_memory.write( m_registers.hl, dec_mem_value );
 
     _process_zero_flag( dec_mem_value );
-    _process_half_carry_flag( mem_value, 1, 0, false );
+    _process_half_carry_flag_8( mem_value, 1, 0, false );
     _set_flag( Flags::ADD_SUB );
     // ignore carry flag
 
@@ -887,7 +888,7 @@ void CPU::_cmp( u8 const rhs )
     u8 const aux = m_registers.a - rhs;
 
     _process_zero_flag( aux );
-    _process_half_carry_flag( rhs, 0, false );
+    _process_half_carry_flag_8( rhs, 0, false );
     _process_carry_flag_8( aux );
     _set_flag( Flags::ADD_SUB );
 }
@@ -895,8 +896,8 @@ void CPU::_cmp( u8 const rhs )
 // 16Bit Aritmethic
 u32 CPU::_add_hl( u16 const reg )
 {
-    _process_half_carry_flag( m_registers.hl, reg, 0x0FFF );
-    _process_carry_flag_16( m_registers.sp + reg );
+    _process_half_carry_flag_16( m_registers.hl, reg );
+    _process_carry_flag_16( m_registers.hl + reg );
 
     m_registers.hl += reg;
 
@@ -910,9 +911,9 @@ u32 CPU::_add_sp()
 {
     u8 value = m_memory.read_8( m_registers.pc++ );
 
-    // Apparently this needs to be bit 3 not bit 11 for reg SP.
-    _process_half_carry_flag( m_registers.sp, static_cast<u16>( value ), 0x000F );
-    _process_carry_flag_16( m_registers.sp + value );
+    // Register SP is treated as 8 bit for carry and half-carry flags
+    _process_half_carry_flag_8( m_registers.sp, value, 0, true );
+    _process_carry_flag_8( m_registers.sp + value );
 
     m_registers.sp += value;
 

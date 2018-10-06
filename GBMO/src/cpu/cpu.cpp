@@ -276,12 +276,12 @@ void CPU::_process_carry_flag_16( u32 const value )
         _reset_flag( Flags::CARRY );
 }
 
-void CPU::_process_half_carry_flag( u8 const value, u8 const carry, bool const is_addition )
+void CPU::_process_half_carry_flag_8( u8 const value, u8 const carry, bool const is_addition )
 {
-    _process_half_carry_flag( m_registers.a, value, carry, is_addition );
+    _process_half_carry_flag_8( m_registers.a, value, carry, is_addition );
 }
 
-void CPU::_process_half_carry_flag( u8 const reg, u8 const value, u8 const carry, bool const is_addition )
+void CPU::_process_half_carry_flag_8( u8 const reg, u8 const value, u8 const carry, bool const is_addition )
 {
     ASSERT( carry == 0 || carry == 1 );
 
@@ -292,9 +292,9 @@ void CPU::_process_half_carry_flag( u8 const reg, u8 const value, u8 const carry
         _reset_flag( Flags::HALF_CARRY );
 }
 
-void CPU::_process_half_carry_flag( u16 const reg, u16 const value, u16 const mask_to_test )
+void CPU::_process_half_carry_flag_16( u16 const reg, u16 const value )
 {
-    if( ( reg & mask_to_test ) + ( value & mask_to_test ) > mask_to_test )
+    if( ( reg & 0x0FFF ) + ( value & 0x0FFF ) > 0x0FFF )
         _set_flag( Flags::HALF_CARRY );
     else
         _reset_flag( Flags::HALF_CARRY );
