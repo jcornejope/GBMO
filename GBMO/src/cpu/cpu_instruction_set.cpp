@@ -1014,10 +1014,8 @@ void CPU::_shift_l( u8& reg )
 void CPU::_shift_r( u8& reg, bool logical )
 {
     reg | 0x01 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
-    u8 bit7 = reg | 0x08;
-    reg >>= 1;
-    if( logical )
-        reg |= bit7;
+
+    reg = logical ? reg >> 1 : static_cast<s8>( reg ) >> 1;
 
     _reset_flag( Flags::ADD_SUB );
     _reset_flag( Flags::HALF_CARRY );
