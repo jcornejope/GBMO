@@ -260,17 +260,19 @@ void CPU::_process_zero_flag( u8 const reg )
         _reset_flag( Flags::ZERO );
 }
 
-void CPU::_process_carry_flag_8( u16 const value )
+void CPU::_process_carry_flag_8( u16 const value, bool const is_addition )
 {
-    if( value > 0xFF )
+    if( ( is_addition && value > 0xFF ) ||
+        ( !is_addition && value & 0x8000 ) )
         _set_flag( Flags::CARRY );
     else
         _reset_flag( Flags::CARRY );
 }
 
-void CPU::_process_carry_flag_16( u32 const value )
+void CPU::_process_carry_flag_16( u32 const value, bool const is_addition )
 {
-    if( value > 0xFFFF )
+    if( ( is_addition && value > 0xFFFF ) ||
+        ( !is_addition && value & 0x80000000 ) )
         _set_flag( Flags::CARRY );
     else
         _reset_flag( Flags::CARRY );

@@ -709,7 +709,7 @@ u32 CPU::_ldhl()
     u8 const mem_value = m_memory.read_8( m_registers.pc++ );
 
     // Register SP is treated as 8 bit for carry and half-carry flags
-    _process_carry_flag_8( m_registers.sp + mem_value );
+    _process_carry_flag_8( m_registers.sp + mem_value, true );
     _process_half_carry_flag_8( static_cast<u8>( m_registers.sp ), mem_value, 0, true );
 
     m_registers.hl = m_registers.sp + mem_value;
@@ -734,7 +734,7 @@ void CPU::_add( u8 const rhs, bool const carry )
 {
     u8 const carry_value = carry && _is_flag_set( Flags::CARRY ) ? 1 : 0;
 
-    _process_carry_flag_8( m_registers.a + rhs + carry_value );
+    _process_carry_flag_8( m_registers.a + rhs + carry_value, true );
     _process_half_carry_flag_8( rhs, carry_value, true );
 
     m_registers.a += rhs + carry_value;
@@ -747,7 +747,7 @@ void CPU::_sub( u8 const rhs, bool const carry )
 {
     u8 const carry_value = carry && _is_flag_set( Flags::CARRY ) ? 1 : 0;
 
-    _process_carry_flag_8( m_registers.a - rhs - carry_value );
+    _process_carry_flag_8( m_registers.a - rhs - carry_value, false );
     _process_half_carry_flag_8( rhs, carry_value, false );
 
     m_registers.a = m_registers.a - rhs - carry_value;
@@ -877,7 +877,7 @@ void CPU::_cmp( u8 const rhs )
 
     _process_zero_flag( aux );
     _process_half_carry_flag_8( rhs, 0, false );
-    _process_carry_flag_8( aux );
+    _process_carry_flag_8( aux, false );
     _set_flag( Flags::ADD_SUB );
 }
 
@@ -885,7 +885,7 @@ void CPU::_cmp( u8 const rhs )
 u32 CPU::_add_hl( u16 const reg )
 {
     _process_half_carry_flag_16( m_registers.hl, reg );
-    _process_carry_flag_16( m_registers.hl + reg );
+    _process_carry_flag_16( m_registers.hl + reg, true );
 
     m_registers.hl += reg;
 
@@ -901,7 +901,7 @@ u32 CPU::_add_sp()
 
     // Register SP is treated as 8 bit for carry and half-carry flags
     _process_half_carry_flag_8( static_cast<u8>( m_registers.sp ), value, 0, true );
-    _process_carry_flag_8( m_registers.sp + value );
+    _process_carry_flag_8( m_registers.sp + value, true );
 
     m_registers.sp += value;
 
