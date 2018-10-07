@@ -17,6 +17,9 @@ CPU::CPU( MemorySystem& memory )
     , m_tima_cycle_counter( 0 )
     , m_ime( false )
 {
+    //std::memset(m_last_opcodes, 0xFF, NUM_LAST_OPCODES * sizeof(u16));
+    //m_last_opcode_index = 0;
+
     _initialize_instruction_tables();
 
     reset();
@@ -130,6 +133,11 @@ u32 CPU::update()
     {
     case CPUMode::NORMAL:
     {
+        //m_last_opcodes[m_last_opcode_index] = m_registers.pc;
+        //m_last_opcode_index++;
+        //if( m_last_opcode_index == NUM_LAST_OPCODES )
+        //    m_last_opcode_index = 0;
+
         u8 opcode = m_memory.read_8( m_registers.pc++ );
         if( m_base_instruction[opcode] == nullptr )
         {
@@ -168,13 +176,14 @@ u32 CPU::process_interrupts()
 
         for( u8 bit = 0; bit < 5; ++bit )
         { 
-            if( ( if_register & bit ) != 0 && 
-                ( ie_register & bit ) != 0 )
+            u8 bitmask = ( 1 << bit );
+            if( ( if_register & bitmask ) != 0 &&
+                ( ie_register & bitmask ) != 0 )
             {
                 _call_routine( _get_interrupt_jump_vector_address( bit ) );
 
                 m_ime = false;
-                if_register &= ~bit;
+                if_register &= ~bitmask;
                 m_memory.write( IF_ADDR, if_register );
 
                 // Back to normal if we serviced an interrupt and we were on halt or stop mode.

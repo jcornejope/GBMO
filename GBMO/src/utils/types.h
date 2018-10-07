@@ -56,9 +56,9 @@ enum ADDRESSES : u16
 
 enum Interrupts : u8
 {
-    V_BLANK     = 0,
-    LCD_STAT    = 1,
-    TIMER       = 1 << 1,
-    SERIAL      = 1 << 2,
-    JOYPAD      = 1 << 3
+    V_BLANK     = 1,
+    LCD_STAT    = 1 << 1,
+    TIMER       = 1 << 2,
+    SERIAL      = 1 << 3,
+    JOYPAD      = 1 << 4
 };

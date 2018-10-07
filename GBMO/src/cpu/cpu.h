@@ -177,4 +177,8 @@ private:
     u32 m_tima_cycle_counter;
 
     bool m_ime;
+
+    //static u8 const NUM_LAST_OPCODES = 20;
+    //u16 m_last_opcodes[NUM_LAST_OPCODES];
+    //u8 m_last_opcode_index;
 };
