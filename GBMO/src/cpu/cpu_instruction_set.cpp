@@ -64,7 +64,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0x0D] = bind( &CPU::_dec_r, this, ref( m_registers.c ) );
     m_base_instruction[0x0E] = bind( &CPU::_ld_r_n, this, ref( m_registers.c ) );
     m_base_instruction[0x0F] = bind( &CPU::_rra_rrca, this, true );
-    m_base_instruction[0x10] = [this]() { m_mode = CPUMode::STOP; ++m_registers.pc; return 0; };
+    m_base_instruction[0x10] = [this]() { /*m_mode = CPUMode::STOP;*/ ++m_registers.pc; return 0; };
     m_base_instruction[0x11] = bind( &CPU::_ld_rr_nn, this, ref( m_registers.de ) );
     m_base_instruction[0x12] = [this]() { m_memory.write( m_registers.de, m_registers.a ); return 8; };
     m_base_instruction[0x13] = bind( &CPU::_inc_dec, this, ref( m_registers.de ), s8( 1 ) );
