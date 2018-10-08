@@ -2,8 +2,7 @@
 #include "cpu/cpu.h"
 #include "memory/memory_system.h"
 #include "utils/assert.h"
-
-#include <iostream>
+#include "utils/logger.h"
 
 //#define LOG_CPU_INSTRUCTIONS
 
@@ -146,13 +145,13 @@ u32 CPU::update()
             return 0;
         }
 #ifdef LOG_CPU_INSTRUCTIONS
-        u16 pc_addr = m_registers.pc - 1;
-        u32 cycles = m_base_instruction[opcode]();
-        std::cout << std::hex << int( pc_addr ) << ": " << int( opcode ) << " -> " << std::dec << cycles << std::endl;
-        return cycles;
-#else
-        return m_base_instruction[opcode]();
+        LOG( "CPU", "[%#06x] %x\tR[AF:%#06x|BC:%#06x|DE:%#06x|HL:%#06x|SP:%#06x][ime:%c]"
+            , m_registers.pc - 1, opcode
+            , m_registers.af, m_registers.bc, m_registers.de, m_registers.hl, m_registers.sp
+            , (m_ime) ? 'E' : 'D');
 #endif
+        return m_base_instruction[opcode]();
+
         break;
     }
     case CPUMode::HALT:     return 4;   break;

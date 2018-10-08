@@ -4,6 +4,7 @@
 #include "utils/assert.h"
 
 #include <SDL.h>
+#include "utils/logger.h"
 
 GBMO::GBMO( Options const& options )
     : m_cartridge( options.m_rom_path )
@@ -15,6 +16,8 @@ GBMO::GBMO( Options const& options )
     m_joypad.set_input_bindings( options.m_inputs );
 
     // Quita esto de aqui
+    LOG( NO_CAT, "Rom loaded: %s [%s]", options.m_rom_path.c_str(), m_cartridge.get_title_name() );
+
     m_cartridge.print_header_values();
 }
 
