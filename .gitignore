@@ -5,3 +5,6 @@
 # Folders
 /Build/*
 /GBMO/int/*
+
+# Log file
+/GBMO/GBMO/log.txt
