@@ -1,9 +1,11 @@
 
 #include "logger.h"
+#include <thread>
 
 Logger* Logger::m_instance = nullptr;
 
 Logger::Logger( std::string const & filename )
+    : m_use_first_queue( true )
 {
     m_file.open( filename, std::ios_base::out | std::ios_base::trunc );
     if( m_file.is_open() )
@@ -19,14 +21,21 @@ Logger::Logger( std::string const & filename )
                << std::endl;
     }
 
-    m_log_queue.reserve( 100 );
+    m_log_queue_1.reserve( 100 );
+    m_log_queue_2.reserve( 100 );
 }
 
 Logger::~Logger()
 {
     if( m_file.is_open() )
     {
-        flush();
+        while( !m_log_queue_1.empty() || !m_log_queue_2.empty() )
+        {
+            std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
+        }
+
+        _do_flush( &m_log_queue_1 );
+        _do_flush( &m_log_queue_2 );
 
         std::chrono::time_point<std::chrono::system_clock> time_now;
         time_now = std::chrono::system_clock::now();
@@ -75,9 +84,22 @@ void Logger::destroy_instance()
 
 void Logger::flush()
 {
+    TMessageQueue* queue = nullptr;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        queue = m_use_first_queue ? &m_log_queue_1 : &m_log_queue_2;
+        m_use_first_queue = false;
+    }
+
+    std::thread flush_thread( &Logger::_do_flush, this, queue );
+    flush_thread.detach();
+}
+
+void Logger::_do_flush( TMessageQueue* queue )
+{
     if( m_file.is_open() )
     {
-        for( auto const& msg : m_log_queue )
+        for( auto const& msg : *queue )
         {
             m_file << msg;
         }
@@ -85,5 +107,5 @@ void Logger::flush()
         m_file.flush();
     }
 
-    m_log_queue.clear();
+    queue->clear();
 }
