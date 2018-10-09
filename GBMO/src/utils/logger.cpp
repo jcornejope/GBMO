@@ -29,10 +29,8 @@ Logger::~Logger()
 {
     if( m_file.is_open() )
     {
-        while( !m_log_queue_1.empty() || !m_log_queue_2.empty() )
-        {
-            std::this_thread::sleep_for( std::chrono::milliseconds( 200 ) );
-        }
+        if( m_flush_thread.joinable() )
+            m_flush_thread.join();
 
         _do_flush( &m_log_queue_1 );
         _do_flush( &m_log_queue_2 );
@@ -91,8 +89,10 @@ void Logger::flush()
         m_use_first_queue = false;
     }
 
-    std::thread flush_thread( &Logger::_do_flush, this, queue );
-    flush_thread.detach();
+    if( m_flush_thread.joinable() )
+        m_flush_thread.join();
+
+    m_flush_thread = std::thread( &Logger::_do_flush, this, queue );
 }
 
 void Logger::_do_flush( TMessageQueue* queue )

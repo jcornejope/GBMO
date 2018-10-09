@@ -54,10 +54,12 @@ private:
 
     TMessageQueue m_log_queue_1;
     TMessageQueue m_log_queue_2;
+
     std::ofstream m_file;
     std::mutex m_mutex;
+    std::thread m_flush_thread;
 
-    bool m_use_first_queue;
+    bool m_use_first_queue; //< Probably better to use an atomic for m_use_first_queue and remove the mutex?
 };
 
 template<typename ...Args>
