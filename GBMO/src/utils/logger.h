@@ -1,13 +1,14 @@
 #pragma once
 
+#include <atomic>
 #include <chrono>
 #include <ctime>
 #include <fstream>
 #include <iomanip>
 #include <string>
 #include <sstream>
+#include <thread>
 #include <vector>
-#include <mutex>
 
 #define LOG(cat, msg_format, ...)       Logger::instance().log( cat, Logger::LOG, msg_format, __VA_ARGS__ )
 #define LOG_W(cat, msg_format, ...)     Logger::instance().log( cat, Logger::WARNING, msg_format, __VA_ARGS__ )
@@ -37,7 +38,6 @@ public:
     void flush();
 
 private:
-
     Logger( std::string const& filename );
     ~Logger();
     Logger( Logger const& ) = delete;
@@ -56,10 +56,8 @@ private:
     TMessageQueue m_log_queue_2;
 
     std::ofstream m_file;
-    std::mutex m_mutex;
+    std::atomic_flag m_use_first_queue = ATOMIC_FLAG_INIT;
     std::thread m_flush_thread;
-
-    bool m_use_first_queue; //< Probably better to use an atomic for m_use_first_queue and remove the mutex?
 };
 
 template<typename ...Args>
@@ -90,9 +88,15 @@ inline void Logger::log( char const * category, Level level, char const * messag
     stream << buf << std::endl;
 
     TMessageQueue* queue = nullptr;
+    if( m_use_first_queue.test_and_set() )
     {
-        std::lock_guard<std::mutex> lock( m_mutex );
-        queue = m_use_first_queue ? &m_log_queue_1 : &m_log_queue_2;
+        queue = &m_log_queue_1;
     }
+    else
+    {
+        m_use_first_queue.clear();
+        queue = &m_log_queue_2;
+    }
+       
     queue->emplace_back( stream.str() );
 }

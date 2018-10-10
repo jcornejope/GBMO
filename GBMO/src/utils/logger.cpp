@@ -1,11 +1,9 @@
 
 #include "logger.h"
-#include <thread>
 
 Logger* Logger::m_instance = nullptr;
 
 Logger::Logger( std::string const & filename )
-    : m_use_first_queue( true )
 {
     m_file.open( filename, std::ios_base::out | std::ios_base::trunc );
     if( m_file.is_open() )
@@ -83,10 +81,14 @@ void Logger::destroy_instance()
 void Logger::flush()
 {
     TMessageQueue* queue = nullptr;
+    if( m_use_first_queue.test_and_set() )
     {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        queue = m_use_first_queue ? &m_log_queue_1 : &m_log_queue_2;
-        m_use_first_queue = false;
+        m_use_first_queue.clear();
+        queue = &m_log_queue_1;
+    }
+    else
+    {
+        queue = &m_log_queue_2;
     }
 
     if( m_flush_thread.joinable() )
