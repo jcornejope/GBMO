@@ -15,7 +15,7 @@ Logger::Logger( std::string const & filename )
         m_file << "[System][" 
                << _get_level_string( Level::LOG ) 
                << "] Log started: " 
-               << std::put_time( std::localtime( &now_time_t ), "%A%e %B %Y [%T]" )
+               << std::put_time( std::localtime( &now_time_t ), "%A %d %B %Y [%T]" )
                << std::endl;
     }
 
@@ -40,7 +40,7 @@ Logger::~Logger()
         m_file << "[System]["
                << _get_level_string( Level::LOG )
                << "] Log ended: "
-               << std::put_time( std::localtime( &now_time_t ), "%A%e %B %Y [%T]" )
+               << std::put_time( std::localtime( &now_time_t ), "%A %d %B %Y [%T]" )
                << std::endl;
 
         m_file.close();
