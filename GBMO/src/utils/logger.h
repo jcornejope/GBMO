@@ -1,11 +1,13 @@
 #pragma once
 
+#include <atomic>
 #include <chrono>
 #include <ctime>
 #include <fstream>
 #include <iomanip>
 #include <string>
 #include <sstream>
+#include <thread>
 #include <vector>
 
 #define LOG(cat, msg_format, ...)       Logger::instance().log( cat, Logger::LOG, msg_format, __VA_ARGS__ )
@@ -43,12 +45,19 @@ private:
     Logger& operator=( Logger const& ) = delete;
     Logger& operator=( Logger const&& ) = delete;
 
+    typedef std::vector<std::string> TMessageQueue;
+
     const char* _get_level_string( Level level ) const;
+    void _do_flush( TMessageQueue* queue );
 
     static Logger* m_instance;
 
-    std::vector<std::string> m_log_queue;
+    TMessageQueue m_log_queue_1;
+    TMessageQueue m_log_queue_2;
+
     std::ofstream m_file;
+    std::atomic_flag m_use_first_queue = ATOMIC_FLAG_INIT;
+    std::thread m_flush_thread;
 };
 
 template<typename ...Args>
@@ -78,5 +87,16 @@ inline void Logger::log( char const * category, Level level, char const * messag
     std::snprintf( buf, MAX_LOG_LENGTH, message_format, args... );
     stream << buf << std::endl;
 
-    m_log_queue.emplace_back( stream.str() );
+    TMessageQueue* queue = nullptr;
+    if( m_use_first_queue.test_and_set() )
+    {
+        queue = &m_log_queue_1;
+    }
+    else
+    {
+        m_use_first_queue.clear();
+        queue = &m_log_queue_2;
+    }
+       
+    queue->emplace_back( stream.str() );
 }

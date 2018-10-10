@@ -19,14 +19,19 @@ Logger::Logger( std::string const & filename )
                << std::endl;
     }
 
-    m_log_queue.reserve( 100 );
+    m_log_queue_1.reserve( 100 );
+    m_log_queue_2.reserve( 100 );
 }
 
 Logger::~Logger()
 {
     if( m_file.is_open() )
     {
-        flush();
+        if( m_flush_thread.joinable() )
+            m_flush_thread.join();
+
+        _do_flush( &m_log_queue_1 );
+        _do_flush( &m_log_queue_2 );
 
         std::chrono::time_point<std::chrono::system_clock> time_now;
         time_now = std::chrono::system_clock::now();
@@ -75,9 +80,28 @@ void Logger::destroy_instance()
 
 void Logger::flush()
 {
+    TMessageQueue* queue = nullptr;
+    if( m_use_first_queue.test_and_set() )
+    {
+        m_use_first_queue.clear();
+        queue = &m_log_queue_1;
+    }
+    else
+    {
+        queue = &m_log_queue_2;
+    }
+
+    if( m_flush_thread.joinable() )
+        m_flush_thread.join();
+
+    m_flush_thread = std::thread( &Logger::_do_flush, this, queue );
+}
+
+void Logger::_do_flush( TMessageQueue* queue )
+{
     if( m_file.is_open() )
     {
-        for( auto const& msg : m_log_queue )
+        for( auto const& msg : *queue )
         {
             m_file << msg;
         }
@@ -85,5 +109,5 @@ void Logger::flush()
         m_file.flush();
     }
 
-    m_log_queue.clear();
+    queue->clear();
 }
