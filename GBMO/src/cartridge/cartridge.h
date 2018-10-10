@@ -32,6 +32,7 @@ public:
     u16                 get_cartridge_checksum() const;
 
     void print_header_values() const;
+    void log_header_values() const;
     void dump_rom() const;
 
 private:
