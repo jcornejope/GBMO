@@ -86,7 +86,7 @@ void Logger::flush()
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         queue = m_use_first_queue ? &m_log_queue_1 : &m_log_queue_2;
-        m_use_first_queue = false;
+        m_use_first_queue = !m_use_first_queue;
     }
 
     if( m_flush_thread.joinable() )
