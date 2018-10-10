@@ -29,6 +29,7 @@ u8 MBC_1::read( u16 address )
     }
 
     // Invalid address
+    ASSERT( false );
     return 0xFF;
 }
 
@@ -53,9 +54,14 @@ void MBC_1::write( u16 address, u8 data )
     {
         m_rom_mode = ( data & 0x1 ) == 0;
     }
-    else if( address >= 0xA000 && address <= 0xBFFF && m_cartridge_ram )
+    else if( address >= 0xA000 && address <= 0xBFFF )
     {
-        m_cartridge_ram[_get_ram_mapped_address( address )] = data;
+        if( m_cartridge_ram )
+            m_cartridge_ram[_get_ram_mapped_address( address )] = data;
+    }
+    else
+    {
+        ASSERT( false );
     }
 }
 
