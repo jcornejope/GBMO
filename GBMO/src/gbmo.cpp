@@ -2,9 +2,10 @@
 #include "gbmo.h"
 #include "options.h"
 #include "utils/assert.h"
+#include "utils/logger.h"
 
 #include <SDL.h>
-#include "utils/logger.h"
+#include <thread>
 
 GBMO::GBMO( Options const& options )
     : m_cartridge( options.m_rom_path )
@@ -19,6 +20,7 @@ GBMO::GBMO( Options const& options )
     LOG( NO_CAT, "Rom loaded: %s [%s]", options.m_rom_path.c_str(), m_cartridge.get_title_name() );
 
     m_cartridge.print_header_values();
+    m_cartridge.log_header_values();
 }
 
 bool GBMO::init()
@@ -39,6 +41,8 @@ void GBMO::deinit()
 
 bool GBMO::update()
 {
+    auto start = std::chrono::high_resolution_clock::now();
+    
     if( !handle_input_event() )
         return false;
 
@@ -55,6 +59,18 @@ bool GBMO::update()
         cycles_to_render += cycles;
     }
     m_display.render();
+
+    static float const frame_time = 1000.0f / 59.73f;
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<float, std::milli> diff = end - start;
+    float const frame_delta = frame_time - diff.count();
+    //LOG( "UPDATE", "Update time: %f [%f] -> %f", diff.count(), frame_time, frame_delta );
+    if( frame_delta > 0.f )
+    {
+        // TODO ADD THIS INTO THE OPTIONS (~60FPS)
+        std::this_thread::sleep_for( std::chrono::duration<float, std::milli>( frame_delta ) );
+    }
 
     return true;
 }
