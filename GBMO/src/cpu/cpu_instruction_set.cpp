@@ -992,7 +992,7 @@ u32 CPU::_rr_rrc_hl( bool through_carry )
 
 void CPU::_shift_l( u8& reg )
 {
-    reg | 0x80 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
+    reg & 0x80 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
     reg <<= 1;
 
     _reset_flag( Flags::ADD_SUB );
@@ -1002,7 +1002,7 @@ void CPU::_shift_l( u8& reg )
 
 void CPU::_shift_r( u8& reg, bool logical )
 {
-    reg | 0x01 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
+    reg & 0x01 ? _set_flag( Flags::CARRY ) : _reset_flag( Flags::CARRY );
 
     reg = logical ? reg >> 1 : static_cast<s8>( reg ) >> 1;
 
