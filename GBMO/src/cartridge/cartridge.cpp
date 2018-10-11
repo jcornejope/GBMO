@@ -246,7 +246,7 @@ void Cartridge::log_header_values() const
     LOG( "ROM", "License Code: %#04x %#04x", static_cast<int>( license.hi ), static_cast<int>( license.lo ) );
     word checksum = { get_cartridge_checksum() };
     LOG( "ROM", "Cartridge Checksum: %#04x %#04x", static_cast<int>( checksum.hi ), static_cast<int>( checksum.lo ) );
-    LOG( "ROM", "Header Checksum [%d] Passed?", static_cast<int>( get_header_checksum() ), bool_to_alpha( _check_header_checksum() ) );
+    LOG( "ROM", "Header Checksum [%d] Passed? %s", static_cast<int>( get_header_checksum() ), bool_to_alpha( _check_header_checksum() ) );
     LOG( "ROM", "----------------------------------------------------" );
 }
 
