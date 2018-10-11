@@ -957,7 +957,7 @@ u32 CPU::_rl_rlc_hl( bool through_carry )
 
 u32 CPU::_rra_rrca( bool through_carry )
 {
-    u8 carry = (m_registers.a & 0x01) << 7;
+    u8 carry = ( m_registers.a & 0x01 ) << 7;
     m_registers.a >>= 1;
     m_registers.a |= through_carry ? carry : _get_flag( Flags::CARRY ) << 3; // OR works cos is unsigned
 
@@ -971,7 +971,7 @@ u32 CPU::_rra_rrca( bool through_carry )
 
 void CPU::_rr_rrc( u8& reg, bool through_carry )
 {
-    u8 carry = ( m_registers.a & 0x01 ) << 7;
+    u8 carry = ( reg & 0x01 ) << 7;
     reg >>= 1;
     reg |= through_carry ? carry : _get_flag( Flags::CARRY ) << 3;
 
