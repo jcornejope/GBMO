@@ -1053,9 +1053,9 @@ u32 CPU::_swap_hl()
 void CPU::_test_bit( u8 const reg, u8 const bit )
 {
     if( ( reg & ( 1 << bit ) ) != 0 )
-        _set_flag( Flags::ZERO );
-    else
         _reset_flag( Flags::ZERO );
+    else
+        _set_flag( Flags::ZERO );
 
     _set_flag( Flags::HALF_CARRY );
     _reset_flag( Flags::ADD_SUB );
