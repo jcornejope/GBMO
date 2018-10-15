@@ -877,7 +877,7 @@ void CPU::_cmp( u8 const rhs )
 
     _process_zero_flag( aux );
     _process_half_carry_flag_8( rhs, 0, false );
-    _process_carry_flag_8( aux, false );
+    _process_carry_flag_8( m_registers.a - rhs, false );
     _set_flag( Flags::ADD_SUB );
 }
 
