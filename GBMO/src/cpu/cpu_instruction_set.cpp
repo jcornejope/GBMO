@@ -898,14 +898,14 @@ u32 CPU::_add_hl( u16 const reg )
 
 u32 CPU::_add_sp()
 {
-    u8 const value = m_memory.read_8( m_registers.pc++ );
+    s8 const value = m_memory.read_8( m_registers.pc++ );
 
     // Register SP is treated as 8 bit for carry and half-carry flags
     u8 const sp_lo = static_cast<u8>( m_registers.sp );
     _process_half_carry_flag_8( sp_lo, value, 0, true );
     _process_carry_flag_8( sp_lo + value, true );
 
-    m_registers.sp += value;
+    m_registers.sp += static_cast<u16>( value );
 
     _reset_flag( Flags::ADD_SUB );
     _reset_flag( Flags::ZERO );
