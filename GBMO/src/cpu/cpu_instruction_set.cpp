@@ -706,11 +706,11 @@ u32 CPU::_pop( u16& reg )
 
 u32 CPU::_ldhl()
 {
-    u8 const mem_value = m_memory.read_8( m_registers.pc++ );
+    s8 const mem_value = m_memory.read_8( m_registers.pc++ );
 
     // Register SP is treated as 8 bit for carry and half-carry flags
     u8 const sp_lo = static_cast<u8>( m_registers.sp );
-    _process_carry_flag_8( sp_lo + mem_value, true );
+    _process_carry_flag_8( sp_lo + static_cast<u8>( mem_value ), true );
     _process_half_carry_flag_8( sp_lo, mem_value, 0, true );
 
     m_registers.hl = m_registers.sp + mem_value;
