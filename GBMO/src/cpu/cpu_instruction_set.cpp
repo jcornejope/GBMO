@@ -903,7 +903,7 @@ u32 CPU::_add_sp()
     // Register SP is treated as 8 bit for carry and half-carry flags
     u8 const sp_lo = static_cast<u8>( m_registers.sp );
     _process_half_carry_flag_8( sp_lo, value, 0, true );
-    _process_carry_flag_8( sp_lo + value, true );
+    _process_carry_flag_8( sp_lo + static_cast<u8>( value ), true );
 
     m_registers.sp += static_cast<u16>( value );
 
