@@ -93,6 +93,14 @@ void CPU::reset()
     m_registers.de = 0x00D8;
     m_registers.hl = 0x014D;
     m_registers.sp = 0xFFFE;
+
+    // CGB 
+    //m_registers.af = 0x1180;
+    //m_registers.bc = 0x0000;
+    //m_registers.de = 0xFF56;
+    //m_registers.hl = 0x000D;
+    //m_registers.sp = 0xFFFE;
+
     m_memory.write( 0xFF05, static_cast<u8>( 0x00 ) ); // TIMA
     m_memory.write( 0xFF06, static_cast<u8>( 0x00 ) ); // TMA
     m_memory.write( 0xFF07, static_cast<u8>( 0x00 ) ); // TAC
@@ -168,9 +176,12 @@ u32 CPU::process_interrupts()
     if( m_mode == CPUMode::LOCKED )
         return 0;
 
+    u8 if_register = m_memory.read_8( IF_ADDR );
+    if( if_register != 0 && m_mode != CPUMode::NORMAL )
+        m_mode = CPUMode::NORMAL;
+
     if( m_ime == true )
     {
-        u8 if_register = m_memory.read_8( IF_ADDR );
         u8 ie_register = m_memory.read_8( IE_ADDR );
 
         for( u8 bit = 0; bit < 5; ++bit )
@@ -216,14 +227,17 @@ void CPU::update_timer_registers( u32 const cycles )
 
         if( m_tima_cycle_counter >= cycles_to_increment )
         {
+            m_tima_cycle_counter -= cycles_to_increment;
+
             u8 tima = m_memory.read_8( TIMA_ADDR ) + 1;
             if( tima == 0 )
             {
                 tima = m_memory.read_8( TMA_ADDR );
-                m_memory.write( TIMA_ADDR, tima );
                 
                 request_interrupt( Interrupts::TIMER );
             }
+
+            m_memory.write( TIMA_ADDR, tima );
         }
     }
 }

@@ -291,7 +291,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xF0] = bind( &CPU::_ld_a_io_n, this );
     m_base_instruction[0xF1] = [this]() { u32 ret = _pop( m_registers.af ); m_registers.f &= 0xF0; return ret; };
     m_base_instruction[0xF2] = bind( &CPU::_ld_a_io_c, this );
-    m_base_instruction[0xF3] = [this]() { m_ime = false; return 4; }; // TODO: Review DI implementation once interrupts are implemented
+    m_base_instruction[0xF3] = [this]() { m_ime = false; return 4; };
     m_base_instruction[0xF4] = nullptr; // NO INSTRUCTION
     m_base_instruction[0xF5] = bind( &CPU::_push, this, ref( m_registers.af ) );
     m_base_instruction[0xF6] = [this]() { _or( m_memory.read_8( m_registers.pc++ ) ); return 8; };
@@ -299,7 +299,7 @@ void CPU::_initialize_instruction_tables()
     m_base_instruction[0xF8] = bind( &CPU::_ldhl, this );
     m_base_instruction[0xF9] = bind( &CPU::_ld_sp_hl, this );
     m_base_instruction[0xFA] = bind( &CPU::_ld_a_nn, this );
-    m_base_instruction[0xFB] = [this]() { m_ime = true; return 4; }; // TODO: Review EI implementation once interrupts are implemented 
+    m_base_instruction[0xFB] = [this]() { m_ime = true; return 4; };
     m_base_instruction[0xFC] = nullptr; // NO INSTRUCTION
     m_base_instruction[0xFD] = nullptr; // NO INSTRUCTION
     m_base_instruction[0xFE] = [this]() { _cmp( m_memory.read_8( m_registers.pc++ ) ); return 8; };
