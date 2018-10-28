@@ -131,6 +131,15 @@ void Display::_process_ly_lyc()
     m_memory.write( LCDC_STAT_ADDR, lcdc_stat );
 }
 
+void Display::_process_lcdc_stat_interrupt( LCDC_STAT const stat_interrupt ) const
+{
+    u8 lcdc_stat = m_memory.read_8( LCDC_STAT_ADDR );
+    if( ( lcdc_stat & stat_interrupt ) != 0 )
+    {
+        m_cpu.request_interrupt( Interrupts::LCD_STAT );
+    }
+}
+
 void Display::_update_h_blank()
 {
     if( m_display_cycles >= H_BLANK_MIN_CYCLES )
@@ -144,23 +153,16 @@ void Display::_update_h_blank()
         if( ly == SCREEN_HEIGHT )
         {
             _set_mode( Mode::V_BLANK );
+            _process_lcdc_stat_interrupt( LCDC_STAT::V_BLANK_INT );
+
             //m_display_cycles = 0; // need this?
 
-            u8 lcdc_stat = m_memory.read_8( LCDC_STAT_ADDR );
-            if( ( lcdc_stat & LCDC_STAT::V_BLANK_INT ) != 0 )
-            {
-                m_cpu.request_interrupt( Interrupts::V_BLANK );
-            }
+            m_cpu.request_interrupt( Interrupts::V_BLANK );
         }
         else
         {
             _set_mode( Mode::SEARCHING_OAM_RAM );
-
-            u8 lcdc_stat = m_memory.read_8( LCDC_STAT_ADDR );
-            if( ( lcdc_stat & LCDC_STAT::OAM_INT ) != 0 )
-            {
-                m_cpu.request_interrupt( Interrupts::LCD_STAT );
-            }
+            _process_lcdc_stat_interrupt( LCDC_STAT::OAM_INT );
         }
     }
 }
@@ -186,12 +188,7 @@ void Display::_update_v_blank()
         if( ly == 0 )
         {
             _set_mode( Mode::SEARCHING_OAM_RAM );
-
-            u8 lcdc_stat = m_memory.read_8( LCDC_STAT_ADDR );
-            if( ( lcdc_stat & LCDC_STAT::OAM_INT ) != 0 )
-            {
-                m_cpu.request_interrupt( Interrupts::LCD_STAT );
-            }
+            _process_lcdc_stat_interrupt( LCDC_STAT::OAM_INT );
         }
     }
 }
@@ -223,6 +220,7 @@ void Display::_update_transferring()
             _draw_sprites_to_frame_buffer();
 
         _set_mode( Mode::H_BLANK );
+        _process_lcdc_stat_interrupt( LCDC_STAT::H_BLANK_INT );
     }
 }
 

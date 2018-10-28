@@ -91,7 +91,8 @@ public:
 private:
     void _set_mode( Mode new_mode );
     void _process_ly_lyc();
-    
+    void _process_lcdc_stat_interrupt( LCDC_STAT const stat_interrupt ) const;
+
     // Mode update
     void _update_h_blank();
     void _update_v_blank();
