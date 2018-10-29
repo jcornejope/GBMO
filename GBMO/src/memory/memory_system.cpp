@@ -10,10 +10,6 @@ MemorySystem::MemorySystem( GBMO& gameboy )
     : m_gameboy( gameboy )
 {
     std::memset( &m_memory, 0, SYSTEM_MEMORY_SIZE );
-
-    // TODO: REMOVE THIS FROM HERE
-    u16 mapped_address = _remap_address( P1_JOYP_ADDR );
-    m_memory[mapped_address] = 0xFF;
 }
 
 u8 MemorySystem::read_8( u16 address )
@@ -59,13 +55,11 @@ void MemorySystem::write( u16 address, u8 data )
     else if( address == P1_JOYP_ADDR )
     {
         // Remove the low part of data as it is read only.
-        if( ( ( data & 0x30 ) ^ 0x30 ) != 0 )
+        //if( ( ( data & 0x30 ) ^ 0x30 ) != 0 )
         {
             u8 low_data = m_gameboy.get_joypad().get_inputs_for_memory( data );
-            data = ( data & 0xF0 ) | low_data;
+            data = ( data & 0x30 ) | low_data;
         }
-        else
-            data &= 0xF0;
     }
 
     u16 mapped_address = _remap_address( address );

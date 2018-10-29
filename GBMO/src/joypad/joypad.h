@@ -19,6 +19,9 @@ public:
     void set_input_bindings( InputsConfig const& new_inputs );
 
 private:
+    bool _are_buttons_enabled( u8 const joyp ) const    { return ( joyp & ( 1 << 5 ) ) == 0; }
+    bool _are_directions_enabled( u8 const joyp ) const { return ( joyp & ( 1 << 4 ) ) == 0; }
+
     CPU& m_cpu;
     MemorySystem& m_memory;
 

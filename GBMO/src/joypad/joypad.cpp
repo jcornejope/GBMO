@@ -8,6 +8,7 @@ Joypad::Joypad( CPU& cpu, MemorySystem& memory )
     , m_memory( memory )
     , m_input_flags( 0xFF )
 {
+    m_memory.write( P1_JOYP_ADDR, u8( 0xFF ) );
 }
 
 void Joypad::handle_input_event( SDL_Event & event )
@@ -16,6 +17,7 @@ void Joypad::handle_input_event( SDL_Event & event )
     if( event.key.repeat != 0 )
         return;
 
+    u8 joyp = m_memory.read_8( P1_JOYP_ADDR );
     for( u32 i = 0; i < Inputs::NUM_INPUTS; ++i )
     {
         // TODO: Check if the input is key or gamepad button or gamepad axis.
@@ -26,6 +28,11 @@ void Joypad::handle_input_event( SDL_Event & event )
             if( event.type == SDL_KEYDOWN && ( m_input_flags & bit ) != 0 )
             {
                 m_input_flags &= ~bit; // 0 is pressed!
+
+                if( ( i < 4 && _are_buttons_enabled( joyp ) ) ||
+                    ( i > 3 && _are_directions_enabled( joyp ) ) )
+                    m_cpu.request_interrupt( Interrupts::JOYPAD );
+
                 break;
             }
             else if( event.type == SDL_KEYUP )
@@ -37,7 +44,7 @@ void Joypad::handle_input_event( SDL_Event & event )
     }
 
     // This will trigger the memory_system to request an update on the inputs and store in memory.
-    m_memory.write( P1_JOYP_ADDR, m_memory.read_8( P1_JOYP_ADDR ) );
+    m_memory.write( P1_JOYP_ADDR, joyp );
 }
 
 u8 Joypad::get_inputs_for_memory( u8 joyp )
@@ -47,25 +54,21 @@ u8 Joypad::get_inputs_for_memory( u8 joyp )
         if( ( new_low_joyp & ( new_low_joyp ^ ( joyp & 0x0F ) ) ) != 0 )
             m_cpu.request_interrupt( Interrupts::JOYPAD );
 
-        joyp = ( joyp & 0xF0 ) | ( new_low_joyp );
+        joyp = 0xC0 | ( joyp & 0x30 ) | ( new_low_joyp & 0x0F );
     };
 
-    if( ( joyp & ( 1 << 4 ) ) == 0 )
+    if( _are_directions_enabled( joyp ) )
     {
-        // Buttons
-        create_new_joyp_and_request_interrupt( ( m_input_flags & 0xF0 ) >> 4 );
-    }
-    else if( ( joyp & ( 1 << 3 ) ) == 0 )
-    {
-        // Direction Keys
         create_new_joyp_and_request_interrupt( ( m_input_flags & 0x0F ) );
     }
-
-    //for( u32 i = 0; i < Inputs::NUM_INPUTS; ++i )
-    //{
-    //    std::cout << i << " : " << ((m_input_flags & (1 << i)) >> i ) << " | ";
-    //}
-    //std::cout << std::hex << int(joyp) << std::endl;
+    else if( _are_buttons_enabled( joyp ) )
+    {
+        create_new_joyp_and_request_interrupt( ( m_input_flags & 0xF0 ) >> 4 );
+    }
+    else
+    {
+        joyp = 0xFF;
+    }
 
     return joyp;
 }
