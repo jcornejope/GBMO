@@ -1172,8 +1172,6 @@ u32 CPU::_ret( JumpCondition const condition )
         return ( condition == JumpCondition::NO_CONDITION ) ? 16 : 20;
     }
 
-    m_registers.pc += 2;
-
     return 8;
 }
 
