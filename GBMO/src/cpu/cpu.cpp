@@ -17,8 +17,8 @@ CPU::CPU( MemorySystem& memory )
     , m_ime( false )
 {
 #ifndef NDEBUG
-    std::memset(m_last_opcodes, 0xFF, NUM_LAST_OPCODES * sizeof(u16));
-    m_last_opcode_index = 0;
+    std::memset(m_pc_history, 0xFF, NUM_PC_HISTORY * sizeof(u16));
+    m_pc_history_index = 0;
 #endif
 
     _initialize_instruction_tables();
@@ -86,10 +86,10 @@ u32 CPU::update()
     case CPUMode::NORMAL:
     {
 #ifndef NDEBUG
-        m_last_opcodes[m_last_opcode_index] = m_registers.pc;
-        m_last_opcode_index++;
-        if( m_last_opcode_index == NUM_LAST_OPCODES )
-            m_last_opcode_index = 0;
+        m_pc_history[m_pc_history_index] = m_registers.pc;
+        m_pc_history_index++;
+        if( m_pc_history_index == NUM_PC_HISTORY )
+            m_pc_history_index = 0;
 #endif
 
         u8 opcode = m_memory.read_8( m_registers.pc++ );

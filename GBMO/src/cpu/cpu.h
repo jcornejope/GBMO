@@ -179,8 +179,8 @@ private:
     bool m_ime;
 
 #ifndef NDEBUG
-    static u8 const NUM_LAST_OPCODES = 100;
-    u16 m_last_opcodes[NUM_LAST_OPCODES];
-    u8 m_last_opcode_index;
+    static u8 const NUM_PC_HISTORY = 100;
+    u16 m_pc_history[NUM_PC_HISTORY];
+    u8 m_pc_history_index;
 #endif
 };
