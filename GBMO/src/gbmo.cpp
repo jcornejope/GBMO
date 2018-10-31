@@ -65,12 +65,12 @@ bool GBMO::update()
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<float, std::milli> diff = end - start;
     float const frame_delta = frame_time - diff.count();
-    //LOG( "UPDATE", "Update time: %f [%f] -> %f", diff.count(), frame_time, frame_delta );
     if( frame_delta > 0.f )
     {
         // TODO ADD THIS INTO THE OPTIONS (~60FPS)
         std::this_thread::sleep_for( std::chrono::duration<float, std::milli>( frame_delta ) );
     }
+    //LOG( "UPDATE", "Update time: %f [%f] -> %f", diff.count(), frame_time, frame_delta );
 
     return true;
 }
