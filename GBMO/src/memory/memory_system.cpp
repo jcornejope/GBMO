@@ -15,9 +15,9 @@ MemorySystem::MemorySystem( GBMO& gameboy )
 u8 MemorySystem::read_8( u16 address )
 {
     if( _is_memory_handled_by_cartridge( address ) )
-    {
         return m_gameboy.get_cartridge()._read( address );
-    }
+    else if( address == DMA_TRANSFER_ADDR )
+        return 0xFF;    // Write-only
 
     u16 mapped_address = _remap_address( address );
     return m_memory[mapped_address];
@@ -64,6 +64,9 @@ void MemorySystem::write( u16 address, u8 data )
 
     u16 mapped_address = _remap_address( address );
     m_memory[mapped_address] = data;
+
+    if( address == DMA_TRANSFER_ADDR )
+        _start_dma_transfer();
 }
 
 void MemorySystem::write( u16 address, u16 data )
@@ -79,7 +82,7 @@ bool MemorySystem::_is_memory_handled_by_cartridge( u16 const address ) const
     return ( address < 0x8000 ) || ( address >= 0xA000 && address < 0xC000 );
 }
 
-u16 MemorySystem::_remap_address( u16 const address ) const
+u16 MemorySystem::_remap_address( u16 const address )
 {
     u16 mapped_address = address - CARTRIDGE_ROM_MAP_SIZE;
     if( address >= 0xC000 )
@@ -94,4 +97,20 @@ u16 MemorySystem::_remap_address( u16 const address ) const
 
     ASSERT_MSG( mapped_address < SYSTEM_MEMORY_SIZE, "mapped_address [%#06x] out of bounds!", mapped_address );
     return mapped_address;
+}
+
+void MemorySystem::_start_dma_transfer()
+{
+    static u16 const DMA_TRANSFER_MAPPED_ADDR = _remap_address( DMA_TRANSFER_ADDR );
+    static u16 const OAM_MAPPED_ADDR = _remap_address( OAM_START_ADDR );
+
+    // TODO: Should this be done gradually so it takes 160 cycles?
+
+    u16 const source_addr = static_cast<u16>( m_memory[DMA_TRANSFER_MAPPED_ADDR] ) << 8;
+    //ASSERT_MSG( source_addr >= 0x80 && source_addr <= 0xDF, "Invalid source address[%#04x] for DMA transfer to OAM!", source_addr );
+    ASSERT_MSG( source_addr <= 0xF100, "Invalid source address[%#04x] for DMA transfer to OAM!", source_addr );
+    if( source_addr > 0xF100 )
+        return;
+    u16 const source_mapped_addr = _remap_address( source_addr );
+    std::memcpy( &m_memory[OAM_MAPPED_ADDR], &m_memory[source_mapped_addr], 0x100 );
 }

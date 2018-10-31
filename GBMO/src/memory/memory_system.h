@@ -22,7 +22,9 @@ public:
 
 private:
     bool _is_memory_handled_by_cartridge( u16 const address ) const;
-    u16 _remap_address( u16 const address ) const;
+    static u16 _remap_address( u16 const address );
+
+    void _start_dma_transfer();
 
     u8 m_memory[SYSTEM_MEMORY_SIZE];
     GBMO& m_gameboy;

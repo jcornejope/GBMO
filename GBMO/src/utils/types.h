@@ -28,7 +28,8 @@ typedef union
 
 enum ADDRESSES : u16
 {
-    IO_ADDRESS_START = 0xFF00,
+    OAM_START_ADDR      = 0xFE00,
+    IO_ADDRESS_START    = 0xFF00,
 
     P1_JOYP_ADDR = 0xFF00,
 
@@ -52,6 +53,7 @@ enum ADDRESSES : u16
     OBJ_2_PALETTE_ADDR  = 0xFF49,
     WINDOW_Y_ADDR       = 0xFF4A,
     WINDOW_X_ADDR       = 0xFF4B,
+
 };
 
 enum Interrupts : u8
