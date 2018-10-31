@@ -16,69 +16,14 @@ CPU::CPU( MemorySystem& memory )
     , m_tima_cycle_counter( 0 )
     , m_ime( false )
 {
-    //std::memset(m_last_opcodes, 0xFF, NUM_LAST_OPCODES * sizeof(u16));
-    //m_last_opcode_index = 0;
+#ifndef NDEBUG
+    std::memset(m_last_opcodes, 0xFF, NUM_LAST_OPCODES * sizeof(u16));
+    m_last_opcode_index = 0;
+#endif
 
     _initialize_instruction_tables();
 
     reset();
-/*
-    m_registers.a = 0x0F;
-    m_registers.b = 0xFF;
-
-    _initialize_instruction_tables();
-    
-    m_base_instruction[0x47]();
-    m_base_instruction[0x47]();
-
-    // TESTS - WOULD BE A GOOD IDEA TO CREATE SOME UNIT TESTS TO CHECK THE INSTRUCTIONS AUTOMATICALLY.
-
-    m_registers.a = 0x3A;
-    m_registers.b = 0xC6;
-
-    m_base_instruction[0x80](); // add 0x00 -> F:B0
-    assert( m_registers.af == 0x00B0 );
-
-    m_registers.a = 0x0F;
-    m_registers.b = 0x01;
-
-    m_base_instruction[0x80](); // add 0x10 -> F:20
-    assert( m_registers.af == 0x1020 );
-
-    m_registers.a = 0xE1;
-    m_registers.b = 0x0F;
-    _set_flag( Flags::CARRY );
-
-    m_base_instruction[0x88](); // addc 0xF1 -> F:20
-    assert( m_registers.af == 0xF120 );
-
-    m_registers.a = 0x3E;
-    m_registers.b = 0x40;
-
-    m_base_instruction[0x90](); // sub 0xFE -> F:50
-    assert( m_registers.af == 0xFE50 );
-
-    m_registers.a = 0x3B;
-    m_registers.b = 0x2A;
-    _set_flag( Flags::CARRY );
-
-    m_base_instruction[0x98](); // sbc 0x10 -> F:40
-    assert( m_registers.af == 0x1040 );
-
-    // DAA test
-    m_registers.a = 0x45;
-    m_registers.b = 0x38;
-    m_base_instruction[0x80](); // add 0x7D -> F:00
-    assert( m_registers.af == 0x7D00 );
-    m_base_instruction[0x27](); // daa 0x83 -> F:00
-    assert( m_registers.af == 0x8300 );
-    m_base_instruction[0x90](); // sub 0x4B -> F:60
-    assert( m_registers.af == 0x4B60 );
-    m_base_instruction[0x27](); // daa 0x45 -> F:40
-    assert( m_registers.af == 0x4540 );
-
-    m_base_instruction[0xC6]();
- */
 }
 
 void CPU::reset()
@@ -140,10 +85,12 @@ u32 CPU::update()
     {
     case CPUMode::NORMAL:
     {
-        //m_last_opcodes[m_last_opcode_index] = m_registers.pc;
-        //m_last_opcode_index++;
-        //if( m_last_opcode_index == NUM_LAST_OPCODES )
-        //    m_last_opcode_index = 0;
+#ifndef NDEBUG
+        m_last_opcodes[m_last_opcode_index] = m_registers.pc;
+        m_last_opcode_index++;
+        if( m_last_opcode_index == NUM_LAST_OPCODES )
+            m_last_opcode_index = 0;
+#endif
 
         u8 opcode = m_memory.read_8( m_registers.pc++ );
         if( m_base_instruction[opcode] == nullptr )
@@ -250,8 +197,8 @@ void CPU::update_divider_register( u32 const cycles )
     if( m_div_cycle_counter >= 256 )
     {
         m_div_cycle_counter -= 256;
-        u8 div_register = m_memory.read_8( 0xFF04 ) + 1;
-        m_memory.write( 0xFF04, div_register );
+        u8 div_register = m_memory.read_8( DIV_ADDR ) + 1;
+        m_memory.write( DIV_ADDR, div_register );
     }
 }
 
