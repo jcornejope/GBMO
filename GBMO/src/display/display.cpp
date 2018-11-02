@@ -229,36 +229,28 @@ void Display::_draw_background_to_frame_buffer()
     // Bear in mind that every operation here is power of 2 so we use shifts.
     u8 const lcdc = m_memory.read_8( LCD_CONTROL_ADDR );
     ASSERT( lcdc & LCDC::DISPLAY_ENABLE );
+    ASSERT( lcdc & LCDC::BG_DISPLAY );
     
     u8 const scroll_y = m_memory.read_8( SCROLL_Y_ADDR );
     u8 const scroll_x = m_memory.read_8( SCROLL_X_ADDR );
     u8 const lcd_y = m_memory.read_8( LCDC_Y_ADDR );
-    u8 const y = scroll_y + lcd_y;
-    u16 const y_start_tile = ( y >> 3 ) << 5;
-    u8 const tile_y_offset = ( y % 8 ) << 1;
 
-    u16 const tile_map_address = ( lcdc & LCDC::BG_TILE_MAP_SELECT ) == 0 ? 0x9800 : 0x9C00;
-    u16 const tile_data_address = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0 ? 0x8800 : 0x8000;
+    PixelColourIdParams params;
+    u8 const y = scroll_y + lcd_y;
+    params.y_start_tile = ( y >> 3 ) << 5;
+    params.tile_y_offset = ( y % 8 ) << 1;
+
+    params.tile_map_address = ( lcdc & LCDC::BG_TILE_MAP_SELECT ) == 0 ? 0x9800 : 0x9C00;
+    params.tile_data_address = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0 ? 0x8800 : 0x8000;
+    params.signed_tile_data = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0;
 
     Palette palette;
     _fill_dmg_palette_for_bg( palette );
 
     for( u8 i = 0; i < SCREEN_WIDTH; ++i )
     {
-        u8 const x = ( scroll_x + i ) >> 3;
-        u16 const map_id = y_start_tile + x;
-        ASSERT( map_id < 1024 );
-
-        u16 const tile_address = tile_map_address + map_id;
-        u8 const tile_data_id = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0
-                        ? static_cast<u8>( static_cast<s16>( m_memory.read_8( tile_address ) ) + 128 )
-                        : m_memory.read_8( tile_address );
-
-        word const tile_data = { m_memory.read_16( tile_data_address + ( tile_data_id << 4 ) + tile_y_offset ) };
-        s32 const pixel_in_tile = ( ( ( scroll_x + i ) % 8 ) - 7 ) * -1; // Get the pixel and mirror the byte.
-        u8 colour_id = ( ( tile_data.lo >> pixel_in_tile ) & 1 ) << 1;
-        colour_id |= ( tile_data.hi >> pixel_in_tile ) & 1;
-
+        params.x = scroll_x + i;
+        u8 colour_id = _get_pixel_colour_id( params );
         u32 const frame_buffer_idx = i + ( lcd_y * SCREEN_WIDTH );
         m_frame_buffer[frame_buffer_idx] = palette[colour_id];
     }
@@ -268,19 +260,23 @@ void Display::_draw_window_to_frame_buffer()
 {
     u8 const lcdc = m_memory.read_8( LCD_CONTROL_ADDR );
     ASSERT( lcdc & LCDC::DISPLAY_ENABLE );
+    ASSERT( lcdc & LCDC::WINDOW_DISPLAY_ENABLE );
 
     u8 const window_y = m_memory.read_8( WINDOW_Y_ADDR );
     u8 const window_x = m_memory.read_8( WINDOW_X_ADDR );
     u8 const lcd_y = m_memory.read_8( LCDC_Y_ADDR );
     if( window_y > lcd_y || window_y > 143 || window_x > 166 )
         return;
-    
-    u8 const y = lcd_y - window_y;
-    u16 const y_start_tile = ( y >> 3 ) << 5;
-    u8 const tile_y_offset = ( y % 8 ) << 1;
 
-    u16 const tile_map_address = ( lcdc & LCDC::WINDOW_TILE_MAP_SELECT ) == 0 ? 0x9800 : 0x9C00;
-    u16 const tile_data_address = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0 ? 0x8800 : 0x8000;
+    PixelColourIdParams params;
+
+    u8 const y = lcd_y - window_y;
+    params.y_start_tile = ( y >> 3 ) << 5;
+    params.tile_y_offset = ( y % 8 ) << 1;
+
+    params.tile_map_address = ( lcdc & LCDC::WINDOW_TILE_MAP_SELECT ) == 0 ? 0x9800 : 0x9C00;
+    params.tile_data_address = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0 ? 0x8800 : 0x8000;
+    params.signed_tile_data = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0;
 
     Palette palette;
     _fill_dmg_palette_for_bg( palette );
@@ -288,20 +284,8 @@ void Display::_draw_window_to_frame_buffer()
     u8 const x_start = window_x > 6 ? window_x - 7 : 0;
     for( u8 i = x_start; i < SCREEN_WIDTH; ++i )
     {
-        u8 const x_tile = ( i - x_start ) >> 3;
-        u16 const map_id = y_start_tile + x_tile;
-        ASSERT( map_id < 1024 );
-
-        u16 const tile_address = tile_map_address + map_id;
-        u8 const tile_data_id = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0
-                        ? static_cast<u8>( static_cast<s16>( m_memory.read_8( tile_address ) ) + 128 )
-                        : m_memory.read_8( tile_address );
-
-        word const tile_data = { m_memory.read_16( tile_data_address + ( tile_data_id << 4 ) + tile_y_offset ) };
-        s32 const pixel_in_tile = ( ( ( i - x_start ) % 8 ) - 7 ) * -1; // Get the pixel and mirror the byte.
-        u8 colour_id = ( ( tile_data.lo >> pixel_in_tile ) & 1 ) << 1;
-        colour_id |= ( tile_data.hi >> pixel_in_tile ) & 1;
-
+        params.x = i - x_start;
+        u8 const colour_id = _get_pixel_colour_id( params );
         u32 const frame_buffer_idx = i + ( lcd_y * SCREEN_WIDTH );
         m_frame_buffer[frame_buffer_idx] = palette[colour_id];
     }
@@ -329,4 +313,23 @@ void Display::_fill_dmg_palette_for_bg( Display::Palette& palette ) const
     palette[1] = current_bg_palette[( dmg_palette & PALETTE::COLOUR_1 ) >> 2];
     palette[2] = current_bg_palette[( dmg_palette & PALETTE::COLOUR_2 ) >> 4];
     palette[3] = current_bg_palette[( dmg_palette & PALETTE::COLOUR_3 ) >> 6];
+}
+
+u8 Display::_get_pixel_colour_id( PixelColourIdParams const& params ) const
+{
+    u8 const x_tile = params.x >> 3;
+    u16 const map_id = params.y_start_tile + x_tile;
+    ASSERT( map_id < 1024 );
+
+    u16 const tile_address = params.tile_map_address + map_id;
+    u8 const tile_data_id = params.signed_tile_data
+                        ? static_cast<u8>( static_cast<s16>( m_memory.read_8( tile_address ) ) + 128 )
+                        : m_memory.read_8( tile_address );
+
+    word const tile_data = { m_memory.read_16( params.tile_data_address + ( tile_data_id << 4 ) + params.tile_y_offset ) };
+    s32 const pixel_in_tile = ( ( params.x % 8 ) - 7 ) * -1; // Get the pixel and mirror the byte.
+    u8 colour_id = ( ( tile_data.lo >> pixel_in_tile ) & 1 ) << 1;
+    colour_id |= ( tile_data.hi >> pixel_in_tile ) & 1;
+
+    return colour_id;
 }

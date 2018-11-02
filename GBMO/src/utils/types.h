@@ -2,6 +2,12 @@
 
 #pragma warning( disable : 4201 ) // annonnymous struct/union
 
+#ifdef _MSC_VER
+#define FORCE_INLINE __forceinline
+#else
+#define FORCE_INLINE inline
+#endif
+
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;

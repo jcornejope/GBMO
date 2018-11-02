@@ -107,6 +107,17 @@ private:
     Palette const& _get_current_palette() const;
     void _fill_dmg_palette_for_bg( Palette& palette ) const;
 
+    struct PixelColourIdParams
+    {
+        u16 tile_map_address;
+        u16 tile_data_address;
+        u16 y_start_tile;
+        u8 tile_y_offset;
+        u8 x;
+        bool signed_tile_data;
+    };
+    FORCE_INLINE u8 _get_pixel_colour_id( PixelColourIdParams const& params ) const;
+
     MemorySystem& m_memory;
     CPU& m_cpu;
 
