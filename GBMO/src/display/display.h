@@ -105,6 +105,7 @@ private:
     void _draw_sprites_to_frame_buffer();
 
     Palette const& _get_current_palette() const;
+    void _fill_dmg_palette_for_bg( Palette& palette ) const;
 
     MemorySystem& m_memory;
     CPU& m_cpu;

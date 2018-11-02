@@ -67,7 +67,7 @@ void MBC_1::write( u16 address, u8 data )
 
 u16 MBC_1::_get_ram_mapped_address( u16 const address ) const
 {
-    u8 const ram_bank = m_rom_mode ? 1 : m_ram_bank;
+    u8 const ram_bank = m_rom_mode ? 0 : m_ram_bank;
     u16 mapped_address = ( ram_bank * RAM_BANK_SIZE ) + ( address - 0xA000 );
     ASSERT( mapped_address < m_ram_size );
     return mapped_address;
