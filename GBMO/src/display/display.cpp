@@ -282,9 +282,10 @@ void Display::_draw_window_to_frame_buffer()
     _fill_dmg_palette_for_bg( palette );
 
     u8 const x_start = window_x > 6 ? window_x - 7 : 0;
+    s8 const adj_window = window_x - 7;
     for( u8 i = x_start; i < SCREEN_WIDTH; ++i )
     {
-        params.x = i - x_start;
+        params.x = i - adj_window;
         u8 const colour_id = _get_pixel_colour_id( params );
         u32 const frame_buffer_idx = i + ( lcd_y * SCREEN_WIDTH );
         m_frame_buffer[frame_buffer_idx] = palette[colour_id];

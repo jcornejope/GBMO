@@ -41,7 +41,7 @@ namespace
 struct Options
 {
     Options() 
-        : m_resolution_scale ( 2 ) 
+        : m_resolution_scale ( 5 ) 
         , m_volume( 0.f )
         , m_log( true )
     {

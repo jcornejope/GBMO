@@ -16,7 +16,7 @@ int main( int argc, char* argv[] )
     Logger::create_instance( ".\\log.txt" );
 
     Options options;
-    options.m_rom_path = "D:\\Dev\\GBMO\\rom_ai.gb";
+    options.m_rom_path = "D:\\Dev\\GBMO\\rom_a.gb";
     //options.m_rom_path = "D:\\Dev\\GBMO\\rom_sml.gb";
     //options.m_rom_path = "D:\\Dev\\GBMO\\rom_drm.gb";
     //options.m_rom_path = "D:\\Dev\\GBMO\\rom_z.gb";
