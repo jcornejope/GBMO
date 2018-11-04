@@ -6,7 +6,9 @@
 #include "options.h"
 #include "utils/assert.h"
 
+#include <algorithm>
 #include <SDL.h>
+#include <vector>
 
 Display::Palette const Display::PALE_GREEN_PALETTE = { { 215,245,215 },{ 108,166,108 },{ 30,89,74 },{ 0,19,26 } };
 Display::Palette const Display::GREEN_PALETTE = { { 155,188,15 },{ 139,172,15 },{ 48,98,48 },{ 15,56,15 } };
@@ -245,7 +247,7 @@ void Display::_draw_background_to_frame_buffer()
     params.signed_tile_data = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0;
 
     Palette palette;
-    _fill_dmg_palette_for_bg( palette );
+    _fill_palette( palette, BG_PALETTE_ADDR );
 
     for( u8 i = 0; i < SCREEN_WIDTH; ++i )
     {
@@ -279,7 +281,7 @@ void Display::_draw_window_to_frame_buffer()
     params.signed_tile_data = ( lcdc & LCDC::BG_N_WINDOW_TILE_DATA ) == 0;
 
     Palette palette;
-    _fill_dmg_palette_for_bg( palette );
+    _fill_palette( palette, BG_PALETTE_ADDR );
 
     u8 const x_start = window_x > 6 ? window_x - 7 : 0;
     s8 const adj_window = window_x - 7;
@@ -295,9 +297,92 @@ void Display::_draw_window_to_frame_buffer()
 void Display::_draw_sprites_to_frame_buffer()
 {
     u8 const lcdc = m_memory.read_8( LCD_CONTROL_ADDR );
+    ASSERT( lcdc & LCDC::DISPLAY_ENABLE );
     ASSERT( lcdc & LCDC::OBJ_DISPLAY_ENABLE );
+
+    u8 const lcd_y = m_memory.read_8( LCDC_Y_ADDR );
+    s16 const lcd_y_16 = static_cast<s16>( lcd_y );
+    u8 const sprite_height = lcdc & LCDC::OBJ_SIZE ? 16 : 8;
+
+    Sprite sprites[40];
+    m_memory.read_oam_chunk( OAM_START_ADDR, reinterpret_cast<u8*>( &sprites ), sizeof( sprites ) );
     
-    (void)lcdc;
+    typedef std::pair<std::size_t, Sprite> PrioritizedSprited;
+    std::vector<PrioritizedSprited> relevant_sprites;
+    relevant_sprites.reserve( 20 );
+
+    // Get the relevant sprites for the current scanline
+    for( auto const& sprite : sprites )
+    {
+        if( sprite.y_pos == 0 || sprite.y_pos >= 160 )
+            continue;
+
+        s16 const adj_sprite_y = sprite.y_pos - 16;
+        if( lcd_y_16 >= adj_sprite_y && lcd_y_16 <= adj_sprite_y + sprite_height )
+            relevant_sprites.push_back( { relevant_sprites.size(), sprite } );
+    }
+
+    if( relevant_sprites.empty() )
+        return;
+
+    // Sort by priorities
+    auto sort_fn = []( PrioritizedSprited const& lhs, PrioritizedSprited const& rhs )
+    { 
+        if( lhs.second.x_pos == rhs.second.x_pos )
+            return lhs.first < rhs.first;
+
+        return lhs.second.x_pos < rhs.second.x_pos;
+    };
+    std::sort( relevant_sprites.begin(), relevant_sprites.end(), sort_fn );
+
+    // Build the OBJ palettes
+    Palette obp0_palette;
+    _fill_palette( obp0_palette, OBJ_0_PALETTE_ADDR );
+
+    Palette obp1_palette;
+    _fill_palette( obp1_palette, OBJ_1_PALETTE_ADDR );
+
+    // Draw the relevant sprites with enough priority
+    s8 sprite_idx = relevant_sprites.size() > 10 ? 9 : static_cast<s8>( relevant_sprites.size() - 1 );
+    for( ; sprite_idx >= 0; --sprite_idx )
+    {
+        Sprite const& sprite = relevant_sprites[sprite_idx].second;
+
+        if( sprite.x_pos == 0 || sprite.x_pos >= 168 )
+            continue;
+
+        for( s8 pixel = 0; pixel < 8; ++pixel )
+        {
+            s16 const x = sprite.x_pos - 8 + pixel;
+            if( x < 0 || x > 160)
+                continue;
+
+// TODO!!
+            /*u8 const x_tile = params.x >> 3;
+            u16 const map_id = params.y_start_tile + x_tile;
+            ASSERT( map_id < 1024 );
+
+            u16 const tile_address = params.tile_map_address + map_id;
+            u8 const tile_data_id = params.signed_tile_data
+                ? static_cast<u8>( static_cast<s16>( m_memory.read_8( tile_address ) ) + 128 )
+                : m_memory.read_8( tile_address );
+
+            word const tile_data = { m_memory.read_16( params.tile_data_address + ( tile_data_id << 4 ) + params.tile_y_offset ) };
+            s32 const pixel_in_tile = ( ( params.x % 8 ) - 7 ) * -1; // Get the pixel and mirror the byte.
+            u8 colour_id = ( ( tile_data.lo >> pixel_in_tile ) & 1 ) << 1;
+            colour_id |= ( tile_data.hi >> pixel_in_tile ) & 1;
+
+            if( colour_id == PALETTE::COLOUR_0 )
+                continue;
+
+            Palette const& palette = sprite.attributes & SPRITE_ATTR_FLAGS::PALETTE ? obp0_palette : obp1_palette;*/
+// TODO!!
+
+            u32 const frame_buffer_idx = x + ( lcd_y * SCREEN_WIDTH );
+            //m_frame_buffer[frame_buffer_idx] = palette[colour_id];
+            m_frame_buffer[frame_buffer_idx] = PALE_GREEN_PALETTE[DMG_PALETTE_COLOURS::BLACK];
+        }
+    }
 }
 
 Display::Palette const& Display::_get_current_palette() const
@@ -306,14 +391,14 @@ Display::Palette const& Display::_get_current_palette() const
     return PALE_GREEN_PALETTE;
 }
 
-void Display::_fill_dmg_palette_for_bg( Display::Palette& palette ) const
+void Display::_fill_palette( Display::Palette& palette, u16 definition_address ) const
 {
-    u8 const dmg_palette = m_memory.read_8( BG_PALETTE_ADDR );
+    u8 const palette_definition = m_memory.read_8( definition_address );
     Palette const& current_bg_palette = _get_current_palette();
-    palette[0] = current_bg_palette[dmg_palette & PALETTE::COLOUR_0];
-    palette[1] = current_bg_palette[( dmg_palette & PALETTE::COLOUR_1 ) >> 2];
-    palette[2] = current_bg_palette[( dmg_palette & PALETTE::COLOUR_2 ) >> 4];
-    palette[3] = current_bg_palette[( dmg_palette & PALETTE::COLOUR_3 ) >> 6];
+    palette[0] = current_bg_palette[( palette_definition & PALETTE::COLOUR_0 )];
+    palette[1] = current_bg_palette[( palette_definition & PALETTE::COLOUR_1 ) >> 2];
+    palette[2] = current_bg_palette[( palette_definition & PALETTE::COLOUR_2 ) >> 4];
+    palette[3] = current_bg_palette[( palette_definition & PALETTE::COLOUR_3 ) >> 6];
 }
 
 u8 Display::_get_pixel_colour_id( PixelColourIdParams const& params ) const

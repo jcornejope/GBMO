@@ -16,6 +16,7 @@ public:
 
     u8  read_8( u16 address );
     u16 read_16( u16 address );
+    void read_oam_chunk( u16 address, u8* buffer, u16 size );
 
     void write( u16 address, u8 data );
     void write( u16 address, u16 data );

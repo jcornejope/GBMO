@@ -10,13 +10,6 @@ struct SDL_Window;
 struct SDL_Renderer;
 struct SDL_Texture;
 
-struct Colour
-{
-    u8 r;
-    u8 g;
-    u8 b;
-};
-
 class Display
 {
     enum class Mode : u8
@@ -65,6 +58,32 @@ class Display
         BLACK       = 3
     };
 
+    struct Colour
+    {
+        u8 r;
+        u8 g;
+        u8 b;
+    };
+
+    enum SPRITE_ATTR_FLAGS : u8
+    {
+        OBJ_BG_PRIORITY = 1 << 7,   // Bit7   OBJ - to - BG Priority( 0 = OBJ Above BG, 1 = OBJ Behind BG color 1 - 3 )
+                                    // ( Used for both BG and Window.BG color 0 is always behind OBJ )
+        Y_FLIP          = 1 << 6,   // Bit6   Y flip( 0 = Normal, 1 = Vertically mirrored )
+        X_FLIP          = 1 << 5,   // Bit5   X flip( 0 = Normal, 1 = Horizontally mirrored )
+        PALETTE         = 1 << 4,   // Bit4   Palette number  **Non CGB Mode Only** ( 0 = OBP0, 1 = OBP1 )
+        TILE_BANK       = 1 << 3,   // Bit3   Tile VRAM - Bank * *CGB Mode Only** ( 0 = Bank 0, 1 = Bank 1 )
+        CGB_PALETTE     = 0x03      // Bit2 - 0 Palette number  **CGB Mode Only** ( OBP0 - 7 )
+    };
+
+    struct Sprite
+    {
+        u8 y_pos;
+        u8 x_pos;
+        u8 tile_num;
+        u8 attributes;
+    };
+
     static u32 const SCREEN_WIDTH   = 160;
     static u32 const SCREEN_HEIGHT  = 144;
 
@@ -105,7 +124,7 @@ private:
     void _draw_sprites_to_frame_buffer();
 
     Palette const& _get_current_palette() const;
-    void _fill_dmg_palette_for_bg( Palette& palette ) const;
+    void _fill_palette( Palette& palette, u16 definition_address ) const;
 
     struct PixelColourIdParams
     {

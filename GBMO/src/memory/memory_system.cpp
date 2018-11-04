@@ -33,6 +33,15 @@ u16 MemorySystem::read_16( u16 address )
     return value.data;
 }
 
+void MemorySystem::read_oam_chunk( u16 address, u8* buffer, u16 size )
+{
+    ASSERT( address >= OAM_START_ADDR && address + size <= OAM_END_ADDR + 1 );
+    ASSERT( buffer );
+
+    u16 mapped_address = _remap_address( address );
+    std::memcpy( buffer, &m_memory[mapped_address], size );
+}
+
 void MemorySystem::write( u16 address, u8 data )
 {
     if( _is_memory_handled_by_cartridge( address ) )

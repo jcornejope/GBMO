@@ -35,6 +35,7 @@ typedef union
 enum ADDRESSES : u16
 {
     OAM_START_ADDR      = 0xFE00,
+    OAM_END_ADDR        = 0xFE9F,
     IO_ADDRESS_START    = 0xFF00,
 
     P1_JOYP_ADDR = 0xFF00,
@@ -55,8 +56,8 @@ enum ADDRESSES : u16
     LY_COMPARE_ADDR     = 0xFF45,
     DMA_TRANSFER_ADDR   = 0xFF46,
     BG_PALETTE_ADDR     = 0xFF47,
-    OBJ_1_PALETTE_ADDR  = 0xFF48,
-    OBJ_2_PALETTE_ADDR  = 0xFF49,
+    OBJ_0_PALETTE_ADDR  = 0xFF48,
+    OBJ_1_PALETTE_ADDR  = 0xFF49,
     WINDOW_Y_ADDR       = 0xFF4A,
     WINDOW_X_ADDR       = 0xFF4B,
 
