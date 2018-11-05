@@ -318,7 +318,7 @@ void Display::_draw_sprites_to_frame_buffer()
             continue;
 
         s16 const adj_sprite_y = sprite.y_pos - 16;
-        if( lcd_y_16 >= adj_sprite_y && lcd_y_16 <= adj_sprite_y + sprite_height )
+        if( lcd_y_16 >= adj_sprite_y && lcd_y_16 < adj_sprite_y + sprite_height )
             relevant_sprites.push_back( { relevant_sprites.size(), sprite } );
     }
 
@@ -351,36 +351,31 @@ void Display::_draw_sprites_to_frame_buffer()
         if( sprite.x_pos == 0 || sprite.x_pos >= 168 )
             continue;
 
+        u8 const y_in_tile = sprite.attributes & SPRITE_ATTR_FLAGS::Y_FLIP ? ( 7 - ( lcd_y - ( sprite.y_pos - 16 ) ) ) : lcd_y - ( sprite.y_pos - 16 );
+        u8 const tile_y_offset = y_in_tile << 1;
+
+        u16 tile_data_id = sprite.tile_num;
+        if( sprite_height == 16 )
+            tile_data_id = y_in_tile > 7 ? sprite.tile_num & 0xFE : sprite.tile_num | 0x01;
+
+        word const tile_data = { m_memory.read_16( 0x8000 + ( tile_data_id << 4 ) + tile_y_offset ) };
+
         for( s8 pixel = 0; pixel < 8; ++pixel )
         {
             s16 const x = sprite.x_pos - 8 + pixel;
             if( x < 0 || x > 160)
                 continue;
-
-// TODO!!
-            /*u8 const x_tile = params.x >> 3;
-            u16 const map_id = params.y_start_tile + x_tile;
-            ASSERT( map_id < 1024 );
-
-            u16 const tile_address = params.tile_map_address + map_id;
-            u8 const tile_data_id = params.signed_tile_data
-                ? static_cast<u8>( static_cast<s16>( m_memory.read_8( tile_address ) ) + 128 )
-                : m_memory.read_8( tile_address );
-
-            word const tile_data = { m_memory.read_16( params.tile_data_address + ( tile_data_id << 4 ) + params.tile_y_offset ) };
-            s32 const pixel_in_tile = ( ( params.x % 8 ) - 7 ) * -1; // Get the pixel and mirror the byte.
+            
+            s32 const pixel_in_tile = sprite.attributes & SPRITE_ATTR_FLAGS::X_FLIP ? pixel : 7 - pixel; // We need to mirror X when NOT flipped
             u8 colour_id = ( ( tile_data.lo >> pixel_in_tile ) & 1 ) << 1;
             colour_id |= ( tile_data.hi >> pixel_in_tile ) & 1;
-
-            if( colour_id == PALETTE::COLOUR_0 )
+            
+            if( colour_id == 0 ) // Always transparent
                 continue;
 
-            Palette const& palette = sprite.attributes & SPRITE_ATTR_FLAGS::PALETTE ? obp0_palette : obp1_palette;*/
-// TODO!!
-
+            Palette const& palette = sprite.attributes & SPRITE_ATTR_FLAGS::PALETTE ? obp0_palette : obp1_palette;
             u32 const frame_buffer_idx = x + ( lcd_y * SCREEN_WIDTH );
-            //m_frame_buffer[frame_buffer_idx] = palette[colour_id];
-            m_frame_buffer[frame_buffer_idx] = PALE_GREEN_PALETTE[DMG_PALETTE_COLOURS::BLACK];
+            m_frame_buffer[frame_buffer_idx] = palette[colour_id];
         }
     }
 }
@@ -413,7 +408,7 @@ u8 Display::_get_pixel_colour_id( PixelColourIdParams const& params ) const
                         : m_memory.read_8( tile_address );
 
     word const tile_data = { m_memory.read_16( params.tile_data_address + ( tile_data_id << 4 ) + params.tile_y_offset ) };
-    s32 const pixel_in_tile = ( ( params.x % 8 ) - 7 ) * -1; // Get the pixel and mirror the byte.
+    u8 const pixel_in_tile = 7 - ( params.x % 8 ); // Get the pixel and mirror it.
     u8 colour_id = ( ( tile_data.lo >> pixel_in_tile ) & 1 ) << 1;
     colour_id |= ( tile_data.hi >> pixel_in_tile ) & 1;
 
