@@ -94,10 +94,9 @@ class Display
     static u32 const CYCLES_TO_LY_INCREMENT = 456;
     static u32 const V_BLANK_CYCLES         = 4560;
 
+    static u32 const NUM_SYSTEM_PALETTES = 3;
     typedef Colour Palette[4];
-    static Palette const PALE_GREEN_PALETTE;
-    static Palette const GREEN_PALETTE;
-    static Palette const BW_PALETTE;
+    static Palette const PALETTES[NUM_SYSTEM_PALETTES];
 
 public:
     Display( CPU& cpu, MemorySystem& memory );
@@ -106,6 +105,8 @@ public:
     bool init( Options const& options );
     void update( u32 cycles );
     void render();
+
+    void cycle_palette();
 
 private:
     void _set_mode( Mode new_mode );
@@ -149,4 +150,5 @@ private:
     Mode m_mode;
 
     u32 m_display_cycles;
+    u32 m_current_palette_idx;
 };

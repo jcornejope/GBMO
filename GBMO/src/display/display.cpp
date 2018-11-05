@@ -10,9 +10,12 @@
 #include <SDL.h>
 #include <vector>
 
-Display::Palette const Display::PALE_GREEN_PALETTE = { { 215,245,215 },{ 108,166,108 },{ 30,89,74 },{ 0,19,26 } };
-Display::Palette const Display::GREEN_PALETTE = { { 155,188,15 },{ 139,172,15 },{ 48,98,48 },{ 15,56,15 } };
-Display::Palette const Display::BW_PALETTE = { { 255,255,255 },{ 0xCC,0xCC,0xCC },{ 0x77,0x77,0x77 },{ 0x0,0x0,0x0 } };
+Display::Palette const Display::PALETTES[Display::NUM_SYSTEM_PALETTES] =
+{
+    { { 215,245,215 },{ 108,166,108 },{ 30,89,74 },{ 0,19,26 } },               // PALE_GREEN_PALETTE
+    { { 155,188,15 },{ 139,172,15 },{ 48,98,48 },{ 15,56,15 } },                // GREEN_PALETTE 
+    { { 255,255,255 },{ 0xCC,0xCC,0xCC },{ 0x77,0x77,0x77 },{ 0x0,0x0,0x0 } }   // BW_PALETTE
+};
 
 Display::Display( CPU& cpu, MemorySystem & memory )
     : m_memory( memory )
@@ -21,7 +24,8 @@ Display::Display( CPU& cpu, MemorySystem & memory )
     , m_renderer( nullptr )
     , m_texture( nullptr )
     , m_mode( Mode::SEARCHING_OAM_RAM )
-    , m_display_cycles(0)
+    , m_display_cycles( 0 )
+    , m_current_palette_idx( 0 )
 {
     std::memset( m_frame_buffer, 0xFF, sizeof( m_frame_buffer ) );
 }
@@ -89,6 +93,13 @@ void Display::render()
     SDL_RenderClear( m_renderer );
     SDL_RenderCopy( m_renderer, m_texture, NULL, NULL );
     SDL_RenderPresent( m_renderer );
+}
+
+void Display::cycle_palette()
+{
+    ++m_current_palette_idx;
+    if( m_current_palette_idx == NUM_SYSTEM_PALETTES)
+        m_current_palette_idx = 0;
 }
 
 void Display::_set_mode( Mode new_mode )
@@ -382,8 +393,7 @@ void Display::_draw_sprites_to_frame_buffer()
 
 Display::Palette const& Display::_get_current_palette() const
 {
-    // TODO: have a palette selector
-    return PALE_GREEN_PALETTE;
+    return PALETTES[m_current_palette_idx];
 }
 
 void Display::_fill_palette( Display::Palette& palette, u16 definition_address ) const
