@@ -247,7 +247,7 @@ void Display::_draw_background_to_frame_buffer()
     u8 const scroll_x = m_memory.read_8( SCROLL_X_ADDR );
     u8 const lcd_y = m_memory.read_8( LCDC_Y_ADDR );
 
-    if( lcdc & LCDC::BG_DISPLAY == 0 )
+    if( ( lcdc & LCDC::BG_DISPLAY ) == 0 )
     {
         Colour white = _get_current_palette()[DMG_PALETTE_COLOURS::WHITE];
         for( u8 i = 0; i < SCREEN_WIDTH; ++i )
@@ -362,6 +362,9 @@ void Display::_draw_sprites_to_frame_buffer()
     Palette obp1_palette;
     _fill_palette( obp1_palette, OBJ_1_PALETTE_ADDR );
 
+    Palette bg_palette;
+    _fill_palette( bg_palette, BG_PALETTE_ADDR );
+
     // Draw the relevant sprites with enough priority
     s8 sprite_idx = relevant_sprites.size() > 10 ? 9 : static_cast<s8>( relevant_sprites.size() - 1 );
     for( ; sprite_idx >= 0; --sprite_idx )
@@ -393,8 +396,12 @@ void Display::_draw_sprites_to_frame_buffer()
             if( colour_id == 0 ) // Always transparent
                 continue;
 
-            Palette const& palette = sprite.attributes & SPRITE_ATTR_FLAGS::PALETTE ? obp1_palette : obp0_palette;
             u32 const frame_buffer_idx = x + ( lcd_y * SCREEN_WIDTH );
+            if( sprite.attributes & SPRITE_ATTR_FLAGS::OBJ_BG_PRIORITY &&
+                m_frame_buffer[frame_buffer_idx] != bg_palette[0] ) // This is not correct (the palette may have the same colour twice...)
+                return;
+
+            Palette const& palette = sprite.attributes & SPRITE_ATTR_FLAGS::PALETTE ? obp1_palette : obp0_palette;
             m_frame_buffer[frame_buffer_idx] = palette[colour_id];
         }
     }

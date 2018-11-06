@@ -60,6 +60,9 @@ class Display
 
     struct Colour
     {
+        bool operator==( Colour const& c ) { return r == c.r && g == c.g && b == c.b; }
+        bool operator!=( Colour const& c ) { return !( *this == c ); }
+
         u8 r;
         u8 g;
         u8 b;
