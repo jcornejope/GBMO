@@ -378,8 +378,8 @@ void Display::_draw_sprites_to_frame_buffer()
                 continue;
             
             s32 const pixel_in_tile = sprite.attributes & SPRITE_ATTR_FLAGS::X_FLIP ? pixel : 7 - pixel; // We need to mirror X when NOT flipped
-            u8 colour_id = ( ( tile_data.lo >> pixel_in_tile ) & 1 ) << 1;
-            colour_id |= ( tile_data.hi >> pixel_in_tile ) & 1;
+            u8 colour_id = ( tile_data.lo >> pixel_in_tile ) & 1;
+            colour_id |= ( ( tile_data.hi >> pixel_in_tile ) & 1 ) << 1;
             
             if( colour_id == 0 ) // Always transparent
                 continue;
@@ -419,8 +419,8 @@ u8 Display::_get_pixel_colour_id( PixelColourIdParams const& params ) const
 
     word const tile_data = { m_memory.read_16( params.tile_data_address + ( tile_data_id << 4 ) + params.tile_y_offset ) };
     u8 const pixel_in_tile = 7 - ( params.x % 8 ); // Get the pixel and mirror it.
-    u8 colour_id = ( ( tile_data.lo >> pixel_in_tile ) & 1 ) << 1;
-    colour_id |= ( tile_data.hi >> pixel_in_tile ) & 1;
+    u8 colour_id = ( tile_data.lo >> pixel_in_tile ) & 1;
+    colour_id |= ( ( tile_data.hi >> pixel_in_tile ) & 1 ) << 1;
 
     return colour_id;
 }
