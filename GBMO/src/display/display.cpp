@@ -223,10 +223,10 @@ void Display::_update_transferring()
         m_display_cycles -= TRANSFER_MIN_CYCLES;
 
         u8 const lcdc = m_memory.read_8( LCD_CONTROL_ADDR );
-        if( lcdc & LCDC::BG_DISPLAY )
-            _draw_background_to_frame_buffer();
+        
+        _draw_background_to_frame_buffer();
 
-        if( lcdc & LCDC::WINDOW_DISPLAY_ENABLE )
+        if( ( lcdc & LCDC::WINDOW_DISPLAY_ENABLE ) && ( lcdc & LCDC::BG_DISPLAY ) )
             _draw_window_to_frame_buffer();
 
         if( lcdc & LCDC::OBJ_DISPLAY_ENABLE )
@@ -242,11 +242,19 @@ void Display::_draw_background_to_frame_buffer()
     // Bear in mind that every operation here is power of 2 so we use shifts.
     u8 const lcdc = m_memory.read_8( LCD_CONTROL_ADDR );
     ASSERT( lcdc & LCDC::DISPLAY_ENABLE );
-    ASSERT( lcdc & LCDC::BG_DISPLAY );
-    
+   
     u8 const scroll_y = m_memory.read_8( SCROLL_Y_ADDR );
     u8 const scroll_x = m_memory.read_8( SCROLL_X_ADDR );
     u8 const lcd_y = m_memory.read_8( LCDC_Y_ADDR );
+
+    if( lcdc & LCDC::BG_DISPLAY == 0 )
+    {
+        Colour white = _get_current_palette()[DMG_PALETTE_COLOURS::WHITE];
+        for( u8 i = 0; i < SCREEN_WIDTH; ++i )
+            m_frame_buffer[i + ( lcd_y * SCREEN_WIDTH )] = white;
+
+        return;
+    }
 
     PixelColourIdParams params;
     u8 const y = scroll_y + lcd_y;
@@ -274,6 +282,7 @@ void Display::_draw_window_to_frame_buffer()
     u8 const lcdc = m_memory.read_8( LCD_CONTROL_ADDR );
     ASSERT( lcdc & LCDC::DISPLAY_ENABLE );
     ASSERT( lcdc & LCDC::WINDOW_DISPLAY_ENABLE );
+    ASSERT( lcdc & LCDC::BG_DISPLAY );
 
     u8 const window_y = m_memory.read_8( WINDOW_Y_ADDR );
     u8 const window_x = m_memory.read_8( WINDOW_X_ADDR );
