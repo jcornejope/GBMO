@@ -384,7 +384,7 @@ void Display::_draw_sprites_to_frame_buffer()
             if( colour_id == 0 ) // Always transparent
                 continue;
 
-            Palette const& palette = sprite.attributes & SPRITE_ATTR_FLAGS::PALETTE ? obp0_palette : obp1_palette;
+            Palette const& palette = sprite.attributes & SPRITE_ATTR_FLAGS::PALETTE ? obp1_palette : obp0_palette;
             u32 const frame_buffer_idx = x + ( lcd_y * SCREEN_WIDTH );
             m_frame_buffer[frame_buffer_idx] = palette[colour_id];
         }
