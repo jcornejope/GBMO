@@ -389,17 +389,17 @@ void Display::_draw_sprites_to_frame_buffer()
             if( x < 0 || x > 160)
                 continue;
             
+            u32 const frame_buffer_idx = x + ( lcd_y * SCREEN_WIDTH );
+            if( sprite.attributes & SPRITE_ATTR_FLAGS::OBJ_BG_PRIORITY &&
+                m_frame_buffer[frame_buffer_idx] != bg_palette[0] ) // This is not strictly correct (the palette may have the same colour twice...)
+                continue;
+
             s32 const pixel_in_tile = sprite.attributes & SPRITE_ATTR_FLAGS::X_FLIP ? pixel : 7 - pixel; // We need to mirror X when NOT flipped
             u8 colour_id = ( tile_data.lo >> pixel_in_tile ) & 1;
             colour_id |= ( ( tile_data.hi >> pixel_in_tile ) & 1 ) << 1;
             
             if( colour_id == 0 ) // Always transparent
                 continue;
-
-            u32 const frame_buffer_idx = x + ( lcd_y * SCREEN_WIDTH );
-            if( sprite.attributes & SPRITE_ATTR_FLAGS::OBJ_BG_PRIORITY &&
-                m_frame_buffer[frame_buffer_idx] != bg_palette[0] ) // This is not correct (the palette may have the same colour twice...)
-                return;
 
             Palette const& palette = sprite.attributes & SPRITE_ATTR_FLAGS::PALETTE ? obp1_palette : obp0_palette;
             m_frame_buffer[frame_buffer_idx] = palette[colour_id];
