@@ -20,6 +20,6 @@ private:
         u8 m_ram_bank;
     };
 
-    bool m_ram_enabled;
+    bool m_ramcs;
     bool m_rom_mode;
 };

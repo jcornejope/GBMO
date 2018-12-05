@@ -6,7 +6,7 @@ MBC_1::MBC_1( u8* cartridge_rom, u8* cartridge_ram, u32 rom_size, u32 ram_size )
     : MBC( cartridge_rom, cartridge_ram, rom_size, ram_size )
     , m_rom_bank( 1 )
     , m_ram_bank( 0 )
-    , m_ram_enabled( false )
+    , m_ramcs( false )
     , m_rom_mode( true )
 {}
 
@@ -18,7 +18,7 @@ u8 MBC_1::read( u16 address )
     if( address < ROM_BANK_SIZE * 2 )
     {
         u8 const rom_bank = m_rom_mode ? ( m_rom_bank | ( m_hi_rom_bank << 5 ) ) : 1;
-        u16 const mapped_address = ( rom_bank * ROM_BANK_SIZE ) + ( address - ROM_BANK_SIZE );
+        u32 const mapped_address = ( rom_bank * ROM_BANK_SIZE ) + ( address - ROM_BANK_SIZE );
         ASSERT( mapped_address < m_rom_size );
         return m_cartridge_rom[mapped_address];
     }
@@ -38,11 +38,11 @@ void MBC_1::write( u16 address, u8 data )
     if( address < 0x2000 )
     {
         if( m_cartridge_ram )
-            m_ram_enabled = ( data & 0x0F ) == 0x0A;
+            m_ramcs = ( data & 0x0F ) == 0x0A;
     }
     else if( address < 0x4000 )
     {
-        m_rom_bank |= data & 0x1F;
+        m_rom_bank = data & 0x1F;
         if( ( m_rom_bank & 0x1F ) == 0 )
             ++m_rom_bank;
     }
