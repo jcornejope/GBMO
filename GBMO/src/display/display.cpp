@@ -374,14 +374,12 @@ void Display::_draw_sprites_to_frame_buffer()
         if( sprite.x_pos == 0 || sprite.x_pos >= 168 )
             continue;
 
-        u8 const y_in_tile = sprite.attributes & SPRITE_ATTR_FLAGS::Y_FLIP ? ( 7 - ( lcd_y - ( sprite.y_pos - 16 ) ) ) : lcd_y - ( sprite.y_pos - 16 );
+        u8 const y_in_tile = sprite.attributes & SPRITE_ATTR_FLAGS::Y_FLIP 
+                           ? ( ( sprite_height - 1 ) - ( lcd_y - ( sprite.y_pos - 16 ) ) ) 
+                           : lcd_y - ( sprite.y_pos - 16 );
+        
         u8 const tile_y_offset = y_in_tile << 1;
-
-        u16 tile_data_id = sprite.tile_num;
-        if( sprite_height == 16 )
-            tile_data_id = y_in_tile > 7 ? sprite.tile_num & 0xFE : sprite.tile_num | 0x01;
-
-        word const tile_data = { m_memory.read_16( 0x8000 + ( tile_data_id << 4 ) + tile_y_offset ) };
+        word const tile_data = { m_memory.read_16( 0x8000 + ( sprite.tile_num << 4 ) + tile_y_offset ) };
 
         for( s8 pixel = 0; pixel < 8; ++pixel )
         {
