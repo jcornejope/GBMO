@@ -198,7 +198,7 @@ void CPU::update_divider_register( u32 const cycles )
     {
         m_div_cycle_counter -= 256;
         u8 div_register = m_memory.read_8( DIV_ADDR ) + 1;
-        m_memory.write( DIV_ADDR, div_register );
+        m_memory.non_protected_write( DIV_ADDR, div_register );
     }
 }
 

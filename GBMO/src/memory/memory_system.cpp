@@ -86,6 +86,12 @@ void MemorySystem::write( u16 address, u16 data )
     write( address + 1, value.hi );
 }
 
+void MemorySystem::non_protected_write( u16 address, u8 data )
+{
+    u16 mapped_address = _remap_address( address );
+    m_memory[mapped_address] = data;
+}
+
 bool MemorySystem::_is_memory_handled_by_cartridge( u16 const address ) const
 {
     return ( address < 0x8000 ) || ( address >= 0xA000 && address < 0xC000 );

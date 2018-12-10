@@ -21,6 +21,8 @@ public:
     void write( u16 address, u8 data );
     void write( u16 address, u16 data );
 
+    void non_protected_write( u16 address, u8 data );
+
 private:
     bool _is_memory_handled_by_cartridge( u16 const address ) const;
     static u16 _remap_address( u16 const address );
