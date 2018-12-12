@@ -126,6 +126,15 @@ void MemorySystem::_start_dma_transfer()
     ASSERT_MSG( source_addr <= 0xF100, "Invalid source address[%#04x] for DMA transfer to OAM!", source_addr );
     if( source_addr > 0xF100 )
         return;
-    u16 const source_mapped_addr = _remap_address( source_addr );
-    std::memcpy( &m_memory[OAM_MAPPED_ADDR], &m_memory[source_mapped_addr], 0x100 );
+
+    if( _is_memory_handled_by_cartridge( source_addr ) )
+    {
+        for( u16 i = 0; i < 0x100; ++i )
+            m_memory[OAM_MAPPED_ADDR + i] = read_8( source_addr + i );
+    }
+    else
+    {
+        u16 const source_mapped_addr = _remap_address( source_addr );
+        std::memcpy( &m_memory[OAM_MAPPED_ADDR], &m_memory[source_mapped_addr], 0x100 );
+    }
 }
