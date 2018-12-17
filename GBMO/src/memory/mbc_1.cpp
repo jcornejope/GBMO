@@ -17,7 +17,7 @@ u8 MBC_1::read( u16 address )
 
     if( address < ROM_BANK_SIZE * 2 )
     {
-        u8 const rom_bank = m_rom_mode ? ( m_rom_bank | ( m_hi_rom_bank << 5 ) ) : 1;
+        u8 const rom_bank = m_rom_bank | ( m_rom_mode ? ( m_hi_rom_bank << 5 ) : 0 );
         u32 const mapped_address = ( rom_bank * ROM_BANK_SIZE ) + ( address - ROM_BANK_SIZE );
         ASSERT( mapped_address < m_rom_size );
         return m_cartridge_rom[mapped_address];
