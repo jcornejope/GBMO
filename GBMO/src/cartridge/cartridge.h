@@ -13,6 +13,8 @@ class Cartridge
     static u32 const TITLE_SIZE = 16;
     static u32 const BANK_SIZE = 16;
 
+    static char const* SAVE_FILE_EXT;
+
 public:
     Cartridge(std::string const& rom_path);
     ~Cartridge();
@@ -30,6 +32,7 @@ public:
     u8                  get_version_number() const;
     u8                  get_header_checksum() const;
     u16                 get_cartridge_checksum() const;
+    bool                has_battery() const;
 
     void print_header_values() const;
     void log_header_values() const;
@@ -46,6 +49,13 @@ private:
     bool _check_header_checksum() const;
     bool _create_ram();
     bool _create_mbc();
+
+    /// Loads the savefile containing the ram.
+    void _load_ram_sav();
+    /// Saves the ram to a file for battery powered cartridges.
+    void _save_ram_sav();
+    /// Returns the size of the portion of ram needed to be save/load to/from file.
+    u16 _get_save_ram_size();
 
     s32 _get_ram_size() const;
 

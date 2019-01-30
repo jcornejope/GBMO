@@ -10,6 +10,8 @@
 #include <fstream>
 #include <iostream>
 
+char const* Cartridge::SAVE_FILE_EXT = ".sav";
+
 Cartridge::Cartridge( std::string const& rom_path )
     : m_file_path(rom_path)
     , m_rom(nullptr)
@@ -26,6 +28,9 @@ Cartridge::Cartridge( std::string const& rom_path )
         ok &= _load_header();
         ok &= _create_ram();
         ok &= _create_mbc();
+
+        if( has_battery() )
+            _load_ram_sav();
     }
 
     if( ok == false )
@@ -36,10 +41,13 @@ Cartridge::Cartridge( std::string const& rom_path )
 
 Cartridge::~Cartridge()
 {
-    delete m_rom;
+    if( has_battery() )
+        _save_ram_sav();
+
+    delete[] m_rom;
     m_rom = nullptr;
 
-    delete m_ram;
+    delete[] m_ram;
     m_ram = nullptr;
 
     delete m_mbc;
@@ -133,6 +141,27 @@ u16 Cartridge::get_cartridge_checksum() const
     return checksum;
 }
 
+bool Cartridge::has_battery() const
+{
+    switch( get_cartridge_type() )
+    {
+    case CartridgeType::MBC1_RAM_BATTERY:
+    case CartridgeType::MBC2_BATTERY:
+    case CartridgeType::ROM_RAM_BATTERY:            
+    case CartridgeType::MMM01_RAM_BATTERY:
+    case CartridgeType::MBC3_TIMER_BATTERY:
+    case CartridgeType::MBC3_TIMER_RAM_BATTERY:
+    case CartridgeType::MBC3_RAM_BATTERY:
+    case CartridgeType::MBC4_RAM_BATTERY:
+    case CartridgeType::MBC5_RAM_BATTERY:
+    case CartridgeType::MBC5_RUMBLE_RAM_BATTERY:
+    case CartridgeType::HuC1_RAM_BATTERY:
+        return true;
+        break;
+    }
+    return false;
+}
+
 u8 Cartridge::_read( u16 address )
 {
     ASSERT( m_mbc );
@@ -196,6 +225,53 @@ bool Cartridge::_create_mbc()
     }
 
     return m_mbc != nullptr;
+}
+
+void Cartridge::_load_ram_sav()
+{
+    ASSERT_MSG( has_battery(), "Trying to load the ram from a cartridge with no battery support!" );
+
+    std::ifstream file( m_file_path + SAVE_FILE_EXT, std::ios::in | std::ios::binary | std::ios::ate );
+    if( !file.is_open() )
+        return;
+
+    std::streampos size = file.tellg();
+    ASSERT( _get_save_ram_size() == size );
+
+    file.seekg( std::ios::beg );
+    file.read( reinterpret_cast<char*>( m_ram ), size );
+    file.close();
+}
+
+void Cartridge::_save_ram_sav()
+{
+    ASSERT_MSG( has_battery(), "Trying to save the ram from a cartridge with no battery support!" );
+
+    std::ofstream file( m_file_path + SAVE_FILE_EXT, std::ios::out | std::ios::binary );
+    if( !file.is_open() )
+        return;
+
+    file.write( reinterpret_cast<char const*>( m_ram ), _get_save_ram_size() );
+    file.close();
+}
+
+u16 Cartridge::_get_save_ram_size()
+{
+    if( get_cartridge_type() == CartridgeType::MBC2_BATTERY )
+        return 512; // 512x4bit -> 256 but stored in 512 bytes.
+
+    u16 ret = 0;
+    switch( get_ram_size_type() )
+    {
+    case RAMSize::RAM_2:    ret = 1024 * 2;             break;
+    case RAMSize::RAM_8:    
+    case RAMSize::RAM_32:   ret = MBC::RAM_BANK_SIZE;   break;
+    default:
+        ERROR_MSG( "Trying to get the save size of a cartridge with no RAM!" );
+        break;
+    }
+
+    return ret;
 }
 
 s32 Cartridge::_get_ram_size() const
