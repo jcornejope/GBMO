@@ -35,7 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\cartridge\cartridge.h" />
-    <ClInclude Include="src\cartridge\catridge_utils.h" />
+    <ClInclude Include="src\cartridge\cartridge_utils.h" />
     <ClInclude Include="src\cpu\cpu.h" />
     <ClInclude Include="src\display\display.h" />
     <ClInclude Include="src\gbmo.h" />

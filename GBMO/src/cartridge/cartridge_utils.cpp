@@ -1,4 +1,4 @@
-#include "catridge_utils.h"
+#include "cartridge_utils.h"
 
 char const* to_string( CartridgeType type )
 {

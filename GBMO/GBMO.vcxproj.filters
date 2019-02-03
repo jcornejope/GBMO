@@ -102,7 +102,7 @@
     <ClInclude Include="src\memory\mbc_2.h">
       <Filter>memory</Filter>
     </ClInclude>
-    <ClInclude Include="src\cartridge\catridge_utils.h">
+    <ClInclude Include="src\cartridge\cartridge_utils.h">
       <Filter>cartridge</Filter>
     </ClInclude>
   </ItemGroup>
