@@ -3,6 +3,7 @@
 
 #include "memory/mbc_none.h"
 #include "memory/mbc_1.h"
+#include "memory/mbc_2.h"
 #include "utils/assert.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -200,6 +201,15 @@ bool Cartridge::_check_header_checksum() const
 
 bool Cartridge::_create_ram()
 {
+    auto const catridge_type = get_cartridge_type();
+    if( catridge_type == CartridgeType::MBC2 ||
+        catridge_type == CartridgeType::MBC2_BATTERY )
+    {
+        // When using a MBC2 chip 00h must be specified in RAMSize, even though the MBC2 includes a built-in RAM of 512 x 4 bits.
+        m_ram = new u8[0x200];
+        return true;
+    }
+
     switch( get_ram_size_type() )
     {
     case RAMSize::NONE:     return true;                break;
@@ -221,7 +231,9 @@ bool Cartridge::_create_mbc()
     case CartridgeType::ROM_ONLY:           m_mbc = new MBC_None( m_rom, m_ram );   break;
     case CartridgeType::MBC1:
     case CartridgeType::MBC1_RAM:
-    case CartridgeType::MBC1_RAM_BATTERY:   m_mbc = new MBC_1( m_rom, m_ram, get_rom_size(), _get_ram_size() );      break;
+    case CartridgeType::MBC1_RAM_BATTERY:   m_mbc = new MBC_1( m_rom, m_ram, get_rom_size(), _get_ram_size() ); break;
+    case CartridgeType::MBC2:
+    case CartridgeType::MBC2_BATTERY:       m_mbc = new MBC_2( m_rom, m_ram, get_rom_size(), _get_ram_size() ); break;
     }
 
     return m_mbc != nullptr;
@@ -276,6 +288,13 @@ u16 Cartridge::_get_save_ram_size()
 
 s32 Cartridge::_get_ram_size() const
 {
+    auto const catridge_type = get_cartridge_type();
+    if( catridge_type == CartridgeType::MBC2 || catridge_type == CartridgeType::MBC2_BATTERY )
+    {
+        // When using a MBC2 chip 00h must be specified in RAMSize, even though the MBC2 includes a built-in RAM of 512 x 4 bits.
+        return 0x200;
+    }
+
     s32 ret = 0;
     switch( get_ram_size_type() )
     {
