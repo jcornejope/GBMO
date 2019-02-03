@@ -28,6 +28,7 @@
     <ClCompile Include="src\gbmo.cpp" />
     <ClCompile Include="src\joypad\joypad.cpp" />
     <ClCompile Include="src\memory\mbc_1.cpp" />
+    <ClCompile Include="src\memory\mbc_2.cpp" />
     <ClCompile Include="src\memory\mbc_none.cpp" />
     <ClCompile Include="src\memory\memory_system.cpp" />
     <ClCompile Include="src\utils\logger.cpp" />
@@ -41,6 +42,7 @@
     <ClInclude Include="src\joypad\joypad.h" />
     <ClInclude Include="src\memory\mbc.h" />
     <ClInclude Include="src\memory\mbc_1.h" />
+    <ClInclude Include="src\memory\mbc_2.h" />
     <ClInclude Include="src\memory\mbc_none.h" />
     <ClInclude Include="src\memory\memory_system.h" />
     <ClInclude Include="src\options.h" />

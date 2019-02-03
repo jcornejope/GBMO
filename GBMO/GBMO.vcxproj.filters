@@ -33,6 +33,9 @@
     <ClCompile Include="src\utils\logger.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\memory\mbc_2.cpp">
+      <Filter>memory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="memory">
@@ -70,9 +73,6 @@
     <ClInclude Include="src\utils\utils.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="src\cartridge\catridge_utils.h">
-      <Filter>cartridge</Filter>
-    </ClInclude>
     <ClInclude Include="src\memory\mbc_none.h">
       <Filter>memory</Filter>
     </ClInclude>
@@ -98,6 +98,12 @@
     </ClInclude>
     <ClInclude Include="src\utils\logger.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\mbc_2.h">
+      <Filter>memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\cartridge\catridge_utils.h">
+      <Filter>cartridge</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
