@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include "catridge_utils.h"
+#include "cartridge_utils.h"
 
 class MemorySystem;
 class MBC;
