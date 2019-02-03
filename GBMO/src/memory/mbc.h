@@ -6,6 +6,9 @@
 class MBC
 {
 public:
+    static u16 const ROM_BANK_SIZE = 0x4000;
+    static u16 const RAM_BANK_SIZE = 0x2000;
+
     MBC( u8* cartridge_rom, u8* cartridge_ram, u32 rom_size, u32 ram_size ) 
         : m_cartridge_rom( cartridge_rom )
         , m_cartridge_ram( cartridge_ram )
@@ -26,9 +29,6 @@ public:
     virtual void write( u16 address, u8 data ) = 0;
 
 protected:
-    static u16 const ROM_BANK_SIZE = 0x4000;
-    static u16 const RAM_BANK_SIZE = 0x2000;
-
     u8* m_cartridge_rom;
     u8* m_cartridge_ram;
 
