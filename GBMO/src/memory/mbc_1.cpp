@@ -56,7 +56,7 @@ void MBC_1::write( u16 address, u8 data )
     }
     else if( address >= 0xA000 && address <= 0xBFFF )
     {
-        if( m_cartridge_ram )
+        if( m_cartridge_ram && m_ramcs )
             m_cartridge_ram[_get_ram_mapped_address( address )] = data;
     }
     else
