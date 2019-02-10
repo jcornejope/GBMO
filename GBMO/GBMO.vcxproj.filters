@@ -36,6 +36,9 @@
     <ClCompile Include="src\memory\mbc_2.cpp">
       <Filter>memory</Filter>
     </ClCompile>
+    <ClCompile Include="src\memory\mbc_3.cpp">
+      <Filter>memory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="memory">
@@ -104,6 +107,9 @@
     </ClInclude>
     <ClInclude Include="src\cartridge\cartridge_utils.h">
       <Filter>cartridge</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\mbc_3.h">
+      <Filter>memory</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

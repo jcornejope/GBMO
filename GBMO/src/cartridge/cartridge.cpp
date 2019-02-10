@@ -4,6 +4,7 @@
 #include "memory/mbc_none.h"
 #include "memory/mbc_1.h"
 #include "memory/mbc_2.h"
+#include "memory/mbc_3.h"
 #include "utils/assert.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -228,12 +229,17 @@ bool Cartridge::_create_mbc()
 {
     switch( get_cartridge_type() )
     {
-    case CartridgeType::ROM_ONLY:           m_mbc = new MBC_None( m_rom, m_ram );   break;
+    case CartridgeType::ROM_ONLY:               m_mbc = new MBC_None( m_rom, m_ram );   break;
     case CartridgeType::MBC1:
     case CartridgeType::MBC1_RAM:
-    case CartridgeType::MBC1_RAM_BATTERY:   m_mbc = new MBC_1( m_rom, m_ram, get_rom_size(), _get_ram_size() ); break;
+    case CartridgeType::MBC1_RAM_BATTERY:       m_mbc = new MBC_1( m_rom, m_ram, get_rom_size(), _get_ram_size() ); break;
     case CartridgeType::MBC2:
-    case CartridgeType::MBC2_BATTERY:       m_mbc = new MBC_2( m_rom, m_ram, get_rom_size(), _get_ram_size() ); break;
+    case CartridgeType::MBC2_BATTERY:           m_mbc = new MBC_2( m_rom, m_ram, get_rom_size(), _get_ram_size() ); break;
+    case CartridgeType::MBC3:
+    case CartridgeType::MBC3_RAM:
+    case CartridgeType::MBC3_RAM_BATTERY:
+    case CartridgeType::MBC3_TIMER_BATTERY:
+    case CartridgeType::MBC3_TIMER_RAM_BATTERY: m_mbc = new MBC_3( m_rom, m_ram, get_rom_size(), _get_ram_size() ); break;
     }
 
     return m_mbc != nullptr;
