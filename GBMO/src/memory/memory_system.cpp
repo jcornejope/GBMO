@@ -64,11 +64,8 @@ void MemorySystem::write( u16 address, u8 data )
     else if( address == P1_JOYP_ADDR )
     {
         // Remove the low part of data as it is read only.
-        //if( ( ( data & 0x30 ) ^ 0x30 ) != 0 )
-        {
-            u8 low_data = m_gameboy.get_joypad().get_inputs_for_memory( data );
-            data = ( data & 0x30 ) | low_data;
-        }
+        u8 low_data = m_gameboy.get_joypad().get_inputs_for_memory( data );
+        data = ( data & 0x30 ) | low_data;
     }
 
     u16 mapped_address = _remap_address( address );
