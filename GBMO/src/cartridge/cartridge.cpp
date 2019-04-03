@@ -56,6 +56,12 @@ Cartridge::~Cartridge()
     m_mbc = nullptr;
 }
 
+void Cartridge::update_timer( float delta_time_ms )
+{
+    if( m_mbc )
+        m_mbc->update_timer( delta_time_ms );
+}
+
 bool Cartridge::_load_rom()
 {
     // Open file as binary, for reading and seek to the end of the file
@@ -166,7 +172,7 @@ bool Cartridge::has_battery() const
 
 u8 Cartridge::_read( u16 address )
 {
-    ASSERT( m_mbc );
+    ASSERT_MSG( m_mbc, "Trying to read from a cartridge with no MBC instance created [%s]", to_string( get_cartridge_type() ) );
     if( m_mbc == nullptr )
         return 0xFF;
     return m_mbc->read( address );
@@ -174,7 +180,7 @@ u8 Cartridge::_read( u16 address )
 
 void Cartridge::_write( u16 address, u8 data )
 {
-    ASSERT( m_mbc );
+    ASSERT_MSG( m_mbc, "Trying to write to a cartridge with no MBC instance created [%s]", to_string( get_cartridge_type() ) );
     if( m_mbc != nullptr )
         m_mbc->write( address, data );
 }
@@ -258,6 +264,10 @@ void Cartridge::_load_ram_sav()
 
     file.seekg( std::ios::beg );
     file.read( reinterpret_cast<char*>( m_ram ), size );
+
+    if( m_mbc )
+        m_mbc->on_load( file );
+
     file.close();
 }
 
@@ -270,6 +280,10 @@ void Cartridge::_save_ram_sav()
         return;
 
     file.write( reinterpret_cast<char const*>( m_ram ), _get_save_ram_size() );
+
+    if( m_mbc )
+        m_mbc->on_save( file );
+
     file.close();
 }
 

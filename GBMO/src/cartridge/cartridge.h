@@ -19,6 +19,8 @@ public:
     Cartridge(std::string const& rom_path);
     ~Cartridge();
 
+    void update_timer( float delta_time_ms );
+
     std::string const&  get_file_path() const           { return m_file_path; }
     char const*         get_title_name() const          { return &m_title_name[0]; }
     s32                 get_rom_size() const            { return m_rom_size; }

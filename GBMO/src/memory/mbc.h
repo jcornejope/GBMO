@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/types.h"
+#include <iosfwd>
 
 /// Memory Bank Controller
 class MBC
@@ -27,6 +28,10 @@ public:
 
     virtual u8 read( u16 address ) = 0;
     virtual void write( u16 address, u8 data ) = 0;
+
+    virtual void update_timer( float /*delta_time_ms*/ ) {}
+    virtual void on_load( std::ifstream& /*file*/ ) {};
+    virtual void on_save( std::ofstream& /*file*/ ) {};
 
 protected:
     u8* m_cartridge_rom;

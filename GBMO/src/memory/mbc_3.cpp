@@ -1,9 +1,12 @@
 #include "memory/mbc_3.h"
+#include <fstream>
 
 #include "utils/assert.h"
 
 MBC_3::MBC_3( u8* cartridge_rom, u8* cartridge_ram, u32 rom_size, u32 ram_size )
     : MBC( cartridge_rom, cartridge_ram, rom_size, ram_size )
+    , m_elapsed_milliseconds( 0.f )
+    , m_timer_latched_secs( 0 )
     , m_rom_bank( 1 )
     , m_ram_bank_n_rtc( 0 )
     , m_ramcs_n_clock_counter( false )
@@ -92,6 +95,68 @@ void MBC_3::write( u16 address, u8 data )
     {
         ASSERT( false );
     }
+}
+
+void MBC_3::update_timer( float delta_time_ms )
+{
+    if( m_rtc.m_dh & RTC_DH_FLAGS::HALT )
+        return;
+
+    m_elapsed_milliseconds += delta_time_ms;
+    while( m_elapsed_milliseconds >= 1000 )
+    {
+        m_elapsed_milliseconds -= 1000;
+
+        if( !m_rtc.m_latched )
+        {
+            ++m_rtc.m_s;
+            if( m_rtc.m_s == 60 )
+            {
+                ++m_rtc.m_m;
+                if( m_rtc.m_m == 60 )
+                {
+                    ++m_rtc.m_h;
+                    if( m_rtc.m_h == 24 )
+                    {
+                        u16 day = ( ( m_rtc.m_dh & 1 ) << 8 ) | m_rtc.m_dl;
+                        ++day;
+                        
+                        // calc carry
+                        if( day & 0x200 )
+                        {
+                            m_rtc.m_dh |= RTC_DH_FLAGS::CARRY;
+                            day = 0;
+                        }
+
+                        m_rtc.m_dl = day & 0xFF;
+                        m_rtc.m_dh |= day & 0x100;
+                    }
+                }
+            }
+        }
+        else
+        {
+            ++m_timer_latched_secs;
+        }
+    }
+}
+
+void MBC_3::on_load( std::ifstream& file )
+{
+    ASSERT_MSG( file.is_open(), "Trying to load RTC for MBC3 but save file is not open!" );
+
+    // use m_timer_latched_secs, save RTC and save the date
+    if( !file.is_open() )
+        return;
+}
+
+void MBC_3::on_save( std::ofstream& file )
+{
+    ASSERT_MSG( file.is_open(), "Trying to save RTC for MBC3 but save file is not open!" );
+
+    // restore the date and calculate the RTC values for it
+    if( !file.is_open() )
+        return;
 }
 
 u16 MBC_3::_get_ram_mapped_address( u16 const address ) const

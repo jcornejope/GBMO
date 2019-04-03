@@ -64,6 +64,9 @@ bool GBMO::update()
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<float, std::milli> diff = end - start;
+
+    m_cartridge.update_timer( diff.count() );
+
     float const frame_delta = frame_time - diff.count();
     if( frame_delta > 0.f )
     {

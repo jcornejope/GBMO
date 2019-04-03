@@ -18,6 +18,13 @@ class MBC_3 : public MBC
         RTC_DH = 0x0C,
     };
 
+    enum RTC_DH_FLAGS : u8
+    {
+        CARRY       = 1 << 7,
+        HALT        = 1 << 6,
+        DH_BIT_9    = 1,
+    };
+
     struct RTC
     {
         u8 m_s;
@@ -25,6 +32,7 @@ class MBC_3 : public MBC
         u8 m_h;
         u8 m_dl;
         u8 m_dh;
+        bool m_latched;
     };
 
 public:
@@ -33,8 +41,15 @@ public:
     virtual u8 read( u16 address ) override;
     virtual void write( u16 address, u8 data ) override;
 
+    virtual void update_timer( float delta_time_ms ) override;
+    virtual void on_load( std::ifstream& file ) override;
+    virtual void on_save( std::ofstream& file ) override;
+
 private:
     u16 _get_ram_mapped_address( u16 const address ) const;
+
+    float m_elapsed_milliseconds;
+    u32 m_timer_latched_secs;
 
     u8 m_rom_bank;
     u8 m_ram_bank_n_rtc;
