@@ -47,6 +47,7 @@ public:
 
 private:
     u16 _get_ram_mapped_address( u16 const address ) const;
+    void _add_time_to_rtc( u32 secs );
 
     float m_elapsed_milliseconds;
     u32 m_timer_latched_secs;

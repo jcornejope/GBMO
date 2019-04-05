@@ -259,11 +259,10 @@ void Cartridge::_load_ram_sav()
     if( !file.is_open() )
         return;
 
-    std::streampos size = file.tellg();
-    ASSERT( _get_save_ram_size() == size );
+    ASSERT( file.tellg() >= _get_save_ram_size() );
 
     file.seekg( std::ios::beg );
-    file.read( reinterpret_cast<char*>( m_ram ), size );
+    file.read( reinterpret_cast<char*>( m_ram ), _get_save_ram_size() );
 
     if( m_mbc )
         m_mbc->on_load( file );

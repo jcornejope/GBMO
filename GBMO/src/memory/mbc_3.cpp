@@ -1,5 +1,6 @@
 #include "memory/mbc_3.h"
 #include <fstream>
+#include <chrono>
 
 #include "utils/assert.h"
 
@@ -109,30 +110,7 @@ void MBC_3::update_timer( float delta_time_ms )
 
         if( !m_rtc.m_latched )
         {
-            ++m_rtc.m_s;
-            if( m_rtc.m_s == 60 )
-            {
-                ++m_rtc.m_m;
-                if( m_rtc.m_m == 60 )
-                {
-                    ++m_rtc.m_h;
-                    if( m_rtc.m_h == 24 )
-                    {
-                        u16 day = ( ( m_rtc.m_dh & 1 ) << 8 ) | m_rtc.m_dl;
-                        ++day;
-                        
-                        // calc carry
-                        if( day & 0x200 )
-                        {
-                            m_rtc.m_dh |= RTC_DH_FLAGS::CARRY;
-                            day = 0;
-                        }
-
-                        m_rtc.m_dl = day & 0xFF;
-                        m_rtc.m_dh |= day & 0x100;
-                    }
-                }
-            }
+            _add_time_to_rtc( 1 );
         }
         else
         {
@@ -145,18 +123,45 @@ void MBC_3::on_load( std::ifstream& file )
 {
     ASSERT_MSG( file.is_open(), "Trying to load RTC for MBC3 but save file is not open!" );
 
-    // use m_timer_latched_secs, save RTC and save the date
-    if( !file.is_open() )
-        return;
+    file.read( reinterpret_cast<char*>( &m_rtc ), sizeof( m_rtc ) );
+
+    {
+        using namespace std::chrono;
+        
+        seconds::rep saved_secs_since_epoch;
+        file.read( reinterpret_cast<char*>( &saved_secs_since_epoch ), sizeof( saved_secs_since_epoch ) );
+
+        time_point<system_clock> time_now = system_clock::now();
+        auto secs_since_epoch = duration_cast<seconds>( time_now.time_since_epoch() ).count();
+
+        auto secs_since_save = secs_since_epoch - saved_secs_since_epoch;
+        if( secs_since_save > 0 )
+        {
+            _add_time_to_rtc( static_cast<u32>( secs_since_save ) );
+        }
+    }
+
 }
 
 void MBC_3::on_save( std::ofstream& file )
 {
     ASSERT_MSG( file.is_open(), "Trying to save RTC for MBC3 but save file is not open!" );
 
-    // restore the date and calculate the RTC values for it
-    if( !file.is_open() )
-        return;
+    if( m_timer_latched_secs > 0.f )
+    {
+        _add_time_to_rtc( m_timer_latched_secs );
+    }
+
+    std::streamsize s = sizeof( m_rtc );
+    file.write( reinterpret_cast<char*>( &m_rtc ), sizeof( m_rtc ) );
+
+    {
+        using namespace std::chrono;
+        time_point<system_clock> time_now = system_clock::now();
+        auto secs_since_epoch = duration_cast<seconds>( time_now.time_since_epoch() ).count();
+        s = sizeof( secs_since_epoch );
+        file.write( reinterpret_cast<char*>( &secs_since_epoch ), sizeof( secs_since_epoch ) );
+    }
 }
 
 u16 MBC_3::_get_ram_mapped_address( u16 const address ) const
@@ -164,4 +169,28 @@ u16 MBC_3::_get_ram_mapped_address( u16 const address ) const
     u16 mapped_address = ( m_ram_bank_n_rtc * RAM_BANK_SIZE ) + ( address - 0xA000 );
     ASSERT( mapped_address < m_ram_size );
     return mapped_address;
+}
+
+void MBC_3::_add_time_to_rtc( u32 secs )
+{   
+    secs += m_rtc.m_s;
+    u32 mins = m_rtc.m_m + ( secs / 60 );
+    u32 hours = m_rtc.m_h + ( mins / 60 );
+
+    u32 days = ( ( m_rtc.m_dh & 1 ) << 8 ) | m_rtc.m_dl;
+    days += hours / 24;
+
+    // calc carry
+    if( days >= 0x200 )
+    {
+        m_rtc.m_dh |= RTC_DH_FLAGS::CARRY;
+        days %= 0x200;
+    }
+
+    m_rtc.m_dl = days & 0xFF;
+    m_rtc.m_dh |= days & 0x100;
+
+    m_rtc.m_s = secs % 60;
+    m_rtc.m_m = mins % 60;
+    m_rtc.m_h = hours % 24;
 }
