@@ -35,13 +35,11 @@ u8 MBC_3::read( u16 address )
         case RAM_BANK_3:
             return m_cartridge_ram[_get_ram_mapped_address( address )];
             break;
-        case RTC_S:  //break;
-        case RTC_M:  //break;
-        case RTC_H:  //break;
-        case RTC_DL: //break;
-        case RTC_DH: //break;
-            // TODO RTC
-            return 0xFF;
+        case RTC_S:  return m_rtc.m_s;  break;
+        case RTC_M:  return m_rtc.m_m;  break;
+        case RTC_H:  return m_rtc.m_h;  break;
+        case RTC_DL: return m_rtc.m_dl; break;
+        case RTC_DH: return m_rtc.m_dh; break;
         }
     }
 
@@ -69,7 +67,19 @@ void MBC_3::write( u16 address, u8 data )
     }
     else if( address < 0x8000 )
     {
-        // TODO LATCH
+        if( m_rtc_pre_latch_active && data == 0x1 )
+        {
+            m_rtc.m_latched = !m_rtc.m_latched;
+            m_rtc_pre_latch_active = false;
+        }
+        else if( data == 0x0 )
+        {
+            m_rtc_pre_latch_active = true;
+        }
+        else
+        {
+            m_rtc_pre_latch_active = false;
+        }
     }
     else if( address >= 0xA000 && address <= 0xBFFF )
     {
@@ -84,12 +94,11 @@ void MBC_3::write( u16 address, u8 data )
                 m_cartridge_ram[_get_ram_mapped_address( address )] = data;
         }
             break;
-        case RTC_S: break;
-        case RTC_M: break;
-        case RTC_H: break;
-        case RTC_DL: break;
-        case RTC_DH: break;
-            // TODO RTC
+        case RTC_S:     m_rtc.m_s  = data;  break;
+        case RTC_M:     m_rtc.m_m  = data;  break;
+        case RTC_H:     m_rtc.m_h  = data;  break;
+        case RTC_DL:    m_rtc.m_dl = data;  break;
+        case RTC_DH:    m_rtc.m_dh = data;  break;
         }
     }
     else

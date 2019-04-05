@@ -58,4 +58,5 @@ private:
     RTC m_rtc;
 
     bool m_ramcs_n_clock_counter;
+    bool m_rtc_pre_latch_active;
 };
