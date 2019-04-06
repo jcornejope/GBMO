@@ -1,0 +1,65 @@
+------------------------------------------------------------------------
+-- GBMO ROADMAP
+------------------------------------------------------------------------
+
+------------------------------------
+--- Next Versions ------------------
+------------------------------------
+
+- v0.8:
+	- Screen tearing
+	- Fix SML2 hang
+	
+- v0.9:
+	- Support zipped roms.
+	- Support args when launching the application.
+	- Config file for inputs and options (overriden by args).
+	
+- v0.10:
+	- Implement sound/audio.
+	
+- v1.0:
+	- Fixes and performance.
+	
+- v1.1:
+	- CGB Mode
+	
+- v1.2:
+	- MBC5
+
+------------------------------------
+--- Released Versions --------------
+------------------------------------
+
+- 0.7:
+	- Added support for MBC3 with RTC emulation.
+	
+- 0.6:
+	- Added support for MBC2.
+	- Save and Load for cartridges with battery support.
+	
+- 0.5:
+	- Implemented Display Window and Sprites.
+	- Multiple palettes (F2 to switch at runtime).
+	- Fixes.
+	
+- v0.4
+	- Implemented DMA transfer.
+	- Some debug helper and some fixes 
+	
+- v0.3
+	- Added Logger
+	- Joypad improvements.
+	- Implemented display interruptions
+	- CPU instructions fixes.
+	
+- v0.2
+	- Added support for MBC1
+	- Fixes to CPU and Display
+	
+- v0.1
+	- Implementation of CPU (instructions, interrupts, divider and timer regs).
+	- Implementation of Memory system.
+	- Implementation of Joypad.
+	- Initial implementation of Display (no window or sprites).
+	- Added Assert handling.
