@@ -31,33 +31,33 @@
 --- Released Versions --------------
 ------------------------------------
 
-- 0.7:
+- 0.7 <a51403c>:
 	- Added support for MBC3 with RTC emulation.
 	
-- 0.6:
+- 0.6 <36ff192>:
 	- Added support for MBC2.
 	- Save and Load for cartridges with battery support.
 	
-- 0.5:
+- 0.5 <1dbe32e>:
 	- Implemented Display Window and Sprites.
 	- Multiple palettes (F2 to switch at runtime).
 	- Fixes.
 	
-- v0.4
+- v0.4 <68fd85b>:
 	- Implemented DMA transfer.
 	- Some debug helper and some fixes 
 	
-- v0.3
+- v0.3 <e47588b>:
 	- Added Logger
 	- Joypad improvements.
 	- Implemented display interruptions
 	- CPU instructions fixes.
 	
-- v0.2
+- v0.2 <d86c83c>:
 	- Added support for MBC1
 	- Fixes to CPU and Display
 	
-- v0.1
+- v0.1 <db75c8c>:
 	- Implementation of CPU (instructions, interrupts, divider and timer regs).
 	- Implementation of Memory system.
 	- Implementation of Joypad.
