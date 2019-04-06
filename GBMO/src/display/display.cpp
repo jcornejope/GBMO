@@ -5,6 +5,7 @@
 #include "memory/memory_system.h"
 #include "options.h"
 #include "utils/assert.h"
+#include "utils/utils.h"
 
 #include <algorithm>
 #include <SDL.h>
@@ -39,7 +40,9 @@ Display::~Display()
 
 bool Display::init( Options const & options )
 {
-    m_window = SDL_CreateWindow( "GBMO v0.1",
+    std::string title{ "GBMO " };
+    title += Version::to_string();
+    m_window = SDL_CreateWindow( title.c_str(),
                                  SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                  SCREEN_WIDTH * options.m_resolution_scale, SCREEN_HEIGHT * options.m_resolution_scale,
                                  SDL_WINDOW_SHOWN );
