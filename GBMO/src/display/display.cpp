@@ -27,6 +27,7 @@ Display::Display( CPU& cpu, MemorySystem & memory )
     , m_mode( Mode::SEARCHING_OAM_RAM )
     , m_display_cycles( 0 )
     , m_current_palette_idx( 0 )
+    , m_ready_for_render( false )
 {
     std::memset( m_frame_buffer, 0xFF, sizeof( m_frame_buffer ) );
 }
@@ -96,6 +97,8 @@ void Display::render()
     SDL_RenderClear( m_renderer );
     SDL_RenderCopy( m_renderer, m_texture, NULL, NULL );
     SDL_RenderPresent( m_renderer );
+
+    m_ready_for_render = false;
 }
 
 void Display::cycle_palette()
@@ -195,6 +198,7 @@ void Display::_update_v_blank()
         u8 ly = m_memory.read_8( LCDC_Y_ADDR ) + 1;
         if( ly == 153 )
         {
+            m_ready_for_render = true;
             ly = 0;
         }
 

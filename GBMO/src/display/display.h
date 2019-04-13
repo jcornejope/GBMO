@@ -108,7 +108,8 @@ public:
     bool init( Options const& options );
     void update( u32 cycles );
     void render();
-
+    
+    bool is_ready_for_render() const { return m_ready_for_render; }
     void cycle_palette();
 
 private:
@@ -154,4 +155,6 @@ private:
 
     u32 m_display_cycles;
     u32 m_current_palette_idx;
+
+    bool m_ready_for_render;
 };
