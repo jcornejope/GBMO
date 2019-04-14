@@ -7,12 +7,12 @@
 ------------------------------------
 
 - v0.8:
-	- Screen tearing
+	- Support args when launching the application.
+	- Fix Screen tearing
 	- Fix SML2 hang
 	
 - v0.9:
 	- Support zipped roms.
-	- Support args when launching the application.
 	- Config file for inputs and options (overriden by args).
 	
 - v0.10:
