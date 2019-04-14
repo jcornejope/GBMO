@@ -1,6 +1,6 @@
 # GBMO
 
-GBMO is a Nintendo GameBoy emulator written in C++. It uses the SDL2 library for handling graphics.
+GBMO is a Nintendo GameBoy emulator written in C++. It uses the SDL2 library.
 
 The emulator is currently in its version 0.7 so please be aware of some missing functionallity and some bugs. Please check the version history and ![roadmap](https://github.com/jcornejope/GBMO/blob/master/roadmap.txt).
 The current version already supports CPU, display, joypad, memory and cartridge emulation including MBC1, MBC2 and MBC3 bank controllers and save and load to/from cartridges with battery support.
