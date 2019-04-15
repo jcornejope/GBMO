@@ -34,7 +34,9 @@ public:
     u8                  get_version_number() const;
     u8                  get_header_checksum() const;
     u16                 get_cartridge_checksum() const;
+
     bool                has_battery() const;
+    bool                has_timer() const;
 
     void print_header_values() const;
     void log_header_values() const;
