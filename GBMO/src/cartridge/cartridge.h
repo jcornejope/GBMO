@@ -42,6 +42,8 @@ public:
     void log_header_values() const;
     void dump_rom() const;
 
+    bool was_loaded_successfully() const { return m_rom_loaded_successfully; }
+
 private:
     u8   _read( u16 address );
     void _write( u16 address, u8 data );
@@ -76,4 +78,6 @@ private:
     MBC* m_mbc;
     /// Actual rom size in bytes (actual size of the loaded file).
     s32 m_rom_size;
+
+    bool m_rom_loaded_successfully;
 };

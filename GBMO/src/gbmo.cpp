@@ -15,16 +15,18 @@ GBMO::GBMO( Options const& options )
     , m_display( m_cpu, m_memory_system )
 {
     m_joypad.set_input_bindings( options.m_inputs );
-
-    // Quita esto de aqui
-    LOG( NO_CAT, "Rom loaded: %s [%s]", options.m_rom_path.c_str(), m_cartridge.get_title_name() );
-
-    m_cartridge.print_header_values();
-    m_cartridge.log_header_values();
 }
 
 bool GBMO::init()
 {
+    if( !m_cartridge.was_loaded_successfully() )
+    {
+        return false;
+    }
+
+    m_cartridge.log_header_values();
+    m_cartridge.print_header_values();
+
     if( SDL_Init( SDL_INIT_VIDEO ) != 0 )
     {
         ERROR_MSG( "SDL_Init Error [%s]", SDL_GetError() );

@@ -15,11 +15,12 @@
 char const* Cartridge::SAVE_FILE_EXT = ".sav";
 
 Cartridge::Cartridge( std::string const& rom_path )
-    : m_file_path(rom_path)
-    , m_rom(nullptr)
-    , m_ram(nullptr)
-    , m_mbc(nullptr)
-    , m_rom_size(-1)
+    : m_file_path( rom_path )
+    , m_rom( nullptr )
+    , m_ram( nullptr )
+    , m_mbc( nullptr )
+    , m_rom_size( -1 )
+    , m_rom_loaded_successfully( false )
 {
     std::memset( &m_title_name, 0, TITLE_SIZE + 1 );
 
@@ -35,15 +36,18 @@ Cartridge::Cartridge( std::string const& rom_path )
             _load_ram_sav();
     }
 
-    if( ok == false )
+    if( !ok )
     {
-        std::cout << "ERROR LOADING: " << rom_path << std::endl;
+        ERROR_MSG( "Rom failed to load: %s", rom_path.c_str() ); // TODO: Make ERROR_MSG add a log too.
+        LOG_E( "ROM", "Rom failed to load: %s", rom_path.c_str() );
     }
+
+    m_rom_loaded_successfully = ok;
 }
 
 Cartridge::~Cartridge()
 {
-    if( has_battery() )
+    if( m_rom_loaded_successfully && has_battery() )
         _save_ram_sav();
 
     delete[] m_rom;
@@ -225,10 +229,10 @@ bool Cartridge::_create_ram()
 
     switch( get_ram_size_type() )
     {
-    case RAMSize::NONE:     return true;                break;
+    case RAMSize::NONE:     return true;                        break;
     case RAMSize::RAM_2:
     case RAMSize::RAM_8:
-    case RAMSize::RAM_32:   m_ram = new u8[_get_ram_size()];  break;
+    case RAMSize::RAM_32:   m_ram = new u8[_get_ram_size()];    break;
     }
 
     if( m_ram != nullptr )

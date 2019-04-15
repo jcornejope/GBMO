@@ -1,8 +1,6 @@
 
 #include <SDL.h>
 
-#include <iostream>
-
 #include "gbmo.h"
 #include "options.h"
 #include "utils/logger.h"
@@ -20,10 +18,9 @@ int main( int argc, char* argv[] )
 
     GBMO emulator(options);
 
-    emulator.init();
-    emulator.get_display().init( options );
+    bool emulator_running = emulator.init();
+    emulator_running &= emulator.get_display().init( options );
 
-    bool emulator_running = true;
     while( emulator_running )
     {
         emulator_running = emulator.update();
