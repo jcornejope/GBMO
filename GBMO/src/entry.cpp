@@ -4,6 +4,12 @@
 #include "gbmo.h"
 #include "options.h"
 #include "utils/logger.h"
+#include "utils/utils.h"
+
+#include <cstdlib>
+#include <iostream>
+
+void parse_args( int argc, char* argv[], Options &options );
 
 int main( int argc, char* argv[] )
 {
@@ -16,7 +22,9 @@ int main( int argc, char* argv[] )
     Options options;
     options.m_rom_path = "..\\..\\roms\\rom_b_cpu_instrs.gb";
 
-    GBMO emulator(options);
+    parse_args( argc, argv, options );
+
+    GBMO emulator( options );
 
     bool emulator_running = emulator.init();
     emulator_running &= emulator.get_display().init( options );
@@ -32,4 +40,80 @@ int main( int argc, char* argv[] )
     Logger::destroy_instance();
 
     return 0;
+}
+
+void parse_args( int argc, char* argv[], Options &options )
+{
+    for( int i = 0; i < argc; ++i )
+    {
+        char* arg = argv[i];
+        if( strlen( arg ) < 2 )
+            continue;
+
+        if( arg[0] == '-' )
+        {
+            switch( arg[1] )
+            {
+            case 'l':
+            case 'L':
+                // Log: ( -l <log_file> ) An empty log file means no log. No option will use the default file (".\log.txt").
+                // TODO
+                break;
+            case 'p':
+            case 'P':
+                // Position: ( -p <x> <y> ) Window position when starting the application. Negative values will center the screen.
+                if( i + 1 < argc )
+                {
+                    char* arg_param = argv[++i];
+                    int x = atoi( arg_param );
+                    if( x >= 1 )
+                        options.m_init_pos_x = x;
+                }
+
+                if( i + 1 < argc )
+                {
+                    char* arg_param = argv[++i];
+                    int y = atoi( arg_param );
+                    if( y >= 1 )
+                        options.m_init_pos_y = y;
+                }
+                break;
+            case 's':
+            case 'S':
+                // Screen scale: ( -s <screen_scale> ) Integer value for the screen scalar.
+                if( i + 1 < argc )
+                {
+                    char* arg_param = argv[++i];
+                    int scale = atoi( arg_param );
+                    if( scale >= 1 )
+                        options.m_resolution_scale = scale;
+                }
+                break;
+            case 'r':
+            case 'R':
+                // Rom: ( -r <rom_path> )
+                if( i + 1 < argc )
+                {
+                    options.m_rom_path = argv[++i];
+                }
+                break;
+            case 'v':
+            case 'V':
+                // Volume: ( -v <volume> ) Float value defining the volume.
+                if( i + 1 < argc )
+                {
+                    char* arg_param = argv[++i];
+                    float volume = static_cast<float>( atof( arg_param ) );
+                    // TODO: Check for valid volume values ( 0 to 1 ?? )
+                    options.m_volume = volume;
+                }
+                break;
+            case '?':
+                // Help: ( -? ) Shows the command line usage guide.
+                std::cout << "GBMO " << Version::to_string() << " - Help" << std::endl;
+                std::cout << std::endl;
+                break;
+            }
+        }
+    }
 }
