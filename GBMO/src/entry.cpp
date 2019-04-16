@@ -13,16 +13,10 @@ void parse_args( int argc, char* argv[], Options &options );
 
 int main( int argc, char* argv[] )
 {
-    // TODO: SUPPORT args
-    (void)argc;
-    (void)argv;
-
-    Logger::create_instance( ".\\log.txt" );
-
     Options options;
-    options.m_rom_path = "..\\..\\roms\\rom_b_cpu_instrs.gb";
-
     parse_args( argc, argv, options );
+
+    Logger::create_instance( options.m_log_path );
 
     GBMO emulator( options );
 
@@ -57,7 +51,10 @@ void parse_args( int argc, char* argv[], Options &options )
             case 'l':
             case 'L':
                 // Log: ( -l <log_file> ) An empty log file means no log. No option will use the default file (".\log.txt").
-                // TODO
+                if( i + 1 < argc )
+                {
+                    options.m_log_path = argv[++i];
+                }
                 break;
             case 'p':
             case 'P':
@@ -107,11 +104,6 @@ void parse_args( int argc, char* argv[], Options &options )
                     // TODO: Check for valid volume values ( 0 to 1 ?? )
                     options.m_volume = volume;
                 }
-                break;
-            case '?':
-                // Help: ( -? ) Shows the command line usage guide.
-                std::cout << "GBMO " << Version::to_string() << " - Help" << std::endl;
-                std::cout << std::endl;
                 break;
             }
         }
