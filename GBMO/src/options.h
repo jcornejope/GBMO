@@ -41,12 +41,13 @@ namespace
 struct Options
 {
     Options() 
-        : m_resolution_scale ( 2 ) 
+        : m_log_path( ".\\log.txt" )
+        , m_palette_index( 0 )
+        , m_resolution_scale ( 1 )
         , m_init_pos_x( -1 )
         , m_init_pos_y( -1 )
         , m_volume( 0.f )
-        , m_log_path( ".\\log.txt" )
-        , m_log( true )
+        , m_fullscreen( false )
     {
         std::memcpy( m_inputs, default_inputs, sizeof( InputBind ) * Inputs::NUM_INPUTS );
     }
@@ -55,9 +56,10 @@ struct Options
     std::string m_log_path;
 
     InputsConfig m_inputs;
+    u32 m_palette_index;
     u32 m_resolution_scale;
     s32 m_init_pos_x;
     s32 m_init_pos_y;
     float m_volume;
-    bool m_log;
+    bool m_fullscreen;
 };

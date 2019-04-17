@@ -41,13 +41,17 @@ Display::~Display()
 
 bool Display::init( Options const & options )
 {
+    m_current_palette_idx = options.m_palette_index;
+
+    u32 flags = SDL_WINDOW_SHOWN;
+
     std::string title{ "GBMO " };
     title += Version::to_string();
     m_window = SDL_CreateWindow( title.c_str(),
                                  options.m_init_pos_x > 0 ? options.m_init_pos_x : SDL_WINDOWPOS_CENTERED,
                                  options.m_init_pos_y > 0 ? options.m_init_pos_y : SDL_WINDOWPOS_CENTERED,
                                  SCREEN_WIDTH * options.m_resolution_scale, SCREEN_HEIGHT * options.m_resolution_scale,
-                                 SDL_WINDOW_SHOWN );
+                                 flags );
 
     m_renderer = SDL_CreateRenderer( m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
 

@@ -48,6 +48,11 @@ void parse_args( int argc, char* argv[], Options &options )
         {
             switch( arg[1] )
             {
+            case 'f':
+            case 'F':
+                // FullScreen: ( -f ) Starts the emulator in fullscreen mode.
+                options.m_fullscreen = true;
+                break;
             case 'l':
             case 'L':
                 // Log: ( -l <log_file> ) An empty log file means no log. No option will use the default file (".\log.txt").
@@ -57,7 +62,6 @@ void parse_args( int argc, char* argv[], Options &options )
                 }
                 break;
             case 'p':
-            case 'P':
                 // Position: ( -p <x> <y> ) Window position when starting the application. Negative values will center the screen.
                 if( i + 1 < argc )
                 {
@@ -73,6 +77,16 @@ void parse_args( int argc, char* argv[], Options &options )
                     int y = atoi( arg_param );
                     if( y >= 1 )
                         options.m_init_pos_y = y;
+                }
+                break;
+            case 'P':
+                // Palette index: ( -P <palette_index> ) Index of the palette to use at startup.
+                if( i + 1 < argc )
+                {
+                    char* arg_param = argv[++i];
+                    int idx = atoi( arg_param );
+                    idx %= Display::NUM_SYSTEM_PALETTES;
+                        options.m_palette_index = idx;
                 }
                 break;
             case 's':

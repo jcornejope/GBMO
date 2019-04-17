@@ -97,11 +97,9 @@ class Display
     static u32 const CYCLES_TO_LY_INCREMENT = 456;
     static u32 const V_BLANK_CYCLES         = 4560;
 
-    static u32 const NUM_SYSTEM_PALETTES = 3;
-    typedef Colour Palette[4];
-    static Palette const PALETTES[NUM_SYSTEM_PALETTES];
-
 public:
+    static u32 const NUM_SYSTEM_PALETTES = 3;
+
     Display( CPU& cpu, MemorySystem& memory );
     ~Display();
 
@@ -113,6 +111,9 @@ public:
     void cycle_palette();
 
 private:
+    typedef Colour Palette[4];
+    static Palette const PALETTES[NUM_SYSTEM_PALETTES];
+
     void _set_mode( Mode new_mode );
     void _process_ly_lyc();
     void _process_lcdc_stat_interrupt( LCDC_STAT const stat_interrupt ) const;
