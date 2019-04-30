@@ -35,7 +35,7 @@ typedef InputBind InputsConfig[Inputs::NUM_INPUTS];
 
 namespace
 {
-    InputsConfig const default_inputs = { SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, SDLK_z, SDLK_x, SDLK_RSHIFT, SDLK_RETURN };
+    InputsConfig const default_inputs = { SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, SDLK_x, SDLK_z, SDLK_RSHIFT, SDLK_RETURN };
 };
 
 struct Options
