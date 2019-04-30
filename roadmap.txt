@@ -8,6 +8,7 @@
 
 - v0.8:
 	- Support args when launching the application.
+	- Fullscreen support (stretch and keep aspect ratio)
 	- Fix Screen tearing
 	- Fix SML2 hang
 	

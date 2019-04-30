@@ -17,3 +17,21 @@ It emulates a wide variety of games (Please note that due to format compression 
 ![t](https://github.com/jcornejope/GBMO/blob/master/gif/t_gbmo_v0.7_20fps.gif)
 ![m2](https://github.com/jcornejope/GBMO/blob/master/gif/m2_gbmo_v0.7_20fps.gif)
 ![pb](https://github.com/jcornejope/GBMO/blob/master/gif/pb_gbmo_v0.7_7fps.gif)
+
+## Command line args
+
+> -F 
+  - FullScreen Keep Aspect Ratio: ( -F ) Starts the emulator in fullscreen mode adding black bars to the sides to keep the original aspect ratio.
+> -f 
+  - FullScreen: ( -f ) Starts the emulator in fullscreen mode stretching the image to fit the screen.
+> -p 
+  - Position: ( -p <x> <y> ) Window position when starting the application. Negative values will center the screen.
+> -P
+  - Palette index: ( -P <palette_index> ) Index of the palette to use at startup.
+> -s or -S 
+  - Screen scale: ( -s <screen_scale> ) Integer value for the screen scalar.
+> -r or -R 
+  - Rom: ( -r <rom_path> )
+> -l or -L 
+  - Log: ( -l <log_file> ) An empty log file means no log. No option will use the default file (".\log.txt").
+  
