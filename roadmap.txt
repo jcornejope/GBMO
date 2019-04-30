@@ -15,9 +15,13 @@
 - v0.9:
 	- Support zipped roms.
 	- Config file for inputs and options (overriden by args).
+	- Dynamic switch of windowed, fullscreen and fullscreen stretched (F3).
 	
 - v0.10:
 	- Implement sound/audio.
+	
+- v0.11:
+	- Gamepad support.
 	
 - v1.0:
 	- Fixes and performance.
@@ -27,6 +31,9 @@
 	
 - v1.2:
 	- MBC5
+	
+- v2.0:
+	- Emulator GUI for configuration and usage.
 
 ------------------------------------
 --- Released Versions --------------
