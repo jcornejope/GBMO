@@ -48,9 +48,11 @@ void parse_args( int argc, char* argv[], Options &options )
         {
             switch( arg[1] )
             {
-            case 'f':
             case 'F':
-                // FullScreen: ( -f ) Starts the emulator in fullscreen mode.
+                // FullScreen Keep Aspect Ratio: ( -F ) Starts the emulator in fullscreen mode adding black bars to the side to keep the original aspect ratio.
+                options.m_fullscreen_keep_aspect_ratio = true;
+            case 'f':
+                // FullScreen: ( -f ) Starts the emulator in fullscreen mode stretching the image to fit the screen.
                 options.m_fullscreen = true;
                 break;
             case 'l':

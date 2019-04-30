@@ -48,6 +48,7 @@ struct Options
         , m_init_pos_y( -1 )
         , m_volume( 0.f )
         , m_fullscreen( false )
+        , m_fullscreen_keep_aspect_ratio( false )
     {
         std::memcpy( m_inputs, default_inputs, sizeof( InputBind ) * Inputs::NUM_INPUTS );
     }
@@ -62,4 +63,5 @@ struct Options
     s32 m_init_pos_y;
     float m_volume;
     bool m_fullscreen;
+    bool m_fullscreen_keep_aspect_ratio;
 };

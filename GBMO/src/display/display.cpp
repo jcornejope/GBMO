@@ -64,6 +64,11 @@ bool Display::init( Options const & options )
                                  res_x, res_y, flags );
 
     m_renderer = SDL_CreateRenderer( m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+    
+    if( options.m_fullscreen && options.m_fullscreen_keep_aspect_ratio )
+    {
+        SDL_RenderSetLogicalSize( m_renderer, SCREEN_WIDTH, SCREEN_HEIGHT );
+    }
 
     m_texture = SDL_CreateTexture( m_renderer, 
                                    SDL_PIXELFORMAT_RGB24, 
