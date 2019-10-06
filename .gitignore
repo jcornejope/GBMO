@@ -1,6 +1,7 @@
 # Visual Studio files
 *.user
 *.vs
+*.args.json
 
 # Folders
 /Build/*
