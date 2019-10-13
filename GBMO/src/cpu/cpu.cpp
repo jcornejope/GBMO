@@ -172,7 +172,7 @@ void CPU::update_timer_registers( u32 const cycles )
         case 3: cycles_to_increment = 256u;   break;  // 16384 Hz
         }
 
-        if( m_tima_cycle_counter >= cycles_to_increment )
+        while( m_tima_cycle_counter >= cycles_to_increment )
         {
             m_tima_cycle_counter -= cycles_to_increment;
 
