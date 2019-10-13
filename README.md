@@ -8,6 +8,7 @@ The current version already supports CPU, display, joypad, memory and cartridge 
 The CPU passes all Blargg CPU Instruction tests.
 
 ![blargg_cpu](https://github.com/jcornejope/GBMO/blob/master/gif/gbmo_v0.7_blargg_test_passed.png)
+![blargg_cpu_timing](https://github.com/jcornejope/GBMO/blob/master/gif/gbmo_v0.7_cpu_instr_passed.png)
 
 It emulates a wide variety of games (Please note that due to format compression and size restriction these gifs are not fully representative of the actual quality and framerate):
 
