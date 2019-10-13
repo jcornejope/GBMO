@@ -623,7 +623,7 @@ u32 CPU::_ld_nn_a()
     m_registers.pc += 2;
     m_memory.write( address, m_registers.a );
 
-    return 8;
+    return 16;
 }
 
 u32 CPU::_ld_inc_dec_hl_a( s8 const inc )
