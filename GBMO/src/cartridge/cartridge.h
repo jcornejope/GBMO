@@ -53,7 +53,7 @@ private:
     /// Reads the header data and sets all the value of the cartridge members.
     bool _load_header();
     bool _check_header_checksum() const;
-    bool _create_ram();
+    void _create_ram();
     bool _create_mbc();
 
     /// Loads the savefile containing the ram.

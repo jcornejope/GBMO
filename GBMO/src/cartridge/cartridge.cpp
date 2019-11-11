@@ -29,7 +29,7 @@ Cartridge::Cartridge( std::string const& rom_path )
     {
         ok = true;
         ok &= _load_header();
-        ok &= _create_ram();
+        _create_ram();
         ok &= _create_mbc();
 
         if( has_battery() )
@@ -216,29 +216,15 @@ bool Cartridge::_check_header_checksum() const
     return value == get_header_checksum();
 }
 
-bool Cartridge::_create_ram()
+void Cartridge::_create_ram()
 {
-    auto const catridge_type = get_cartridge_type();
-    if( catridge_type == CartridgeType::MBC2 ||
-        catridge_type == CartridgeType::MBC2_BATTERY )
+    auto const ram_size = _get_ram_size();
+
+    if( ram_size > 0 )
     {
-        // When using a MBC2 chip 00h must be specified in RAMSize, even though the MBC2 includes a built-in RAM of 512 x 4 bits.
-        m_ram = new u8[0x200];
-        return true;
+        m_ram = new u8[ram_size];
+        memset( m_ram, 0x00, ram_size );
     }
-
-    switch( get_ram_size_type() )
-    {
-    case RAMSize::NONE:     return true;                        break;
-    case RAMSize::RAM_2:
-    case RAMSize::RAM_8:
-    case RAMSize::RAM_32:   m_ram = new u8[_get_ram_size()];    break;
-    }
-
-    if( m_ram != nullptr )
-        return true;
-
-    return false;
 }
 
 bool Cartridge::_create_mbc()
