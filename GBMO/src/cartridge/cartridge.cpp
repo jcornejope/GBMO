@@ -255,10 +255,10 @@ void Cartridge::_load_ram_sav()
     if( !file.is_open() )
         return;
 
-    ASSERT( file.tellg() >= _get_save_ram_size() );
+    ASSERT( file.tellg() == _get_ram_size() );
 
     file.seekg( std::ios::beg );
-    file.read( reinterpret_cast<char*>( m_ram ), _get_save_ram_size() );
+    file.read( reinterpret_cast<char*>( m_ram ), _get_ram_size() );
 
     if( m_mbc && has_timer() )
         m_mbc->on_load( file );
@@ -274,7 +274,7 @@ void Cartridge::_save_ram_sav()
     if( !file.is_open() )
         return;
 
-    file.write( reinterpret_cast<char const*>( m_ram ), _get_save_ram_size() );
+    file.write( reinterpret_cast<char const*>( m_ram ), _get_ram_size() );
 
     if( m_mbc && has_timer() )
         m_mbc->on_save( file );
@@ -282,26 +282,7 @@ void Cartridge::_save_ram_sav()
     file.close();
 }
 
-u16 Cartridge::_get_save_ram_size()
-{
-    if( get_cartridge_type() == CartridgeType::MBC2_BATTERY )
-        return 512; // 512x4bit -> 256 but stored in 512 bytes.
-
-    u16 ret = 0;
-    switch( get_ram_size_type() )
-    {
-    case RAMSize::RAM_2:    ret = 1024 * 2;             break;
-    case RAMSize::RAM_8:    
-    case RAMSize::RAM_32:   ret = MBC::RAM_BANK_SIZE;   break;
-    default:
-        ERROR_MSG( "Trying to get the save size of a cartridge with no RAM!" );
-        break;
-    }
-
-    return ret;
-}
-
-s32 Cartridge::_get_ram_size() const
+u32 Cartridge::_get_ram_size() const
 {
     auto const catridge_type = get_cartridge_type();
     if( catridge_type == CartridgeType::MBC2 || catridge_type == CartridgeType::MBC2_BATTERY )

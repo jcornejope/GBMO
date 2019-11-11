@@ -60,10 +60,9 @@ private:
     void _load_ram_sav();
     /// Saves the ram to a file for battery powered cartridges.
     void _save_ram_sav();
-    /// Returns the size of the portion of ram needed to be save/load to/from file.
-    u16 _get_save_ram_size();
 
-    s32 _get_ram_size() const;
+    /// Returns the size of the ram in bytes.
+    u32 _get_ram_size() const;
 
     /// Path to the file in disk which contains the rom.
     std::string m_file_path;
