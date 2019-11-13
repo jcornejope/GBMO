@@ -34,7 +34,7 @@
 --- Released Versions --------------
 ------------------------------------
 
-- 0.8 <>:
+- 0.8 <2648fbf>:
 	- Support command args when launching the application.
 	- Fullscreen support (stretch and keep aspect ratio).
 	- Fixed CPU timer registers logic and all instructions timings.
