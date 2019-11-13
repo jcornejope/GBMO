@@ -6,13 +6,8 @@
 --- Next Versions ------------------
 ------------------------------------
 
-- v0.8:
-	- Support args when launching the application.
-	- Fullscreen support (stretch and keep aspect ratio)
-	- Fix Screen tearing
-	- Fix SML2 hang
-	
 - v0.9:
+	- Fix SML2 hang
 	- Support zipped roms.
 	- Config file for inputs and options (overriden by args).
 	- Dynamic switch of windowed, fullscreen and fullscreen stretched (F3).
@@ -38,6 +33,13 @@
 ------------------------------------
 --- Released Versions --------------
 ------------------------------------
+
+- 0.8 <>:
+	- Support command args when launching the application.
+	- Fullscreen support (stretch and keep aspect ratio).
+	- Fixed CPU timer registers logic and all instructions timings.
+	- Fixed screen tearing.
+	- Fixed cartridge RAM save/load.
 
 - 0.7 <a51403c>:
 	- Added support for MBC3 with RTC emulation.
