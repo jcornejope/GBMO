@@ -4,6 +4,7 @@
 
 #define ASSERT( exp ) ((void)0)
 #define ASSERT_MSG( exp, msg, ... ) ((void)0)
+#define WARNING_MSG( msg, ... ) ((void)0)
 #define ERROR_MSG( msg, ... ) ((void)0)
 
 #else
@@ -14,6 +15,7 @@
 
 #define ASSERT( exp )               if( assert_msg_impl( "Assert failed", false, #exp, exp, __FILE__, __LINE__, #exp ) ) __debugbreak()
 #define ASSERT_MSG( exp, msg, ... ) if( assert_msg_impl( "Assert failed", false, #exp, (exp), __FILE__, __LINE__, msg, __VA_ARGS__ ) ) __debugbreak()
+#define WARNING_MSG( msg, ... )     assert_msg_impl( "WARNING\t", false, "WARNING", false, __FILE__, __LINE__, msg, __VA_ARGS__ )
 #define ERROR_MSG( msg, ... )       assert_msg_impl( "ERROR\t", true, "ERROR", false, __FILE__, __LINE__, msg, __VA_ARGS__ )
 
 namespace

@@ -60,7 +60,6 @@ enum ADDRESSES : u16
     OBJ_1_PALETTE_ADDR  = 0xFF49,
     WINDOW_Y_ADDR       = 0xFF4A,
     WINDOW_X_ADDR       = 0xFF4B,
-
 };
 
 enum Interrupts : u8
