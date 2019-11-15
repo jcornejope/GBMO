@@ -135,13 +135,13 @@ void Display::cycle_window_mode()
     case WINDOW_MODE::FULLSCREEN:
     {
         options.m_fullscreen = true;
-        options.m_fullscreen_keep_aspect_ratio = false;
+        options.m_fullscreen_keep_aspect_ratio = true;
     }
     break;
     case WINDOW_MODE::FULLSCREEN_STRETCHED:
     {
         options.m_fullscreen = true;
-        options.m_fullscreen_keep_aspect_ratio = true;
+        options.m_fullscreen_keep_aspect_ratio = false;
     }
     break;
     default:
