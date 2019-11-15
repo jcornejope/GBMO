@@ -50,10 +50,10 @@ void parse_args( int argc, char* argv[], Options &options )
             {
             case 'F':
                 // FullScreen Keep Aspect Ratio: ( -F ) Starts the emulator in fullscreen mode adding black bars to the side to keep the original aspect ratio.
-                options.m_fullscreen_keep_aspect_ratio = true;
+                options.m_display_options.m_fullscreen_keep_aspect_ratio = true;
             case 'f':
                 // FullScreen: ( -f ) Starts the emulator in fullscreen mode stretching the image to fit the screen.
-                options.m_fullscreen = true;
+                options.m_display_options.m_fullscreen = true;
                 break;
             case 'l':
             case 'L':
@@ -70,7 +70,7 @@ void parse_args( int argc, char* argv[], Options &options )
                     char* arg_param = argv[++i];
                     int x = atoi( arg_param );
                     if( x >= 1 )
-                        options.m_init_pos_x = x;
+                        options.m_display_options.m_init_pos_x = x;
                 }
 
                 if( i + 1 < argc )
@@ -78,7 +78,7 @@ void parse_args( int argc, char* argv[], Options &options )
                     char* arg_param = argv[++i];
                     int y = atoi( arg_param );
                     if( y >= 1 )
-                        options.m_init_pos_y = y;
+                        options.m_display_options.m_init_pos_y = y;
                 }
                 break;
             case 'P':
@@ -88,7 +88,7 @@ void parse_args( int argc, char* argv[], Options &options )
                     char* arg_param = argv[++i];
                     int idx = atoi( arg_param );
                     idx %= Display::NUM_SYSTEM_PALETTES;
-                        options.m_palette_index = idx;
+                        options.m_display_options.m_palette_index = idx;
                 }
                 break;
             case 's':
@@ -99,7 +99,7 @@ void parse_args( int argc, char* argv[], Options &options )
                     char* arg_param = argv[++i];
                     int scale = atoi( arg_param );
                     if( scale >= 1 )
-                        options.m_resolution_scale = scale;
+                        options.m_display_options.m_resolution_scale = scale;
                 }
                 break;
             case 'r':

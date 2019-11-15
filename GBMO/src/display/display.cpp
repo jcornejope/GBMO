@@ -3,8 +3,8 @@
 
 #include "cpu/cpu.h"
 #include "memory/memory_system.h"
-#include "options.h"
 #include "utils/assert.h"
+#include "utils/logger.h"
 #include "utils/utils.h"
 
 #include <algorithm>
@@ -25,6 +25,7 @@ Display::Display( CPU& cpu, MemorySystem & memory )
     , m_renderer( nullptr )
     , m_texture( nullptr )
     , m_mode( Mode::SEARCHING_OAM_RAM )
+    , m_window_mode( WINDOW_MODE::USE_OPTIONS )
     , m_display_cycles( 0 )
     , m_current_palette_idx( 0 )
     , m_ready_for_render( false )
@@ -41,43 +42,15 @@ Display::~Display()
 
 bool Display::init( Options const & options )
 {
-    m_current_palette_idx = options.m_palette_index;
+    m_startup_display_options = options.m_display_options;
+    m_current_palette_idx = m_startup_display_options.m_palette_index;
 
-    u32 flags = SDL_WINDOW_SHOWN;
-    s32 res_x = SCREEN_WIDTH * options.m_resolution_scale;
-    s32 res_y = SCREEN_HEIGHT * options.m_resolution_scale;
-    if( options.m_fullscreen )
-    {
-        flags |= SDL_WINDOW_FULLSCREEN;
+    bool ret = _initialize_display( m_startup_display_options );
 
-        SDL_DisplayMode display_mode;
-        SDL_GetCurrentDisplayMode( 0, &display_mode );
-        res_x = display_mode.w;
-        res_y = display_mode.h;
-    }
+    if( ret )
+        render();
 
-    std::string title{ "GBMO " };
-    title += Version::to_string();
-    m_window = SDL_CreateWindow( title.c_str(),
-                                 options.m_init_pos_x > 0 ? options.m_init_pos_x : SDL_WINDOWPOS_CENTERED,
-                                 options.m_init_pos_y > 0 ? options.m_init_pos_y : SDL_WINDOWPOS_CENTERED,
-                                 res_x, res_y, flags );
-
-    m_renderer = SDL_CreateRenderer( m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
-    
-    if( options.m_fullscreen && options.m_fullscreen_keep_aspect_ratio )
-    {
-        SDL_RenderSetLogicalSize( m_renderer, SCREEN_WIDTH, SCREEN_HEIGHT );
-    }
-
-    m_texture = SDL_CreateTexture( m_renderer, 
-                                   SDL_PIXELFORMAT_RGB24, 
-                                   SDL_TEXTUREACCESS_STREAMING, 
-                                   SCREEN_WIDTH, SCREEN_HEIGHT );
-
-    render();
-
-    return m_window && m_renderer && m_texture;
+    return ret;
 }
 
 void Display::update( u32 cycles )
@@ -119,6 +92,73 @@ void Display::render()
     SDL_RenderPresent( m_renderer );
 
     m_ready_for_render = false;
+}
+
+void Display::cycle_window_mode()
+{
+    m_window_mode = static_cast<WINDOW_MODE>( m_window_mode + 1 );
+    if( m_window_mode == WINDOW_MODE::NUM_MODES )
+        m_window_mode = WINDOW_MODE::FIRST_WINDOW_MODE;
+
+    LOG( "[DISPLAY]", "Cycling window mode [%d]", m_window_mode );
+
+    DisplayOptions options{ m_startup_display_options };
+    options.m_palette_index = m_current_palette_idx;
+    if( m_window )
+        SDL_GetWindowPosition( m_window, &options.m_init_pos_x, &options.m_init_pos_y );
+
+    switch( m_window_mode )
+    {
+    case WINDOW_MODE::USE_OPTIONS:
+    {
+        // do nothing
+    }
+    break;
+    case WINDOW_MODE::WINDOWED_1x:
+    {
+        options.m_fullscreen = false;
+        options.m_resolution_scale = 1;
+    }
+    break;
+    case WINDOW_MODE::WINDOWED_3x:
+    {
+        options.m_fullscreen = false;
+        options.m_resolution_scale = 3;
+    }
+    break;
+    case WINDOW_MODE::WINDOWED_5x:
+    {
+        options.m_fullscreen = false;
+        options.m_resolution_scale = 5;
+    }
+    break;
+    case WINDOW_MODE::FULLSCREEN:
+    {
+        options.m_fullscreen = true;
+        options.m_fullscreen_keep_aspect_ratio = false;
+    }
+    break;
+    case WINDOW_MODE::FULLSCREEN_STRETCHED:
+    {
+        options.m_fullscreen = true;
+        options.m_fullscreen_keep_aspect_ratio = true;
+    }
+    break;
+    default:
+        ERROR_MSG( "Invalid window mode [%d]", m_window_mode );
+        break;
+    }
+
+    if( _initialize_display( options ) )
+    {
+        render();
+    }
+    else
+    {
+        LOG_W( "[DISPLAY]", "Failed to display window mode [%d]. Trying to recover.", m_window_mode );
+        WARNING_MSG( "Failed to display window mode [%d]. Trying to recover.", m_window_mode );
+        _initialize_display( m_startup_display_options );
+    }
 }
 
 void Display::cycle_palette()
@@ -445,6 +485,67 @@ void Display::_fill_palette( Display::Palette& palette, u16 definition_address )
     palette[1] = current_bg_palette[( palette_definition & PALETTE::COLOUR_1 ) >> 2];
     palette[2] = current_bg_palette[( palette_definition & PALETTE::COLOUR_2 ) >> 4];
     palette[3] = current_bg_palette[( palette_definition & PALETTE::COLOUR_3 ) >> 6];
+}
+
+bool Display::_initialize_display( DisplayOptions const& options )
+{
+    if( m_window )
+    {
+        SDL_DestroyWindow( m_window );
+        m_window = nullptr;
+    }
+
+    if( m_renderer )
+    {
+        SDL_DestroyRenderer( m_renderer );
+        m_renderer = nullptr;
+    }
+
+    if( m_texture )
+    {
+        SDL_DestroyTexture( m_texture );
+        m_texture = nullptr;
+    }
+
+    u32 flags = SDL_WINDOW_SHOWN;
+    s32 res_x = SCREEN_WIDTH * options.m_resolution_scale;
+    s32 res_y = SCREEN_HEIGHT * options.m_resolution_scale;
+    if( options.m_fullscreen )
+    {
+        flags |= SDL_WINDOW_FULLSCREEN;
+
+        SDL_DisplayMode display_mode;
+        SDL_GetCurrentDisplayMode( 0, &display_mode );
+        res_x = display_mode.w;
+        res_y = display_mode.h;
+    }
+
+    std::string title{ "GBMO " };
+    title += Version::to_string();
+    m_window = SDL_CreateWindow( title.c_str(),
+        options.m_init_pos_x > 0 ? options.m_init_pos_x : SDL_WINDOWPOS_CENTERED,
+        options.m_init_pos_y > 0 ? options.m_init_pos_y : SDL_WINDOWPOS_CENTERED,
+        res_x, res_y, flags );
+
+    m_renderer = SDL_CreateRenderer( m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
+
+    if( options.m_fullscreen && options.m_fullscreen_keep_aspect_ratio )
+    {
+        SDL_RenderSetLogicalSize( m_renderer, SCREEN_WIDTH, SCREEN_HEIGHT );
+    }
+
+    m_texture = SDL_CreateTexture( m_renderer,
+        SDL_PIXELFORMAT_RGB24,
+        SDL_TEXTUREACCESS_STREAMING,
+        SCREEN_WIDTH, SCREEN_HEIGHT );
+
+
+    if( options.m_fullscreen && options.m_fullscreen_keep_aspect_ratio )
+    {
+        SDL_RenderSetLogicalSize( m_renderer, SCREEN_WIDTH, SCREEN_HEIGHT );
+    }
+
+    return( m_renderer && m_window && m_texture );
 }
 
 u8 Display::_get_pixel_colour_id( PixelColourIdParams const& params ) const

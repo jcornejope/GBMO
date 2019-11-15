@@ -89,9 +89,12 @@ bool GBMO::handle_input_event()
             return false;
         }
 
-        if( m_event.type == SDL_KEYDOWN && m_event.key.keysym.sym == SDLK_F2 )
+        if( m_event.type == SDL_KEYDOWN )
         {
-            m_display.cycle_palette();
+            if( m_event.key.keysym.sym == SDLK_F2 )
+                m_display.cycle_palette();
+            else if( m_event.key.keysym.sym == SDLK_F3 )
+                m_display.cycle_window_mode();
         }
         
         if( m_event.type == SDL_KEYDOWN || m_event.type == SDL_KEYUP ||

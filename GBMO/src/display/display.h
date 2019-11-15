@@ -1,10 +1,10 @@
 #pragma once
 
 #include "utils/types.h"
+#include "options.h"
 
 class MemorySystem;
 class CPU;
-struct Options;
 
 struct SDL_Window;
 struct SDL_Renderer;
@@ -58,6 +58,7 @@ class Display
         BLACK       = 3
     };
 
+    // TODO: This would be probably better if is aligned to 32...
     struct Colour
     {
         bool operator==( Colour const& c ) { return r == c.r && g == c.g && b == c.b; }
@@ -87,6 +88,20 @@ class Display
         u8 attributes;
     };
 
+    enum WINDOW_MODE : u8
+    {
+        USE_OPTIONS, 
+
+        WINDOWED_1x,
+        WINDOWED_3x,
+        WINDOWED_5x,
+        FULLSCREEN,
+        FULLSCREEN_STRETCHED,
+
+        NUM_MODES,
+        FIRST_WINDOW_MODE = USE_OPTIONS
+    };
+
     static u32 const SCREEN_WIDTH   = 160;
     static u32 const SCREEN_HEIGHT  = 144;
 
@@ -108,6 +123,7 @@ public:
     void render();
     
     bool is_ready_for_render() const { return m_ready_for_render; }
+    void cycle_window_mode();
     void cycle_palette();
 
 private:
@@ -132,6 +148,8 @@ private:
     Palette const& _get_current_palette() const;
     void _fill_palette( Palette& palette, u16 definition_address ) const;
 
+    bool _initialize_display( DisplayOptions const& options );
+
     struct PixelColourIdParams
     {
         u16 tile_map_address;
@@ -153,6 +171,8 @@ private:
     Colour m_frame_buffer[SCREEN_WIDTH * SCREEN_HEIGHT];
 
     Mode m_mode;
+    WINDOW_MODE m_window_mode;
+    DisplayOptions m_startup_display_options;
 
     u32 m_display_cycles;
     u32 m_current_palette_idx;
