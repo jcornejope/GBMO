@@ -59,12 +59,21 @@ struct DisplayOptions
 
 struct Options
 {
-    Options() 
+    Options()
         : m_log_path( ".\\log.txt" )
         , m_volume( 0.f )
     {
         std::memcpy( m_inputs, default_inputs, sizeof( InputBind ) * Inputs::NUM_INPUTS );
     }
+
+    bool load_from_file();
+    bool load_from_file( const char* file_path );
+
+    bool save_to_file() const;
+    bool save_to_file( const char* file_path ) const;
+
+    static bool save_default();
+    static bool save_default( const char* file_path );
 
     std::string m_rom_path;
     std::string m_log_path;
@@ -72,4 +81,7 @@ struct Options
     DisplayOptions m_display_options;
     InputsConfig m_inputs;
     float m_volume;
+
+private:
+    static bool _save_options( char const* file_path, Options const& options );
 };

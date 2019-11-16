@@ -39,6 +39,7 @@
     <ClCompile Include="src\memory\mbc_3.cpp">
       <Filter>memory</Filter>
     </ClCompile>
+    <ClCompile Include="src\options.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="memory">

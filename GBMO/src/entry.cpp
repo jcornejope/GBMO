@@ -6,18 +6,16 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 
-#include <INIReader.h>
-
 #include <cstdlib>
 #include <iostream>
 
 void parse_args( int argc, char* argv[], Options &options );
-void load_options( Options& options );
 
 int main( int argc, char* argv[] )
 {
     Options options;
-    load_options( options );
+    if( !options.load_from_file() )
+        Options::save_default();
     parse_args( argc, argv, options );
 
     Logger::create_instance( options.m_log_path );
@@ -37,28 +35,9 @@ int main( int argc, char* argv[] )
 
     Logger::destroy_instance();
 
+    options.save_to_file();
+
     return 0;
-}
-
-void load_options( Options& options )
-{
-    // NOTE: I'm not totally sold on this lib. It creates std::string everywhere just because.
-    // TODO: Evaluate refactoring it to use <char const*> instead.
-    INIReader reader( "./settings.ini" );
-    if( reader.ParseError() )
-        return;
-
-    static char const* OPTIONS_SECTION = "options";
-
-    options.m_volume = reader.GetFloat( OPTIONS_SECTION, "volume", 0.f );
-    options.m_display_options.m_palette_index = reader.GetInteger( OPTIONS_SECTION, "palette", 0 );
-    options.m_display_options.m_resolution_scale = reader.GetInteger( OPTIONS_SECTION, "scale_mult", 1 );
-    options.m_display_options.m_init_pos_x = reader.GetInteger( OPTIONS_SECTION, "initial_pos_x", -1 );
-    options.m_display_options.m_init_pos_y = reader.GetInteger( OPTIONS_SECTION, "initial_pos_y", -1 );
-    options.m_display_options.m_fullscreen = reader.GetBoolean( OPTIONS_SECTION, "fullscreen", false );
-    options.m_display_options.m_fullscreen_keep_aspect_ratio = reader.GetBoolean( OPTIONS_SECTION, "keep_aspect_ratio", true );
-
-    //static char const* CONTROLS_SECTION = "controls";
 }
 
 void parse_args( int argc, char* argv[], Options &options )
