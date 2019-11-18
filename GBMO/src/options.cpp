@@ -21,14 +21,14 @@ namespace
     char const* FULLSCREEN_ATTR = "fullscreen";
     char const* KEEP_ASPECT_RATIO_ATTR = "keep_aspect_ratio";
 
-    char const* INPUT_UP = "up";
-    char const* INPUT_DOWN = "down";
-    char const* INPUT_LEFT = "left";
-    char const* INPUT_RIGHT = "right";
-    char const* INPUT_A = "a";
-    char const* INPUT_B = "b";
-    char const* INPUT_SELECT = "select";
-    char const* INPUT_START = "start";
+    char const* INPUT_ATTR[Inputs::NUM_INPUTS] = { "right",
+                                                   "left",
+                                                   "up",
+                                                   "down",
+                                                   "a",
+                                                   "b",
+                                                   "select",
+                                                   "start"};
 }
 
 bool Options::load_from_file()
@@ -53,14 +53,8 @@ bool Options::load_from_file( char const* file_name )
     m_display_options.m_fullscreen = reader.GetBoolean( OPTIONS_SECTION, FULLSCREEN_ATTR, def.m_display_options.m_fullscreen );
     m_display_options.m_fullscreen_keep_aspect_ratio = reader.GetBoolean( OPTIONS_SECTION, KEEP_ASPECT_RATIO_ATTR, def.m_display_options.m_fullscreen_keep_aspect_ratio );
 
-    m_inputs[Inputs::UP] = SDL_GetKeyFromName( reader.Get( CONTROLS_SECTION, INPUT_UP, SDL_GetKeyName( def.m_inputs[Inputs::UP] ) ).c_str() );
-    m_inputs[Inputs::DOWN] = SDL_GetKeyFromName( reader.Get( CONTROLS_SECTION, INPUT_DOWN, SDL_GetKeyName( def.m_inputs[Inputs::DOWN] ) ).c_str() );
-    m_inputs[Inputs::LEFT] = SDL_GetKeyFromName( reader.Get( CONTROLS_SECTION, INPUT_LEFT, SDL_GetKeyName( def.m_inputs[Inputs::LEFT] ) ).c_str() );
-    m_inputs[Inputs::RIGHT] = SDL_GetKeyFromName( reader.Get( CONTROLS_SECTION, INPUT_RIGHT, SDL_GetKeyName( def.m_inputs[Inputs::RIGHT] ) ).c_str() );
-    m_inputs[Inputs::A] = SDL_GetKeyFromName( reader.Get( CONTROLS_SECTION, INPUT_A, SDL_GetKeyName( def.m_inputs[Inputs::A] ) ).c_str() );
-    m_inputs[Inputs::B] = SDL_GetKeyFromName( reader.Get( CONTROLS_SECTION, INPUT_B, SDL_GetKeyName( def.m_inputs[Inputs::B] ) ).c_str() );
-    m_inputs[Inputs::START] = SDL_GetKeyFromName( reader.Get( CONTROLS_SECTION, INPUT_START, SDL_GetKeyName( def.m_inputs[Inputs::START] ) ).c_str() );
-    m_inputs[Inputs::SELECT] = SDL_GetKeyFromName( reader.Get( CONTROLS_SECTION, INPUT_SELECT, SDL_GetKeyName( def.m_inputs[Inputs::SELECT] ) ).c_str() );
+    for( int input = 0; input < Inputs::NUM_INPUTS; ++input )
+        m_inputs[input] = SDL_GetKeyFromName( reader.Get( CONTROLS_SECTION, INPUT_ATTR[input], SDL_GetKeyName( def.m_inputs[input] ) ).c_str() );
 
     if( reader.ParseError() )
         return false;
@@ -117,14 +111,8 @@ bool Options::_save_options( char const* file_path, Options const& options )
     file << std::endl;
 
     file << "[" << CONTROLS_SECTION << "]" << std::endl;
-    file << INPUT_UP << " = " << SDL_GetKeyName( options.m_inputs[Inputs::UP] ) << std::endl;
-    file << INPUT_DOWN << " = " << SDL_GetKeyName( options.m_inputs[Inputs::DOWN] ) << std::endl;
-    file << INPUT_LEFT << " = " << SDL_GetKeyName( options.m_inputs[Inputs::LEFT] ) << std::endl;
-    file << INPUT_RIGHT << " = " << SDL_GetKeyName( options.m_inputs[Inputs::RIGHT] ) << std::endl;
-    file << INPUT_A << " = " << SDL_GetKeyName( options.m_inputs[Inputs::A] ) << std::endl;
-    file << INPUT_B << " = " << SDL_GetKeyName( options.m_inputs[Inputs::B] ) << std::endl;
-    file << INPUT_START << " = " << SDL_GetKeyName( options.m_inputs[Inputs::START] ) << std::endl;
-    file << INPUT_SELECT << " = " << SDL_GetKeyName( options.m_inputs[Inputs::SELECT] ) << std::endl;
+    for( int input = 0; input < Inputs::NUM_INPUTS; ++input )
+        file << INPUT_ATTR[input] << " = " << SDL_GetKeyName( options.m_inputs[input] ) << std::endl;
     file << std::endl;
 
     // both close and flush will be automatically called when the ofstream is destroyed
