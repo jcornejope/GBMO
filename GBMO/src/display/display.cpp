@@ -100,7 +100,7 @@ void Display::cycle_window_mode()
     if( m_window_mode == WINDOW_MODE::NUM_MODES )
         m_window_mode = WINDOW_MODE::FIRST_WINDOW_MODE;
 
-    LOG( "[DISPLAY]", "Cycling window mode [%d]", m_window_mode );
+    LOG( LogCat::DISPLAY, "Cycling window mode [%d]", m_window_mode );
 
     DisplayOptions options{ m_startup_display_options };
     options.m_palette_index = m_current_palette_idx;
@@ -145,6 +145,7 @@ void Display::cycle_window_mode()
     }
     break;
     default:
+        LOG_E( LogCat::DISPLAY, "Invalid window mode [%d]", m_window_mode );
         ERROR_MSG( "Invalid window mode [%d]", m_window_mode );
         break;
     }
@@ -155,7 +156,7 @@ void Display::cycle_window_mode()
     }
     else
     {
-        LOG_W( "[DISPLAY]", "Failed to display window mode [%d]. Trying to recover.", m_window_mode );
+        LOG_W( LogCat::DISPLAY, "Failed to display window mode [%d]. Trying to recover.", m_window_mode );
         WARNING_MSG( "Failed to display window mode [%d]. Trying to recover.", m_window_mode );
         _initialize_display( m_startup_display_options );
     }
@@ -166,6 +167,8 @@ void Display::cycle_palette()
     ++m_current_palette_idx;
     if( m_current_palette_idx == NUM_SYSTEM_PALETTES)
         m_current_palette_idx = 0;
+
+    LOG( LogCat::DISPLAY, "Cycling palette [%d]", m_current_palette_idx );
 }
 
 void Display::_set_mode( Mode new_mode )

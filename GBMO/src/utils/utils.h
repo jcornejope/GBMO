@@ -17,9 +17,9 @@ inline char const* bool_to_alpha( bool const expr )
 
 namespace Version
 {
-    const u32 MAYOR = 0;
-    const u32 MINOR = 8;
-    //const u32 BUILD = 0;
+    u32 const MAYOR = 0;
+    u32 const MINOR = 8;
+    //u32 const BUILD = 0;
 
     inline std::string to_string()
     {
@@ -27,4 +27,13 @@ namespace Version
         stream << "v" << MAYOR << "." << MINOR;
         return stream.str();
     }
+}
+
+namespace LogCat
+{
+    static char const* SYSTEM  = "SYSTEM";
+    static char const* ROM     = "ROM";
+    static char const* DISPLAY = "DISPLAY";
+    static char const* CPU     = "CPU";
+    static char const* UPDATE  = "UPDATE";
 }

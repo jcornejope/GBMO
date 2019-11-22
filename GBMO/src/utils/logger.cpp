@@ -12,7 +12,7 @@ Logger::Logger( std::string const & filename )
         time_now = std::chrono::system_clock::now();
         std::time_t now_time_t = std::chrono::system_clock::to_time_t( time_now );
 
-        m_file << "[System][" 
+        m_file << "[SYSTEM][" 
                << _get_level_string( Level::LOG ) 
                << "] Log started: " 
                << std::put_time( std::localtime( &now_time_t ), "%A %d %B %Y [%T]" )
@@ -37,7 +37,7 @@ Logger::~Logger()
         time_now = std::chrono::system_clock::now();
         std::time_t now_time_t = std::chrono::system_clock::to_time_t( time_now );
 
-        m_file << "[System]["
+        m_file << "[SYSTEM]["
                << _get_level_string( Level::LOG )
                << "] Log ended: "
                << std::put_time( std::localtime( &now_time_t ), "%A %d %B %Y [%T]" )

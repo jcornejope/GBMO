@@ -3,6 +3,7 @@
 #include "memory/memory_system.h"
 #include "utils/assert.h"
 #include "utils/logger.h"
+#include "utils/utils.h"
 
 //#define LOG_CPU_INSTRUCTIONS
 
@@ -99,12 +100,14 @@ u32 CPU::update()
             m_mode = CPUMode::LOCKED;
             return 0;
         }
+
 #ifdef LOG_CPU_INSTRUCTIONS
-        LOG( "CPU", "[%#06x] %x\tR[AF:%#06x|BC:%#06x|DE:%#06x|HL:%#06x|SP:%#06x][ime:%c]"
+        LOG( LogCat::CPU, "[%#06x] %x\tR[AF:%#06x|BC:%#06x|DE:%#06x|HL:%#06x|SP:%#06x][ime:%c]"
             , m_registers.pc - 1, opcode
             , m_registers.af, m_registers.bc, m_registers.de, m_registers.hl, m_registers.sp
             , (m_ime) ? 'E' : 'D');
 #endif
+
         return m_base_instruction[opcode]();
 
         break;
@@ -115,6 +118,8 @@ u32 CPU::update()
     }
 
     ERROR_MSG( "Invalid CPU Mode [%d]", static_cast<int>( m_mode ) );
+    LOG_E( LogCat::CPU, "Invalid CPU Mode [%d]", static_cast<int>( m_mode ) );
+
     return 0;
 }
 

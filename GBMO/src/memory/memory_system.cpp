@@ -9,7 +9,10 @@
 MemorySystem::MemorySystem( GBMO& gameboy )
     : m_gameboy( gameboy )
 {
-    std::memset( &m_memory, 0, SYSTEM_MEMORY_SIZE );
+    std::memset( &m_memory, 0x00, SYSTEM_MEMORY_SIZE );
+
+    // Reset VRAM (0x8000-0x9FFF).
+    //std::memset( &m_memory[_remap_address( 0x8000 )], 0x00, 0x2000 );
 }
 
 u8 MemorySystem::read_8( u16 address )

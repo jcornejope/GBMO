@@ -3,6 +3,7 @@
 #include "options.h"
 #include "utils/assert.h"
 #include "utils/logger.h"
+#include "utils/utils.h"
 
 #include <SDL.h>
 #include <thread>
@@ -30,6 +31,7 @@ bool GBMO::init()
     if( SDL_Init( SDL_INIT_VIDEO ) != 0 )
     {
         ERROR_MSG( "SDL_Init Error [%s]", SDL_GetError() );
+        LOG_E( LogCat::DISPLAY, "SDL_Init Error [%s]", SDL_GetError() );
         return false;
     }
 
@@ -72,7 +74,7 @@ bool GBMO::update()
         // TODO ADD THIS INTO THE OPTIONS (~60FPS)
         std::this_thread::sleep_for( std::chrono::duration<float, std::milli>( frame_delta ) );
     }
-    //LOG( "UPDATE", "Update time: %f [%f] -> %f", diff.count(), frame_time, frame_delta );
+    //LOG( LogCat::Update, "Update time: %f [%f] -> %f", diff.count(), frame_time, frame_delta );
 
     return true;
 }

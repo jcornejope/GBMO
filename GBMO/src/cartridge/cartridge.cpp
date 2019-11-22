@@ -38,8 +38,8 @@ Cartridge::Cartridge( std::string const& rom_path )
 
     if( !ok )
     {
-        ERROR_MSG( "Rom failed to load: %s", rom_path.c_str() ); // TODO: Make ERROR_MSG add a log too.
-        LOG_E( "ROM", "Rom failed to load: %s", rom_path.c_str() );
+        LOG_E( LogCat::ROM, "ROM failed to load: %s", rom_path.c_str() );
+        ERROR_MSG( "ROM failed to load: %s", rom_path.c_str() ); // TODO: Make ERROR_MSG add a log too.
     }
 
     m_rom_loaded_successfully = ok;
@@ -68,15 +68,21 @@ void Cartridge::update_timer( float delta_time_ms )
 
 bool Cartridge::_load_rom()
 {
+    LOG( LogCat::ROM, "Loading ROM [%s]", m_file_path.c_str() );
+
     // Open file as binary, for reading and seek to the end of the file
     std::ifstream file( m_file_path, std::ios::in | std::ios::binary | std::ios::ate );
 
     if( !file.is_open() )
+    {
+        LOG_E( LogCat::ROM, "ROM file not found or unable to open." );
         return false;
+    }
 
     m_rom_size = static_cast<s32>( file.tellg() );
     if( m_rom_size <= 0 )
     {
+        LOG_E( LogCat::ROM, "File is empty." );
         file.close();
         return false;
     }
@@ -197,8 +203,8 @@ void Cartridge::_write( u16 address, u8 data )
 
 bool Cartridge::_load_header()
 {
-    // Depending on the cartridge the title size varies as newer cartridge are limited to 15 or 11 chars.
-    u32 title_size = TITLE_SIZE;
+    // TODO: Depending on the cartridge the title size varies as newer cartridge are limited to 15 or 11 chars.
+    u32 const title_size = TITLE_SIZE;
 
     // Title
     for( u32 i = 0u; i < title_size; ++i )
@@ -244,6 +250,9 @@ bool Cartridge::_create_mbc()
     case CartridgeType::MBC3_TIMER_RAM_BATTERY: m_mbc = new MBC_3( m_rom, m_ram, get_rom_size(), _get_ram_size() ); break;
     }
 
+    if( m_mbc == nullptr )
+        LOG_E( LogCat::ROM, "Error trying to create MBC [%s]", to_string( get_cartridge_type() ) );
+
     return m_mbc != nullptr;
 }
 
@@ -251,14 +260,26 @@ void Cartridge::_load_ram_sav()
 {
     ASSERT_MSG( has_battery(), "Trying to load the ram from a cartridge with no battery support!" );
 
-    std::ifstream file( m_file_path + SAVE_FILE_EXT, std::ios::in | std::ios::binary | std::ios::ate );
-    if( !file.is_open() )
-        return;
+    std::string const save_file{ m_file_path + SAVE_FILE_EXT };
+    LOG( LogCat::ROM, "Loading RAM save [%s]", save_file.c_str() );
 
-    ASSERT( file.tellg() == _get_ram_size() );
+    std::ifstream file( save_file, std::ios::in | std::ios::binary | std::ios::ate );
+    if( !file.is_open() )
+    {
+        LOG( LogCat::ROM, "RAM save not found" );
+        return;
+    }
+
+    u32 const ram_size = _get_ram_size();
+    ASSERT( file.tellg() == ram_size );
+    if( file.tellg() != ram_size )
+    {
+        LOG( LogCat::ROM, "RAM save size [%u] doesn't match cartridge ram size [%u]!", file.tellg() , ram_size );
+        return;
+    }
 
     file.seekg( std::ios::beg );
-    file.read( reinterpret_cast<char*>( m_ram ), _get_ram_size() );
+    file.read( reinterpret_cast<char*>( m_ram ), ram_size );
 
     if( m_mbc && has_timer() )
         m_mbc->on_load( file );
@@ -270,9 +291,15 @@ void Cartridge::_save_ram_sav()
 {
     ASSERT_MSG( has_battery(), "Trying to save the ram from a cartridge with no battery support!" );
 
-    std::ofstream file( m_file_path + SAVE_FILE_EXT, std::ios::out | std::ios::binary );
+    std::string const save_file{ m_file_path + SAVE_FILE_EXT };
+    LOG( LogCat::ROM, "Saving RAM save [%s]", save_file.c_str() );
+
+    std::ofstream file( save_file, std::ios::out | std::ios::binary );
     if( !file.is_open() )
+    {
+        LOG( LogCat::ROM, "Failed to save RAM. File not open. Is file locked or read-only?" );
         return;
+    }
 
     file.write( reinterpret_cast<char const*>( m_ram ), _get_ram_size() );
 
@@ -324,21 +351,22 @@ void Cartridge::print_header_values() const
 
 void Cartridge::log_header_values() const
 {
-    LOG( "ROM", "ROM Loaded: %s", m_title_name );
-    LOG( "ROM", "Type: %s", to_string( get_cartridge_type() ) );
-    LOG( "ROM", "ROMSize: %d Type: %s", m_rom_size, to_string( get_rom_size_type() ) );
-    LOG( "ROM", "RAMSize: %s", to_string( get_ram_size_type() ) );
-    LOG( "ROM", "Destination: %s", to_string( get_destination_code() ) );
-    LOG( "ROM", "SGB support: %s", bool_to_alpha( get_sgb_support() ) );
-    LOG( "ROM", "CGB support: %s", to_string( get_cgb_support() ) );
-    LOG( "ROM", "Version: %d", static_cast<int>( get_version_number() ) );
+    LOG( LogCat::ROM, "----------------------------------------------------" );
+    LOG( LogCat::ROM, "ROM Loaded: %s", m_title_name );
+    LOG( LogCat::ROM, "Type: %s", to_string( get_cartridge_type() ) );
+    LOG( LogCat::ROM, "ROMSize: %d Type: %s", m_rom_size, to_string( get_rom_size_type() ) );
+    LOG( LogCat::ROM, "RAMSize: %s", to_string( get_ram_size_type() ) );
+    LOG( LogCat::ROM, "Destination: %s", to_string( get_destination_code() ) );
+    LOG( LogCat::ROM, "SGB support: %s", bool_to_alpha( get_sgb_support() ) );
+    LOG( LogCat::ROM, "CGB support: %s", to_string( get_cgb_support() ) );
+    LOG( LogCat::ROM, "Version: %d", static_cast<int>( get_version_number() ) );
 
     word license = { get_license_code() };
-    LOG( "ROM", "License Code: %#04x %#04x", static_cast<int>( license.hi ), static_cast<int>( license.lo ) );
+    LOG( LogCat::ROM, "License Code: %#04x %#04x", static_cast<int>( license.hi ), static_cast<int>( license.lo ) );
     word checksum = { get_cartridge_checksum() };
-    LOG( "ROM", "Cartridge Checksum: %#04x %#04x", static_cast<int>( checksum.hi ), static_cast<int>( checksum.lo ) );
-    LOG( "ROM", "Header Checksum [%d] Passed? %s", static_cast<int>( get_header_checksum() ), bool_to_alpha( _check_header_checksum() ) );
-    LOG( "ROM", "----------------------------------------------------" );
+    LOG( LogCat::ROM, "Cartridge Checksum: %#04x %#04x", static_cast<int>( checksum.hi ), static_cast<int>( checksum.lo ) );
+    LOG( LogCat::ROM, "Header Checksum [%d] Passed? %s", static_cast<int>( get_header_checksum() ), bool_to_alpha( _check_header_checksum() ) );
+    LOG( LogCat::ROM, "----------------------------------------------------" );
 }
 
 void Cartridge::dump_rom() const

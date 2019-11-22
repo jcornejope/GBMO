@@ -20,18 +20,22 @@ int main( int argc, char* argv[] )
 
     Logger::create_instance( options.m_log_path );
 
-    GBMO emulator( options );
+    LOG( LogCat::SYSTEM, "GBMO - GameBoy emulator [%s] started", Version::to_string().c_str() );
 
-    bool emulator_running = emulator.init();
-    emulator_running &= emulator.get_display().init( options );
-
-    while( emulator_running )
     {
-        emulator_running = emulator.update();
-        Logger::instance().flush();
-    }
+        GBMO emulator( options );
 
-    emulator.deinit();
+        bool emulator_running = emulator.init();
+        emulator_running &= emulator.get_display().init( options );
+
+        while( emulator_running )
+        {
+            emulator_running = emulator.update();
+            Logger::instance().flush();
+        }
+
+        emulator.deinit();
+    }
 
     Logger::destroy_instance();
 
