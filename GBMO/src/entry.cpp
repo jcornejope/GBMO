@@ -129,7 +129,15 @@ void parse_args( int argc, char* argv[], Options &options )
                     options.m_volume = volume;
                 }
                 break;
+            case 'z':
+            case 'Z':
+                // Zip master password: ( -v <password> ) string defining the master password for the zip files
+                if( i + 1 < argc )
+                {
+                    options.m_zip_password = argv[++i];
+                }
+                break;
             }
-        }
+        }        
     }
 }
