@@ -15,8 +15,9 @@
 
 char const* Cartridge::SAVE_FILE_EXT = ".sav";
 
-Cartridge::Cartridge( std::string const& rom_path )
+Cartridge::Cartridge( const char* rom_path, const char* zip_passwd )
     : m_file_path( rom_path )
+    , m_zip_passwd( zip_passwd )
     , m_rom( nullptr )
     , m_ram( nullptr )
     , m_mbc( nullptr )
@@ -39,8 +40,8 @@ Cartridge::Cartridge( std::string const& rom_path )
 
     if( !ok )
     {
-        LOG_E( LogCat::ROM, "ROM failed to load: %s", rom_path.c_str() );
-        ERROR_MSG( "ROM failed to load: %s", rom_path.c_str() ); // TODO: Make ERROR_MSG add a log too.
+        LOG_E( LogCat::ROM, "ROM failed to load: %s", rom_path );
+        ERROR_MSG( "ROM failed to load: %s", rom_path ); // TODO: Make ERROR_MSG add a log too.
     }
 
     m_rom_loaded_successfully = ok;
@@ -69,14 +70,15 @@ void Cartridge::update_timer( float delta_time_ms )
 
 bool Cartridge::_load_rom()
 {
-    LOG( LogCat::ROM, "Loading ROM [%s]", m_file_path.c_str() );
+    LOG( LogCat::ROM, "Loading ROM [%s]", m_file_path );
 
     // Open ZIP file
     int zip_error = ZIP_ER_OK;
-    zip_t* zip_file = zip_open(m_file_path.c_str(), ZIP_RDONLY, &zip_error );
+    zip_t* zip_file = zip_open(m_file_path, ZIP_RDONLY, &zip_error );
     if( zip_file && zip_error == ZIP_ER_OK )
     {
         // Find a gb or gbc rom file within the zip archive.
+        zip_set_default_password( zip_file, m_zip_passwd );
         for( zip_int64_t i = 0, num = zip_get_num_entries( zip_file, ZIP_FL_UNCHANGED );
             ( i < num ) && ( m_rom == nullptr );
             ++i )
@@ -109,14 +111,14 @@ bool Cartridge::_load_rom()
 
                                 LOG_W( LogCat::ROM, "Error reading file [%s] in ZIP archive - [%ll] bytes read from [%ll]", zip_stat.name, bytes_read, m_rom_size );
                             }
+
+                            zip_fclose( rom_file );
                         }
                         else
                         {
                             zip_error_t *error = zip_get_error( zip_file );
                             LOG_W( LogCat::ROM, "Error opening file [%s] in ZIP archive - Error [%s]", zip_stat.name, zip_error_strerror( error ) );
                         }
-
-                        zip_fclose( rom_file );
                     }
                 }
             }
@@ -127,7 +129,8 @@ bool Cartridge::_load_rom()
         LOG_W( LogCat::ROM, "Error opening zip file [%d]", zip_error );
     }
 
-    zip_discard( zip_file );
+    if( zip_file )
+        zip_discard( zip_file );
 
     if( m_rom_size > 0 )
         return true;
@@ -322,7 +325,7 @@ void Cartridge::_load_ram_sav()
 {
     ASSERT_MSG( has_battery(), "Trying to load the ram from a cartridge with no battery support!" );
 
-    std::string const save_file{ m_file_path + SAVE_FILE_EXT };
+    std::string const save_file{ m_file_path + std::string{ SAVE_FILE_EXT } };
     LOG( LogCat::ROM, "Loading RAM save [%s]", save_file.c_str() );
 
     std::ifstream file( save_file, std::ios::in | std::ios::binary | std::ios::ate );
@@ -353,7 +356,7 @@ void Cartridge::_save_ram_sav()
 {
     ASSERT_MSG( has_battery(), "Trying to save the ram from a cartridge with no battery support!" );
 
-    std::string const save_file{ m_file_path + SAVE_FILE_EXT };
+    std::string const save_file{ m_file_path + std::string{ SAVE_FILE_EXT } };
     LOG( LogCat::ROM, "Saving RAM save [%s]", save_file.c_str() );
 
     std::ofstream file( save_file, std::ios::out | std::ios::binary );

@@ -16,7 +16,7 @@ class Cartridge
     static char const* SAVE_FILE_EXT;
 
 public:
-    Cartridge(std::string const& rom_path);
+    Cartridge( char const* rom_path, char const* zip_passwd );
     ~Cartridge();
 
     void update_timer( float delta_time_ms );
@@ -65,7 +65,9 @@ private:
     u32 _get_ram_size() const;
 
     /// Path to the file in disk which contains the rom.
-    std::string m_file_path;
+    char const* const m_file_path;
+    /// Optional zip master password.
+    char const* const m_zip_passwd;
     /// Name of the game stored in the cartridge header.
     char m_title_name[TITLE_SIZE + 1];
 

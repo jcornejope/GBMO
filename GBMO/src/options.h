@@ -77,6 +77,7 @@ struct Options
 
     std::string m_rom_path;
     std::string m_log_path;
+    std::string m_zip_password;
 
     DisplayOptions m_display_options;
     InputsConfig m_inputs;
