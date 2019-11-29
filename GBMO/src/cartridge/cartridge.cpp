@@ -11,6 +11,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <zip.h>
 
 char const* Cartridge::SAVE_FILE_EXT = ".sav";
 
@@ -69,6 +70,67 @@ void Cartridge::update_timer( float delta_time_ms )
 bool Cartridge::_load_rom()
 {
     LOG( LogCat::ROM, "Loading ROM [%s]", m_file_path.c_str() );
+
+    // Open ZIP file
+    int zip_error = ZIP_ER_OK;
+    zip_t* zip_file = zip_open(m_file_path.c_str(), ZIP_RDONLY, &zip_error );
+    if( zip_file && zip_error == ZIP_ER_OK )
+    {
+        // Find a gb or gbc rom file within the zip archive.
+        for( zip_int64_t i = 0, num = zip_get_num_entries( zip_file, ZIP_FL_UNCHANGED );
+            ( i < num ) && ( m_rom == nullptr );
+            ++i )
+        {
+            zip_stat_t zip_stat{};
+            if( zip_stat_index( zip_file, i, ZIP_FL_UNCHANGED, &zip_stat ) == 0 )
+            {
+                if( zip_stat.valid & ( ZIP_STAT_NAME | ZIP_STAT_SIZE ) )
+                {
+                    std::string ext{ strrchr( zip_stat.name, '.' ) };
+                    for( int c = 0; ext[c] != '\0'; ++c )
+                        ext[c] = static_cast<char>( tolower( ext[c] ) );
+                    
+                    if( ext == ".gb" || ext == ".gbc" )
+                    {
+                        zip_file_t* rom_file = zip_fopen_index( zip_file, i, ZIP_FL_UNCHANGED );
+                        if( rom_file )
+                        {
+                            m_rom_size = static_cast<s32>( zip_stat.size );
+                            if( m_rom_size <= 0 )
+                                LOG_W( LogCat::ROM, "File [%s] is empty!", zip_stat.name );
+
+                            m_rom = new u8[m_rom_size];
+                            zip_int64_t bytes_read = zip_fread( rom_file, m_rom, m_rom_size );
+                            if( bytes_read != m_rom_size )
+                            {
+                                m_rom_size = 0;
+                                delete[] m_rom;
+                                m_rom = nullptr;
+
+                                LOG_W( LogCat::ROM, "Error reading file [%s] in ZIP archive - [%ll] bytes read from [%ll]", zip_stat.name, bytes_read, m_rom_size );
+                            }
+                        }
+                        else
+                        {
+                            zip_error_t *error = zip_get_error( zip_file );
+                            LOG_W( LogCat::ROM, "Error opening file [%s] in ZIP archive - Error [%s]", zip_stat.name, zip_error_strerror( error ) );
+                        }
+
+                        zip_fclose( rom_file );
+                    }
+                }
+            }
+        }
+    }
+    else if( zip_error != ZIP_ER_NOZIP )
+    {
+        LOG_W( LogCat::ROM, "Error opening zip file [%d]", zip_error );
+    }
+
+    zip_discard( zip_file );
+
+    if( m_rom_size > 0 )
+        return true;
 
     // Open file as binary, for reading and seek to the end of the file
     std::ifstream file( m_file_path, std::ios::in | std::ios::binary | std::ios::ate );
