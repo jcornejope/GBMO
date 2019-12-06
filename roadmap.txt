@@ -6,19 +6,15 @@
 --- Next Versions ------------------
 ------------------------------------
 
-- v0.9:
-	- Fix SML2 hang
-	- Support zipped roms.
-	- Config file for inputs and options (overriden by args).
-	- Dynamic switch of windowed, fullscreen and fullscreen stretched (F3).
-	
 - v0.10:
-	- Implement sound/audio.
+	- Gamepad support.
+	- No ram save options.
 	
 - v0.11:
-	- Gamepad support.
+	- Implement sound/audio.
 	
 - v1.0:
+	- Fix SML2 hang
 	- Fixes and performance.
 	
 - v1.1:
@@ -33,6 +29,11 @@
 ------------------------------------
 --- Released Versions --------------
 ------------------------------------
+
+- v0.9 <>:
+	- Support zipped roms.
+	- Config file for inputs and options (overriden by args).
+	- Dynamic switch of windowed, fullscreen and fullscreen stretched (F3).
 
 - 0.8 <2648fbf>:
 	- Support command args when launching the application.

@@ -18,7 +18,7 @@ inline char const* bool_to_alpha( bool const expr )
 namespace Version
 {
     u32 const MAYOR = 0;
-    u32 const MINOR = 8;
+    u32 const MINOR = 9;
     //u32 const BUILD = 0;
 
     inline std::string to_string()

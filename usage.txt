@@ -2,7 +2,10 @@
 -- GBMO USAGE GUIDE
 ------------------------------------------------------------------------
 
-Use command line to specify rom, size, fullscreen and other options.
+From v0.9 onwards all the settings can be configured and modified in the settings.ini file.
+If no settings.ini file is found the program will auto-generate one with the default settings.
+
+Use command line to override settings.ini, rom, size, fullscreen and other options can be set. 
 
 ------------------------------------
 Command line
@@ -22,13 +25,15 @@ Command line
   - Rom: ( -r <rom_path> )
 > -l or -L 
   - Log: ( -l <log_file> ) An empty log file means no log. No option will use the default file (".\log.txt").
+> -z or -Z 
+  - Zip master password: ( -z <password> ) String defining the master password for the zip files.
 
 ------------------------------------
 In Game Keys
 ------------------------------------
-Until v0.9 is released the key bindings are fixed and cannot be configured.
+Key bindings are defaulted to the following list but it can be configured in settings.ini
 
-UP     : UP_ARRO
+UP     : UP_ARROW
 DOWN   : DOWN_ARROW
 LEFT   : LEFT_ARROW
 RIGHT  : RIGHT_ARROW
@@ -43,4 +48,5 @@ Special Keys
 ------------------------------------
 
 ESC : Quit
-F2  : Switch color palette
+F2  : Switch color palette (pale green, green, black and white)
+F3  : Switch video mode (windowed x1, x3, x5, fullscreen, fullscreen stretched, windowed options (-s))
