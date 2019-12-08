@@ -30,26 +30,26 @@
 --- Released Versions --------------
 ------------------------------------
 
-- v0.9 <>:
+- v0.9 <e69286e>:
 	- Support zipped roms.
 	- Config file for inputs and options (overriden by args).
 	- Dynamic switch of windowed, fullscreen and fullscreen stretched (F3).
 
-- 0.8 <2648fbf>:
+- v0.8 <2648fbf>:
 	- Support command args when launching the application.
 	- Fullscreen support (stretch and keep aspect ratio).
 	- Fixed CPU timer registers logic and all instructions timings.
 	- Fixed screen tearing.
 	- Fixed cartridge RAM save/load.
 
-- 0.7 <a51403c>:
+- v0.7 <a51403c>:
 	- Added support for MBC3 with RTC emulation.
 	
-- 0.6 <36ff192>:
+- v0.6 <36ff192>:
 	- Added support for MBC2.
 	- Save and Load for cartridges with battery support.
 	
-- 0.5 <1dbe32e>:
+- v0.5 <1dbe32e>:
 	- Implemented Display Window and Sprites.
 	- Multiple palettes (F2 to switch at runtime).
 	- Fixes.
@@ -74,3 +74,4 @@
 	- Implementation of Joypad.
 	- Initial implementation of Display (no window or sprites).
 	- Added Assert handling.
+	
