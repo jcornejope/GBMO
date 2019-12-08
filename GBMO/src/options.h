@@ -62,6 +62,7 @@ struct Options
     Options()
         : m_log_path( ".\\log.txt" )
         , m_volume( 0.f )
+        , m_ram_save_enabled( true )
     {
         std::memcpy( m_inputs, default_inputs, sizeof( InputBind ) * Inputs::NUM_INPUTS );
     }
@@ -82,6 +83,7 @@ struct Options
     DisplayOptions m_display_options;
     InputsConfig m_inputs;
     float m_volume;
+    bool m_ram_save_enabled;
 
 private:
     static bool _save_options( char const* file_path, Options const& options );

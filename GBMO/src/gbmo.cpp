@@ -9,7 +9,7 @@
 #include <thread>
 
 GBMO::GBMO( Options const& options )
-    : m_cartridge( options.m_rom_path.c_str(), options.m_zip_password.c_str() )
+    : m_cartridge( options )
     , m_memory_system( *this )
     , m_cpu( m_memory_system )
     , m_joypad( m_cpu, m_memory_system )

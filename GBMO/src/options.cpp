@@ -23,6 +23,7 @@ namespace
     char const* KEEP_ASPECT_RATIO_ATTR = "keep_aspect_ratio";
 
     char const* ZIP_MASTER_PASSWORD = "zip_master_password";
+    char const* RAM_SAVE_ENABLED = "ram_save_load_enabled";
 
     char const* INPUT_ATTR[Inputs::NUM_INPUTS] = { "right",
                                                    "left",
@@ -42,7 +43,7 @@ bool Options::load_from_file()
 bool Options::load_from_file( char const* file_name )
 {
     // NOTE: I'm not totally sold on this lib. It creates std::string everywhere just because.
-    // TODO: Evaluate refactoring it to use <char const*> instead.
+    // TODO: Evaluate refactoring it to use <char const*> instead. Is not in a critical path so it will do for now.
     INIReader reader( file_name );
     if( reader.ParseError() )
         return false;
@@ -60,6 +61,7 @@ bool Options::load_from_file( char const* file_name )
         m_inputs[input] = SDL_GetKeyFromName( reader.Get( CONTROLS_SECTION, INPUT_ATTR[input], SDL_GetKeyName( def.m_inputs[input] ) ).c_str() );
 
     m_zip_password = reader.Get( MISC_SECTION, ZIP_MASTER_PASSWORD, def.m_zip_password );
+    m_ram_save_enabled = reader.GetBoolean( MISC_SECTION, RAM_SAVE_ENABLED, def.m_ram_save_enabled );
 
     if( reader.ParseError() )
         return false;
@@ -121,7 +123,9 @@ bool Options::_save_options( char const* file_path, Options const& options )
     file << std::endl;
 
     file << "[" << MISC_SECTION << "]" << std::endl;
-    file << ZIP_MASTER_PASSWORD << " = " << options.m_zip_password;
+    file << ZIP_MASTER_PASSWORD << " = " << options.m_zip_password << std::endl;
+    file << RAM_SAVE_ENABLED << " = " << options.m_ram_save_enabled;
+    file << "\t\t; true/false" << std::endl;
     file << std::endl;
 
     // both close and flush will be automatically called when the ofstream is destroyed

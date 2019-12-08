@@ -5,6 +5,7 @@
 #include "memory/mbc_1.h"
 #include "memory/mbc_2.h"
 #include "memory/mbc_3.h"
+#include "options.h"
 #include "utils/assert.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -15,14 +16,15 @@
 
 char const* Cartridge::SAVE_FILE_EXT = ".sav";
 
-Cartridge::Cartridge( const char* rom_path, const char* zip_passwd )
-    : m_file_path( rom_path )
-    , m_zip_passwd( zip_passwd )
+Cartridge::Cartridge( Options const& options )
+    : m_file_path( options.m_rom_path.c_str() )
+    , m_zip_passwd( options.m_zip_password.c_str() )
     , m_rom( nullptr )
     , m_ram( nullptr )
     , m_mbc( nullptr )
     , m_rom_size( -1 )
     , m_rom_loaded_successfully( false )
+    , m_ram_save_load_enabled( options.m_ram_save_enabled )
 {
     std::memset( &m_title_name, 0, TITLE_SIZE + 1 );
 
@@ -34,14 +36,14 @@ Cartridge::Cartridge( const char* rom_path, const char* zip_passwd )
         _create_ram();
         ok &= _create_mbc();
 
-        if( has_battery() )
+        if( m_ram_save_load_enabled && has_battery() )
             _load_ram_sav();
     }
 
     if( !ok )
     {
-        LOG_E( LogCat::ROM, "ROM failed to load: %s", rom_path );
-        ERROR_MSG( "ROM failed to load: %s", rom_path ); // TODO: Make ERROR_MSG add a log too.
+        LOG_E( LogCat::ROM, "ROM failed to load: %s", m_file_path );
+        ERROR_MSG( "ROM failed to load: %s", m_file_path ); // TODO: Make ERROR_MSG add a log too.
     }
 
     m_rom_loaded_successfully = ok;
@@ -49,7 +51,7 @@ Cartridge::Cartridge( const char* rom_path, const char* zip_passwd )
 
 Cartridge::~Cartridge()
 {
-    if( m_rom_loaded_successfully && has_battery() )
+    if( m_rom_loaded_successfully && m_ram_save_load_enabled && has_battery() )
         _save_ram_sav();
 
     delete[] m_rom;
@@ -324,6 +326,7 @@ bool Cartridge::_create_mbc()
 void Cartridge::_load_ram_sav()
 {
     ASSERT_MSG( has_battery(), "Trying to load the ram from a cartridge with no battery support!" );
+    ASSERT_MSG( m_ram_save_load_enabled, "Cartridge RAM save and load is disabled!" );
 
     std::string const save_file{ m_file_path + std::string{ SAVE_FILE_EXT } };
     LOG( LogCat::ROM, "Loading RAM save [%s]", save_file.c_str() );
@@ -349,12 +352,13 @@ void Cartridge::_load_ram_sav()
     if( m_mbc && has_timer() )
         m_mbc->on_load( file );
 
-    file.close();
+    //file.close();
 }
 
 void Cartridge::_save_ram_sav()
 {
-    ASSERT_MSG( has_battery(), "Trying to save the ram from a cartridge with no battery support!" );
+    ASSERT_MSG( has_battery(), "Trying to save the RAM from a cartridge with no battery support!" );
+    ASSERT_MSG( m_ram_save_load_enabled, "Cartridge RAM save and load is disabled!" );
 
     std::string const save_file{ m_file_path + std::string{ SAVE_FILE_EXT } };
     LOG( LogCat::ROM, "Saving RAM save [%s]", save_file.c_str() );
@@ -371,7 +375,7 @@ void Cartridge::_save_ram_sav()
     if( m_mbc && has_timer() )
         m_mbc->on_save( file );
 
-    file.close();
+    //file.close();
 }
 
 u32 Cartridge::_get_ram_size() const

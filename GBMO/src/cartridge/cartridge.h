@@ -5,6 +5,7 @@
 
 class MemorySystem;
 class MBC;
+struct Options;
 
 class Cartridge
 {
@@ -16,7 +17,7 @@ class Cartridge
     static char const* SAVE_FILE_EXT;
 
 public:
-    Cartridge( char const* rom_path, char const* zip_passwd );
+    Cartridge( Options const& options );
     ~Cartridge();
 
     void update_timer( float delta_time_ms );
@@ -34,6 +35,8 @@ public:
     u8                  get_version_number() const;
     u8                  get_header_checksum() const;
     u16                 get_cartridge_checksum() const;
+
+    void                set_ram_save_load_enable( bool enabled ) { m_ram_save_load_enabled = enabled; }
 
     bool                has_battery() const;
     bool                has_timer() const;
@@ -81,4 +84,5 @@ private:
     s32 m_rom_size;
 
     bool m_rom_loaded_successfully;
+    bool m_ram_save_load_enabled;
 };
