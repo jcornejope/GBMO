@@ -56,6 +56,11 @@ void parse_args( int argc, char* argv[], Options &options )
         {
             switch( arg[1] )
             {
+            case 'd':
+            case 'D':
+                // RAM Load/Save enabled off: ( -d ) Disables load and save of the RAM for cartridges with battery capabilities.
+                options.m_ram_save_enabled = false;
+                break;
             case 'F':
                 // FullScreen Keep Aspect Ratio: ( -F ) Starts the emulator in fullscreen mode adding black bars to the side to keep the original aspect ratio.
                 options.m_display_options.m_fullscreen_keep_aspect_ratio = true;

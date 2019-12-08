@@ -11,6 +11,8 @@ Use command line to override settings.ini, rom, size, fullscreen and other optio
 Command line
 ------------------------------------
 
+> -d or -D 
+  - RAM Load/Save enabled off: ( -d ) Disables load and save of the RAM for cartridges with battery capabilities.
 > -F 
   - FullScreen Keep Aspect Ratio: ( -F ) Starts the emulator in fullscreen mode adding black bars to the sides to keep the original aspect ratio.
 > -f 
