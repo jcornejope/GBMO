@@ -16,17 +16,19 @@ int main( int argc, char* argv[] )
     Options options;
     if( !options.load_from_file() )
         Options::save_default();
-    parse_args( argc, argv, options );
 
-    Logger::create_instance( options.m_log_path );
+    Options in_game_options{ options };
+    parse_args( argc, argv, in_game_options );
+
+    Logger::create_instance( in_game_options.m_log_path );
 
     LOG( LogCat::SYSTEM, "GBMO - GameBoy emulator [%s] started", Version::to_string().c_str() );
 
     {
-        GBMO emulator( options );
+        GBMO emulator( in_game_options );
 
         bool emulator_running = emulator.init();
-        emulator_running &= emulator.get_display().init( options );
+        emulator_running &= emulator.get_display().init( in_game_options );
 
         while( emulator_running )
         {
@@ -101,7 +103,7 @@ void parse_args( int argc, char* argv[], Options &options )
                     char* arg_param = argv[++i];
                     int idx = atoi( arg_param );
                     idx %= Display::NUM_SYSTEM_PALETTES;
-                        options.m_display_options.m_palette_index = idx;
+                    options.m_display_options.m_palette_index = idx;
                 }
                 break;
             case 's':
