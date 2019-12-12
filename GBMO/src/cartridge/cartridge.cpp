@@ -90,7 +90,11 @@ bool Cartridge::_load_rom()
             {
                 if( zip_stat.valid & ( ZIP_STAT_NAME | ZIP_STAT_SIZE ) )
                 {
-                    std::string ext{ strrchr( zip_stat.name, '.' ) };
+                    char const* ext_char = strrchr( zip_stat.name, '.' );
+                    if( !ext_char )
+                        continue;
+
+                    std::string ext{ ext_char };
                     for( int c = 0; ext[c] != '\0'; ++c )
                         ext[c] = static_cast<char>( tolower( ext[c] ) );
                     
