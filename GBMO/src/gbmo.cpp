@@ -28,18 +28,22 @@ bool GBMO::init()
     m_cartridge.log_header_values();
     m_cartridge.print_header_values();
 
-    if( SDL_Init( SDL_INIT_VIDEO ) != 0 )
+    if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER ) != 0 )
     {
         ERROR_MSG( "SDL_Init Error [%s]", SDL_GetError() );
         LOG_E( LogCat::DISPLAY, "SDL_Init Error [%s]", SDL_GetError() );
         return false;
     }
 
+    m_joypad.init();
+
     return true;
 }
 
 void GBMO::deinit()
 {
+    m_joypad.deinit();
+
     SDL_Quit();
 }
 
@@ -47,7 +51,7 @@ bool GBMO::update()
 {
     auto start = std::chrono::high_resolution_clock::now();
     
-    if( !handle_input_event() )
+    if( !handle_events() )
         return false;
 
     u32 cycles = 0;
@@ -79,7 +83,7 @@ bool GBMO::update()
     return true;
 }
 
-bool GBMO::handle_input_event()
+bool GBMO::handle_events()
 {
     SDL_PumpEvents();
     while( SDL_PollEvent( &m_event ) )
@@ -99,9 +103,7 @@ bool GBMO::handle_input_event()
                 m_display.cycle_window_mode();
         }
         
-        if( m_event.type == SDL_KEYDOWN || m_event.type == SDL_KEYUP ||
-            m_event.type == SDL_JOYBUTTONDOWN || m_event.type == SDL_JOYBUTTONUP ||
-            m_event.type == SDL_JOYAXISMOTION )
+        if( m_joypad.wants_to_handle_input_event( m_event.type ) )
         {
             m_joypad.handle_input_event( m_event );
         }

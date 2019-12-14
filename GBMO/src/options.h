@@ -1,41 +1,15 @@
 #pragma once
 
-#include "utils/types.h"
+#include "utils/input.h"
 
-#include <SDL_keycode.h>
 #include <string>
-//#include <variant>
-
-enum Inputs
-{
-    RIGHT = 0,
-    LEFT,
-    UP,
-    DOWN,
-    A,
-    B,
-    SELECT,
-    START,
-
-    NUM_INPUTS,
-};
-
-//typedef std::variant<SDL_Keycode, SDL_GameControllerAxis, SDL_GameControllerButton> InputBind;
-//union InputBind
-//{ 
-//    SDL_Keycode key_code; 
-//    SDL_GameControllerAxis controller_axis; 
-//    SDL_GameControllerButton controller_button; 
-//};
-
-// TODO: Support controller
-typedef SDL_Keycode InputBind;
-
-typedef InputBind InputsConfig[Inputs::NUM_INPUTS];
 
 namespace
 {
     InputsConfig const default_inputs = { SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, SDLK_x, SDLK_z, SDLK_RSHIFT, SDLK_RETURN };
+     
+    //InputsConfig const default_inputs = { L_STICK_RIGHT, L_STICK_LEFT, L_STICK_UP, L_STICK_DOWN,
+    //                                      SDL_CONTROLLER_BUTTON_B, SDL_CONTROLLER_BUTTON_A, SDL_CONTROLLER_BUTTON_BACK, SDL_CONTROLLER_BUTTON_START };
 };
 
 struct DisplayOptions

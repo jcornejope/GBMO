@@ -40,6 +40,9 @@
       <Filter>memory</Filter>
     </ClCompile>
     <ClCompile Include="src\options.cpp" />
+    <ClCompile Include="src\utils\input.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="memory">
@@ -111,6 +114,9 @@
     </ClInclude>
     <ClInclude Include="src\memory\mbc_3.h">
       <Filter>memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\input.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

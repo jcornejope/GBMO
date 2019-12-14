@@ -33,6 +33,7 @@
     <ClCompile Include="src\memory\mbc_none.cpp" />
     <ClCompile Include="src\memory\memory_system.cpp" />
     <ClCompile Include="src\options.cpp" />
+    <ClCompile Include="src\utils\input.cpp" />
     <ClCompile Include="src\utils\logger.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -50,6 +51,7 @@
     <ClInclude Include="src\memory\memory_system.h" />
     <ClInclude Include="src\options.h" />
     <ClInclude Include="src\utils\assert.h" />
+    <ClInclude Include="src\utils\input.h" />
     <ClInclude Include="src\utils\logger.h" />
     <ClInclude Include="src\utils\types.h" />
     <ClInclude Include="src\utils\utils.h" />

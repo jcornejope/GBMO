@@ -58,7 +58,7 @@ bool Options::load_from_file( char const* file_name )
     m_display_options.m_fullscreen_keep_aspect_ratio = reader.GetBoolean( OPTIONS_SECTION, KEEP_ASPECT_RATIO_ATTR, def.m_display_options.m_fullscreen_keep_aspect_ratio );
 
     for( int input = 0; input < Inputs::NUM_INPUTS; ++input )
-        m_inputs[input] = SDL_GetKeyFromName( reader.Get( CONTROLS_SECTION, INPUT_ATTR[input], SDL_GetKeyName( def.m_inputs[input] ) ).c_str() );
+        m_inputs[input] = SDL_GetKeyFromName( reader.Get( CONTROLS_SECTION, INPUT_ATTR[input], SDL_GetKeyName( def.m_inputs[input].m_input_bind.key_code ) ).c_str() );
 
     m_zip_password = reader.Get( MISC_SECTION, ZIP_MASTER_PASSWORD, def.m_zip_password );
     m_ram_save_enabled = reader.GetBoolean( MISC_SECTION, RAM_SAVE_ENABLED, def.m_ram_save_enabled );
@@ -119,7 +119,7 @@ bool Options::_save_options( char const* file_path, Options const& options )
 
     file << "[" << CONTROLS_SECTION << "]" << std::endl;
     for( int input = 0; input < Inputs::NUM_INPUTS; ++input )
-        file << INPUT_ATTR[input] << " = " << SDL_GetKeyName( options.m_inputs[input] ) << std::endl;
+        file << INPUT_ATTR[input] << " = " << SDL_GetKeyName( options.m_inputs[input].m_input_bind.key_code ) << std::endl;
     file << std::endl;
 
     file << "[" << MISC_SECTION << "]" << std::endl;

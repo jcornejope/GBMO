@@ -18,7 +18,7 @@ public:
     bool init();
     void deinit();
     bool update();
-    bool handle_input_event();
+    bool handle_events();
 
     Cartridge& get_cartridge() { return m_cartridge;  }
     MemorySystem& get_memory_system() { return m_memory_system; }
