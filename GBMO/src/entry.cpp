@@ -33,7 +33,6 @@ int main( int argc, char* argv[] )
         while( emulator_running )
         {
             emulator_running = emulator.update();
-            Logger::instance().flush();
         }
 
         emulator.deinit();
