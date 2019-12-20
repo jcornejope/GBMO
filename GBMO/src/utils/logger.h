@@ -1,12 +1,7 @@
 #pragma once
 
-#include <atomic>
 #include <chrono>
-#include <ctime>
 #include <fstream>
-#include <iomanip>
-#include <string>
-#include <sstream>
 #include <thread>
 #include <vector>
 
@@ -35,8 +30,6 @@ public:
     template<typename ...Args>
     void log( char const* category, Level level, char const* message_format, Args... args );
 
-    void flush();
-
 private:
     Logger( std::string const& filename );
     ~Logger();
@@ -45,58 +38,60 @@ private:
     Logger& operator=( Logger const& ) = delete;
     Logger& operator=( Logger const&& ) = delete;
 
-    typedef std::vector<std::string> TMessageQueue;
-
     const char* _get_level_string( Level level ) const;
-    void _do_flush( TMessageQueue* queue );
 
     static Logger* m_instance;
-
-    TMessageQueue m_log_queue_1;
-    TMessageQueue m_log_queue_2;
-
     std::ofstream m_file;
-    std::atomic_flag m_use_first_queue = ATOMIC_FLAG_INIT;
-    std::thread m_flush_thread;
+
+    static unsigned int const MAX_LOG_LENGTH = 256u;
+    struct MessageData
+    {
+        const char* cat;
+        Level level;
+        std::chrono::time_point<std::chrono::system_clock> time;
+        char message[MAX_LOG_LENGTH];
+    };
+
+    void _flusher();
+    void _flusher_do_work( size_t const idx );
+
+    static unsigned int const BUFFER_SIZE = 16u;
+    typedef MessageData TMessageRing[BUFFER_SIZE];
+    TMessageRing m_log_buffer;
+
+    std::thread m_worker_thread;
+    size_t m_logger_idx = 0;
+    size_t m_flusher_idx = 0;
+
+    bool m_join_flusher = false;
 };
 
 template<typename ...Args>
-inline void Logger::log( std::string const & category, Level level, std::string const & message_format, Args... args )
+inline void Logger::log( std::string const& category, Level level, std::string const& message_format, Args... args )
 {
     log( category.c_str(), level, message_format.c_str(), args... );
 }
 
 template<typename ...Args>
-inline void Logger::log( char const * category, Level level, char const * message_format, Args... args )
+inline void Logger::log( char const* category, Level level, char const* message_format, Args... args )
 {
-    using std::chrono::system_clock;
-
-    std::chrono::time_point<system_clock> time_now;
-    time_now = system_clock::now();
-    std::time_t now_time_t = system_clock::to_time_t( time_now );
-    std::stringstream stream;
-    stream << std::put_time( std::localtime( &now_time_t ), "[%T]" );
-    
-    if( category && category != '\0' )
-        stream << "[" << category << "]";
-
-    stream << "[" << _get_level_string( level ) << "] - ";
-
-    static unsigned int const MAX_LOG_LENGTH = 256;
-    char buf[MAX_LOG_LENGTH];
-    std::snprintf( buf, MAX_LOG_LENGTH, message_format, args... );
-    stream << buf << std::endl;
-
-    TMessageQueue* queue = nullptr;
-    if( m_use_first_queue.test_and_set() )
     {
-        queue = &m_log_queue_1;
+        size_t flusher_idx = m_flusher_idx;
+        size_t const l_idx = m_logger_idx & ( BUFFER_SIZE - 1u );
+        size_t f_idx = flusher_idx & ( BUFFER_SIZE - 1u );
+        while( ( l_idx == f_idx ) && ( m_logger_idx != flusher_idx ) )
+        {
+            //ASSERT(m_logger_idx & (size - 1u) == m_flusher_idx & (size - 1u), "Stall logging!!! Main thread spinning! Consider making log buffer bigger!");
+            flusher_idx = m_flusher_idx;
+            f_idx = flusher_idx & ( BUFFER_SIZE - 1u );
+        }
     }
-    else
-    {
-        m_use_first_queue.clear();
-        queue = &m_log_queue_2;
-    }
-       
-    queue->emplace_back( stream.str() );
+
+    MessageData& msg = m_log_buffer[m_logger_idx & ( BUFFER_SIZE - 1u )];
+    msg.time = std::chrono::system_clock::now();
+    msg.cat = category;
+    msg.level = level;
+    std::snprintf( msg.message, MAX_LOG_LENGTH, message_format, args... );
+
+    ++m_logger_idx;
 }

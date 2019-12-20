@@ -1,53 +1,64 @@
 
 #include "logger.h"
 
+#include <sstream>
+#include <ctime>
+#include <iomanip>
+#include <string>
+
+#define LOG_FLUSHER_SLEEP_WHILE_WAITING
+
 Logger* Logger::m_instance = nullptr;
 
-Logger::Logger( std::string const & filename )
+Logger::Logger( std::string const& filename )
 {
     m_file.open( filename, std::ios_base::out | std::ios_base::trunc );
+
+    //ASSERT(m_file.is_open());
     if( m_file.is_open() )
     {
         std::chrono::time_point<std::chrono::system_clock> time_now;
         time_now = std::chrono::system_clock::now();
         std::time_t now_time_t = std::chrono::system_clock::to_time_t( time_now );
 
-        m_file << "[SYSTEM][" 
-               << _get_level_string( Level::LOG ) 
-               << "] Log started: " 
-               << std::put_time( std::localtime( &now_time_t ), "%A %d %B %Y [%T]" )
-               << std::endl;
+        m_file << "[System]["
+            << _get_level_string( Level::LOG )
+            << "] Log started: "
+            << std::put_time( std::localtime( &now_time_t ), "%A %d %B %Y [%T]" )
+            << " - " << sizeof( m_log_buffer )
+            << std::endl;
     }
 
-    m_log_queue_1.reserve( 100 );
-    m_log_queue_2.reserve( 100 );
+    static_assert( ( BUFFER_SIZE & ( BUFFER_SIZE - 1u ) ) == 0, "Ring buffer size is not power of 2!" );
+
+    m_worker_thread = std::thread( &Logger::_flusher, this );
 }
 
 Logger::~Logger()
 {
+    if( m_worker_thread.joinable() )
+    {
+        m_join_flusher = true;
+        m_worker_thread.join();
+    }
+
     if( m_file.is_open() )
     {
-        if( m_flush_thread.joinable() )
-            m_flush_thread.join();
-
-        _do_flush( &m_log_queue_1 );
-        _do_flush( &m_log_queue_2 );
-
         std::chrono::time_point<std::chrono::system_clock> time_now;
         time_now = std::chrono::system_clock::now();
         std::time_t now_time_t = std::chrono::system_clock::to_time_t( time_now );
 
-        m_file << "[SYSTEM]["
-               << _get_level_string( Level::LOG )
-               << "] Log ended: "
-               << std::put_time( std::localtime( &now_time_t ), "%A %d %B %Y [%T]" )
-               << std::endl;
+        m_file << "[System]["
+            << _get_level_string( Level::LOG )
+            << "] Log ended: "
+            << std::put_time( std::localtime( &now_time_t ), "%A %d %B %Y [%T]" )
+            << std::endl;
 
         m_file.close();
     }
 }
 
-const char * Logger::_get_level_string( Level level ) const
+const char* Logger::_get_level_string( Level level ) const
 {
     switch( level )
     {
@@ -59,7 +70,7 @@ const char * Logger::_get_level_string( Level level ) const
     return "";
 }
 
-void Logger::create_instance( std::string const & filename )
+void Logger::create_instance( std::string const& filename )
 {
     if( m_instance != nullptr )
     {
@@ -78,36 +89,60 @@ void Logger::destroy_instance()
     }
 }
 
-void Logger::flush()
+void Logger::_flusher()
 {
-    TMessageQueue* queue = nullptr;
-    if( m_use_first_queue.test_and_set() )
+    size_t next_idx_flushed_to_file = 0u;
+    bool work_done = false;
+    bool join_requested = m_join_flusher;
+    while( !join_requested || !work_done )
     {
-        m_use_first_queue.clear();
-        queue = &m_log_queue_1;
-    }
-    else
-    {
-        queue = &m_log_queue_2;
-    }
-
-    if( m_flush_thread.joinable() )
-        m_flush_thread.join();
-
-    m_flush_thread = std::thread( &Logger::_do_flush, this, queue );
-}
-
-void Logger::_do_flush( TMessageQueue* queue )
-{
-    if( m_file.is_open() )
-    {
-        for( auto const& msg : *queue )
         {
-            m_file << msg;
+            size_t const logger_idx = m_logger_idx;
+            if( logger_idx != m_flusher_idx )
+            {
+                work_done = false;
+                size_t const f_idx = m_flusher_idx & ( BUFFER_SIZE - 1u );
+                _flusher_do_work( f_idx );
+                ++m_flusher_idx;
+            }
         }
 
-        m_file.flush();
-    }
+        {
+            size_t const logger_idx = m_logger_idx;
+            if( logger_idx == m_flusher_idx )
+            {
+                work_done = true;
+#ifdef LOG_FLUSHER_SLEEP_WHILE_WAITING
+                //std::this_thread::sleep_for(5ms); // C++ 14
+                std::this_thread::sleep_for( std::chrono::duration<float, std::milli>( 5 ) );
+#endif
 
-    queue->clear();
+                if( next_idx_flushed_to_file != m_flusher_idx )
+                {
+                    m_file.flush();
+                    next_idx_flushed_to_file = m_flusher_idx;
+                }
+            }
+        }
+
+        join_requested = m_join_flusher;
+    }
+}
+
+void Logger::_flusher_do_work( size_t const idx )
+{
+    using namespace std::chrono;
+    auto const& log = m_log_buffer[idx];
+
+    std::time_t now_time_t = system_clock::to_time_t( log.time );
+    std::stringstream stream;
+    stream << std::put_time( std::localtime( &now_time_t ), "[%T]" );
+
+    if( log.cat && log.cat != '\0' )
+        stream << "[" << log.cat << "]";
+
+    stream << "[" << _get_level_string( log.level ) << "] - ";
+    stream << log.message << std::endl;
+
+    m_file << stream.str();
 }
