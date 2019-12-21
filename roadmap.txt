@@ -6,10 +6,6 @@
 --- Next Versions ------------------
 ------------------------------------
 
-- v0.10:
-	- Gamepad support.
-	- No ram save options.
-	
 - v0.11:
 	- Implement sound/audio.
 	
@@ -30,6 +26,12 @@
 --- Released Versions --------------
 ------------------------------------
 
+- v0.10 <08e64b9>:
+	- Gamepad support.
+	- No ram save options.
+	- Performance improvement in logger.
+	- Fixed crash opening some rom zip files.
+	
 - v0.9 <e69286e>:
 	- Support zipped roms.
 	- Config file for inputs and options (overriden by args).

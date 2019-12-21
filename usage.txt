@@ -45,6 +45,8 @@ A      : X
 SELECT : RIGHT_MAYS
 START  : RETURN
 
+From v0.10 onwards game controllers are supported and can be configured in settings.ini
+
 ------------------------------------
 Special Keys
 ------------------------------------
