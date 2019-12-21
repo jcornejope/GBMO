@@ -87,13 +87,12 @@ void Joypad::handle_input_event( SDL_Event & event )
             SDL_GameControllerAxis axis;
             translate_from_axis_input( m_inputs[i].m_input_bind.controller_axis, axis, sign );
 
-            static s16 const DEAD_ZONE = 10000;
             u8 const bit = ( 1 << i );
             if( event.caxis.axis == axis )
             {
                 // Need to clear the axis opposite direction so we need to process other possible entries. 
                 // Don't back out with "input_processed" for CONTROLLERAXISMOTION events.
-                _handle_input_flag( ( ( event.caxis.value * sign ) > DEAD_ZONE ), i, joyp );
+                _handle_input_flag( ( ( event.caxis.value * sign ) > m_controller_dead_zone ), i, joyp );
             }
         }
             break;
@@ -160,8 +159,9 @@ u8 Joypad::get_inputs_for_memory( u8 joyp )
     return joyp;
 }
 
-void Joypad::set_input_bindings( InputsConfig const& new_inputs )
+void Joypad::set_input_bindings( InputsConfig const& new_inputs, u16 const controller_dead_zone )
 {
+    m_controller_dead_zone = controller_dead_zone;
     std::memcpy( m_inputs, new_inputs, sizeof( InputBind ) * Inputs::NUM_INPUTS );
 }
 

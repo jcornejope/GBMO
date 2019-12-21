@@ -15,7 +15,7 @@ GBMO::GBMO( Options const& options )
     , m_joypad( m_cpu, m_memory_system )
     , m_display( m_cpu, m_memory_system )
 {
-    m_joypad.set_input_bindings( options.m_inputs );
+    m_joypad.set_input_bindings( options.m_inputs, options.m_controller_dead_zone );
 }
 
 bool GBMO::init()
@@ -78,7 +78,7 @@ bool GBMO::update()
         // TODO ADD THIS INTO THE OPTIONS (~60FPS)
         std::this_thread::sleep_for( std::chrono::duration<float, std::milli>( frame_delta ) );
     }
-    //LOG( LogCat::Update, "Update time: %f [%f] -> %f", diff.count(), frame_time, frame_delta );
+    //LOG( LogCat::UPDATE, "Update time: %f [%f] -> %f", diff.count(), frame_time, frame_delta );
 
     return true;
 }

@@ -25,6 +25,7 @@ namespace
     char const* ZIP_MASTER_PASSWORD = "zip_master_password";
     char const* RAM_SAVE_ENABLED = "ram_save_load_enabled";
 
+    char const* GAME_CONTROLLER_DEAD_ZONE = "game_controller_dead_zone";
     char const* INPUT_ATTR[Inputs::NUM_INPUTS] = { "right",
                                                    "left",
                                                    "up",
@@ -75,6 +76,7 @@ bool Options::load_from_file( char const* file_name )
             }
         }
     }
+    m_controller_dead_zone = static_cast<u16>( abs( reader.GetInteger( CONTROLS_SECTION, GAME_CONTROLLER_DEAD_ZONE, def.m_controller_dead_zone ) ) );
 
     m_zip_password = reader.Get( MISC_SECTION, ZIP_MASTER_PASSWORD, def.m_zip_password );
     m_ram_save_enabled = reader.GetBoolean( MISC_SECTION, RAM_SAVE_ENABLED, def.m_ram_save_enabled );
@@ -160,6 +162,9 @@ bool Options::_save_options( char const* file_path, Options const& options )
         }
         file << std::endl;
     }
+    file << std::endl;
+    file << GAME_CONTROLLER_DEAD_ZONE << " = " << options.m_controller_dead_zone;
+    file << "\t; 0 - 32767" << std::endl;
     file << std::endl;
 
     file << "[" << MISC_SECTION << "]" << std::endl;

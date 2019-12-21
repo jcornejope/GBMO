@@ -33,6 +33,7 @@ struct Options
     Options()
         : m_log_path( ".\\log.txt" )
         , m_volume( 0.f )
+        , m_controller_dead_zone( 10000 )
         , m_ram_save_enabled( true )
     {
         std::memcpy( m_inputs, default_inputs, sizeof( InputBind ) * Inputs::NUM_INPUTS );
@@ -54,6 +55,7 @@ struct Options
     DisplayOptions m_display_options;
     InputsConfig m_inputs;
     float m_volume;
+    u16 m_controller_dead_zone;
     bool m_ram_save_enabled;
 
 private:

@@ -21,7 +21,7 @@ public:
     void handle_input_event( SDL_Event& event );
     u8 get_inputs_for_memory( u8 joyp );
 
-    void set_input_bindings( InputsConfig const& new_inputs );
+    void set_input_bindings( InputsConfig const& new_inputs, u16 const controller_dead_zone );
 
 private:
     bool _are_buttons_enabled( u8 const joyp ) const    { return ( joyp & ( 1 << 5 ) ) == 0; }
@@ -36,5 +36,6 @@ private:
     SDL_JoystickID m_joystick_id;
 
     InputsConfig m_inputs;
+    u16 m_controller_dead_zone;
     u8 m_input_flags;
 };
