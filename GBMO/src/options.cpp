@@ -58,7 +58,23 @@ bool Options::load_from_file( char const* file_name )
     m_display_options.m_fullscreen_keep_aspect_ratio = reader.GetBoolean( OPTIONS_SECTION, KEEP_ASPECT_RATIO_ATTR, def.m_display_options.m_fullscreen_keep_aspect_ratio );
 
     for( int input = 0; input < Inputs::NUM_INPUTS; ++input )
-        m_inputs[input] = SDL_GetKeyFromName( reader.Get( CONTROLS_SECTION, INPUT_ATTR[input], SDL_GetKeyName( def.m_inputs[input].m_input_bind.key_code ) ).c_str() );
+    {
+        std::string const input_name = reader.Get( CONTROLS_SECTION, INPUT_ATTR[input], SDL_GetKeyName( def.m_inputs[input].m_input_bind.key_code ) );
+
+        m_inputs[input] = SDL_GetKeyFromName( input_name.c_str() );
+        if( m_inputs[input].m_input_bind.key_code == SDLK_UNKNOWN )
+        {
+            m_inputs[input] = get_axis_input_from_string( input_name.c_str() );
+            if( m_inputs[input].m_input_bind.controller_axis == AxisInputs::INVALID )
+            {
+                m_inputs[input] = get_controller_button_from_string( input_name.c_str() );
+                if( m_inputs[input].m_input_bind.controller_button == SDL_CONTROLLER_BUTTON_INVALID )
+                {
+                    m_inputs[input] = def.m_inputs[input].m_input_bind.key_code;
+                }
+            }
+        }
+    }
 
     m_zip_password = reader.Get( MISC_SECTION, ZIP_MASTER_PASSWORD, def.m_zip_password );
     m_ram_save_enabled = reader.GetBoolean( MISC_SECTION, RAM_SAVE_ENABLED, def.m_ram_save_enabled );
@@ -117,9 +133,33 @@ bool Options::_save_options( char const* file_path, Options const& options )
     file << "\t\t\t\t\t; Audio volume - NOT IMPLEMENTED YET!!" << std::endl;
     file << std::endl;
 
+    file << ";" << std::endl;
+    file << "; Game Controller binding options:" << std::endl;
+    file << ";" << std::endl;
+    file << "; Axes= " << get_axis_input_name( static_cast<AxisInputs>( 0 ) );
+    for( int i = 1; i < AxisInputs::NUM_AXIS_INPUTS; ++i )
+        file << ", " << get_axis_input_name( static_cast<AxisInputs>( i ) );
+    file << std::endl;
+    file << "; Axes Alias= " << get_axis_input_alias( static_cast<AxisInputs>( 0 ) );
+    for( int i = 1; i < AxisInputs::NUM_AXIS_INPUTS; ++i )
+        file << ", " << get_axis_input_alias( static_cast<AxisInputs>( i ) );
+    file << std::endl;
+    file << "; GameController Buttons= dpup, dpright, dpleft, dpdown, ba, bb, by, bx, ";
+    file << "leftshoulder, rightshoulder, leftstick, rightstick, start, back, guide" << std::endl;
+    file << ";" << std::endl;
+
     file << "[" << CONTROLS_SECTION << "]" << std::endl;
     for( int input = 0; input < Inputs::NUM_INPUTS; ++input )
-        file << INPUT_ATTR[input] << " = " << SDL_GetKeyName( options.m_inputs[input].m_input_bind.key_code ) << std::endl;
+    {
+        file << INPUT_ATTR[input] << " = ";
+        switch( options.m_inputs[input].m_type )
+        {
+        case InputBindType::KEY:    file << SDL_GetKeyName( options.m_inputs[input].m_input_bind.key_code );   break;
+        case InputBindType::AXIS:   file << get_axis_input_name( options.m_inputs[input].m_input_bind.controller_axis );   break;
+        case InputBindType::BUTTON: file << SDL_GameControllerGetStringForButton( options.m_inputs[input].m_input_bind.controller_button );   break;
+        }
+        file << std::endl;
+    }
     file << std::endl;
 
     file << "[" << MISC_SECTION << "]" << std::endl;

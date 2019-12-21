@@ -7,9 +7,6 @@
 namespace
 {
     InputsConfig const default_inputs = { SDLK_RIGHT, SDLK_LEFT, SDLK_UP, SDLK_DOWN, SDLK_x, SDLK_z, SDLK_RSHIFT, SDLK_RETURN };
-     
-    //InputsConfig const default_inputs = { L_STICK_RIGHT, L_STICK_LEFT, L_STICK_UP, L_STICK_DOWN,
-    //                                      SDL_CONTROLLER_BUTTON_B, SDL_CONTROLLER_BUTTON_A, SDL_CONTROLLER_BUTTON_BACK, SDL_CONTROLLER_BUTTON_START };
 };
 
 struct DisplayOptions
