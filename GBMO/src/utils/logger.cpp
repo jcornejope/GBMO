@@ -138,7 +138,7 @@ void Logger::_flusher_do_work( size_t const idx )
     std::stringstream stream;
     stream << std::put_time( std::localtime( &now_time_t ), "[%T]" );
 
-    if( log.cat && log.cat != '\0' )
+    if( log.cat && *log.cat != '\0' )
         stream << "[" << log.cat << "]";
 
     stream << "[" << _get_level_string( log.level ) << "] - ";
