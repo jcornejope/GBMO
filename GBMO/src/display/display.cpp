@@ -76,7 +76,7 @@ void Display::update( u32 cycles )
     else
     {
         m_display_cycles = 0;
-        m_memory.write( LCDC_Y_ADDR, u8( 0 ) );
+        m_memory.non_protected_write( LCDC_Y_ADDR, u8( 0 ) );
         _set_mode( Mode::H_BLANK );
         //_process_ly_lyc();    // Don't think we need this here...
     }
@@ -177,14 +177,14 @@ void Display::_set_mode( Mode new_mode )
     ASSERT_MSG( ( new_mode_u32 & 0xFC ) == 0, 
                 "Trying to set an invalid mode [%d], it will be clamped! [%d]", 
                 new_mode_u32, new_mode_u32 & 0x03 );
-
+    
     if( m_mode != new_mode )
     {
         m_mode = new_mode;
 
         u8 lcdc_stat = m_memory.read_8( LCDC_STAT_ADDR );
         lcdc_stat = ( lcdc_stat & 0xFC ) | ( new_mode_u32 & 0x03 );
-        m_memory.write( LCDC_STAT_ADDR, lcdc_stat );
+        m_memory.non_protected_write( LCDC_STAT_ADDR, lcdc_stat );
     }
 }
 
@@ -210,7 +210,7 @@ void Display::_process_ly_lyc()
         lcdc_stat &= ~LCDC_STAT::LY_LYC_CONICIDENCE;
     }
 
-    m_memory.write( LCDC_STAT_ADDR, lcdc_stat );
+    m_memory.non_protected_write( LCDC_STAT_ADDR, lcdc_stat );
 }
 
 void Display::_process_lcdc_stat_interrupt( LCDC_STAT const stat_interrupt ) const
@@ -229,7 +229,7 @@ void Display::_update_h_blank()
         m_display_cycles -= H_BLANK_MIN_CYCLES;
 
         u8 ly = m_memory.read_8( LCDC_Y_ADDR ) + 1;
-        m_memory.write( LCDC_Y_ADDR, ly );
+        m_memory.non_protected_write( LCDC_Y_ADDR, ly );
         _process_ly_lyc();
 
         if( ly == SCREEN_HEIGHT )
@@ -265,7 +265,7 @@ void Display::_update_v_blank()
             ly = 0;
         }
 
-        m_memory.write( LCDC_Y_ADDR, ly );
+        m_memory.non_protected_write( LCDC_Y_ADDR, ly );
         _process_ly_lyc();
 
         if( ly == 0 )
@@ -404,7 +404,7 @@ void Display::_draw_sprites_to_frame_buffer()
     // Get the relevant sprites for the current scanline
     for( auto const& sprite : sprites )
     {
-        if( sprite.y_pos == 0 || sprite.y_pos >= 160 )
+        if( sprite.y_pos == 0 || sprite.y_pos >= SCREEN_WIDTH )
             continue;
 
         s16 const adj_sprite_y = sprite.y_pos - 16;
@@ -454,7 +454,7 @@ void Display::_draw_sprites_to_frame_buffer()
         for( s8 pixel = 0; pixel < 8; ++pixel )
         {
             s16 const x = sprite.x_pos - 8 + pixel;
-            if( x < 0 || x > 160)
+            if( x < 0 || x > SCREEN_WIDTH )
                 continue;
             
             u32 const frame_buffer_idx = x + ( lcd_y * SCREEN_WIDTH );

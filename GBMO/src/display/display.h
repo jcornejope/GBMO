@@ -104,6 +104,7 @@ class Display
 
     static u32 const SCREEN_WIDTH   = 160;
     static u32 const SCREEN_HEIGHT  = 144;
+    static u32 const FRAMEBUFFER_SIZE = SCREEN_WIDTH * SCREEN_HEIGHT;
 
     // Using average value for now...
     static u32 const H_BLANK_MIN_CYCLES     = 204;  // 201 - 207
@@ -168,7 +169,7 @@ private:
     SDL_Renderer* m_renderer;
     SDL_Texture* m_texture;
 
-    Colour m_frame_buffer[SCREEN_WIDTH * SCREEN_HEIGHT];
+    Colour m_frame_buffer[FRAMEBUFFER_SIZE];
 
     Mode m_mode;
     WINDOW_MODE m_window_mode;

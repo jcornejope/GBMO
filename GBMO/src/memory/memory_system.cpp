@@ -60,15 +60,28 @@ void MemorySystem::write( u16 address, u8 data )
     }
 
     // TODO: ALL THE SPECIAL CASES (DIV, TIMERS, LCD REGS. ETC.)
-    if( address == DIV_ADDR )
+    switch( address )
+    {
+    case DIV_ADDR:
+    case LCDC_Y_ADDR:
     {
         data = 0x00;
     }
-    else if( address == P1_JOYP_ADDR )
+    break;
+    case P1_JOYP_ADDR:
     {
         // Remove the low part of data as it is read only.
         u8 low_data = m_gameboy.get_joypad().get_inputs_for_memory( data );
         data = ( data & 0x30 ) | low_data;
+    }
+    break;
+    case LCDC_STAT_ADDR:
+    {
+        // Remove the low 2 bits as they are read only.
+        data = ( data & 0xFC ) | ( read_8( LCDC_STAT_ADDR ) & 0x03 );
+    }
+    default: 
+        break;
     }
 
     u16 mapped_address = _remap_address( address );
