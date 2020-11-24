@@ -25,7 +25,9 @@ public:
 
 private:
     bool _is_memory_handled_by_cartridge( u16 const address ) const;
+
     static u16 _remap_address( u16 const address );
+    u8 _get_read_mask( u16 address ) const;
 
     void _start_dma_transfer();
 

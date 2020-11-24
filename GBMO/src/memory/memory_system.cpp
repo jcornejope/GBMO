@@ -26,14 +26,11 @@ u8 MemorySystem::read_8( u16 address )
 {
     if( _is_memory_handled_by_cartridge( address ) )
         return m_gameboy.get_cartridge()._read( address );
-    else if( ( address == DMA_TRANSFER_ADDR ) ||
-             ( address == CH1_FREQ_LO_ADDR ) ||
-             ( address == CH2_FREQ_LO_ADDR ) ||
-             ( address == CH3_FREQ_LO_ADDR ) )
-        return 0xFF;    // Write-only
+    
+    u8 const read_mask = _get_read_mask( address );
 
     u16 mapped_address = _remap_address( address );
-    return m_memory[mapped_address];
+    return m_memory[mapped_address] | read_mask;
 }
 
 u16 MemorySystem::read_16( u16 address )
@@ -150,6 +147,34 @@ u16 MemorySystem::_remap_address( u16 const address )
 
     ASSERT_MSG( mapped_address < SYSTEM_MEMORY_SIZE, "mapped_address [%#06x] out of bounds!", mapped_address );
     return mapped_address;
+}
+
+u8 MemorySystem::_get_read_mask( u16 address ) const
+{
+    //      NRx0 NRx1 NRx2 NRx3 NRx4
+    //-------------------------- -
+    //NR1x  $80  $3F $00  $FF  $BF
+    //NR2x  $FF  $3F $00  $FF  $BF
+    //NR3x  $7F  $FF $9F  $FF  $BF
+    //NR4x  $FF  $FF $00  $00  $BF
+    //NR5x  $00  $00 $70
+
+    //$FF27 - $FF2F always read back as $FF
+    static u8 const SND_READ_MASK[] = { 0x80, 0x3F, 0x00, 0xFF, 0xBF, 
+                                        0xFF, 0x3F, 0x00, 0xFF, 0xBF, 
+                                        0x7F, 0xFF, 0x9F, 0xFF, 0xBF, 
+                                        0xFF, 0xFF, 0x00, 0x00, 0xBF, 
+                                        0x00, 0x00, 0x70, 0xFF, 0xFF, 
+                                        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 
+                                        0xFF, 0xFF };
+
+    if( address >= 0xFF10 && address <= 0xFF2F )
+        return SND_READ_MASK[address - 0xFF10];
+
+    if( address == DMA_TRANSFER_ADDR )
+        return 0xFF;
+
+    return 0x00;
 }
 
 void MemorySystem::_start_dma_transfer()
