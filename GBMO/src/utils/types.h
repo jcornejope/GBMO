@@ -60,6 +60,33 @@ enum ADDRESSES : u16
     OBJ_1_PALETTE_ADDR  = 0xFF49,
     WINDOW_Y_ADDR       = 0xFF4A,
     WINDOW_X_ADDR       = 0xFF4B,
+
+    CH1_SWEEP_ADDR          = 0xFF10,
+    CH1_LENGHT_N_DUTY_ADDR  = 0xFF11,
+    CH1_VOL_ENVELOPE_ADDR   = 0xFF12,
+    CH1_FREQ_LO_ADDR        = 0xFF13,
+    CH1_FREQ_HI_ADDR        = 0xFF14,
+
+    CH2_LENGHT_N_DUTY_ADDR  = 0xFF16,
+    CH2_VOL_ENVELOPE_ADDR   = 0xFF17,
+    CH2_FREQ_LO_ADDR        = 0xFF18,
+    CH2_FREQ_HI_ADDR        = 0xFF19,
+
+    CH3_ON_OFF_ADDR         = 0xFF1A,
+    CH3_LENGTH_ADDR         = 0xFF1B,
+    CH3_OUTPUT_LEVEL_ADDR   = 0xFF1C,
+    CH3_FREQ_LO_ADDR        = 0xFF1D,
+    CH3_FREQ_HI_ADDR        = 0xFF1E,
+    CH3_WAVE_PATTERN_ADDR   = 0xFF30,
+
+    CH4_LENGTH_ADDR                         = 0xFF20,
+    CH4_VOL_ENVELOPE_ADDR                   = 0xFF21,
+    CH4_POLYNOMIAL_COUNTER_ADDR             = 0xFF22,
+    CH4_COUNTER_CONSECUTIVE_INITIAL_ADDR    = 0xFF23,
+
+    SND_CHANNEL_CONTROL_ADDR    = 0xFF24,
+    SND_OUTPUT_TERMINAL_ADDR    = 0xFF25,
+    SND_ON_OFF_ADDR             = 0xFF26,
 };
 
 enum Interrupts : u8

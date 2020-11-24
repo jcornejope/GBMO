@@ -19,7 +19,10 @@ u8 MemorySystem::read_8( u16 address )
 {
     if( _is_memory_handled_by_cartridge( address ) )
         return m_gameboy.get_cartridge()._read( address );
-    else if( address == DMA_TRANSFER_ADDR )
+    else if( ( address == DMA_TRANSFER_ADDR ) ||
+             ( address == CH1_FREQ_LO_ADDR ) ||
+             ( address == CH2_FREQ_LO_ADDR ) ||
+             ( address == CH3_FREQ_LO_ADDR ) )
         return 0xFF;    // Write-only
 
     u16 mapped_address = _remap_address( address );
@@ -59,7 +62,6 @@ void MemorySystem::write( u16 address, u8 data )
         return;
     }
 
-    // TODO: ALL THE SPECIAL CASES (DIV, TIMERS, LCD REGS. ETC.)
     switch( address )
     {
     case DIV_ADDR:
@@ -77,8 +79,15 @@ void MemorySystem::write( u16 address, u8 data )
     break;
     case LCDC_STAT_ADDR:
     {
-        // Remove the low 2 bits as they are read only.
+        // Remove bits 0 - 1 as they are read only.
         data = ( data & 0xFC ) | ( read_8( LCDC_STAT_ADDR ) & 0x03 );
+    }
+    case SND_ON_OFF_ADDR:
+    {
+        // Remove bits 0 - 3 they are read only.
+        data = ( data & 0xF0 ) | ( read_8( LCDC_STAT_ADDR ) & 0x0F );
+
+        // TODO: Clearing bit 7, also clears all the sound registers!!
     }
     default: 
         break;
