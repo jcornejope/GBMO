@@ -4,6 +4,7 @@
 #include "cartridge/cartridge.h"
 #include "gbmo.h"
 #include "joypad/joypad.h"
+#include "sound/sound.h"
 #include "utils/assert.h"
 
 MemorySystem::MemorySystem( GBMO& gameboy )
@@ -13,6 +14,12 @@ MemorySystem::MemorySystem( GBMO& gameboy )
 
     // Reset VRAM (0x8000-0x9FFF).
     //std::memset( &m_memory[_remap_address( 0x8000 )], 0x00, 0x2000 );
+
+    // Reset Wave Table
+    // DMG: 84 40 43 AA 2D 78 92 3C 60 59 59 B0 34 B8 2E DA
+    // CGB: 00 FF 00 FF 00 FF 00 FF 00 FF 00 FF 00 FF 00 FF
+    u8 const wave_table[] = { 0x84, 0x40, 0x43, 0xAA, 0x2D, 0x78, 0x92, 0x3C, 0x60, 0x59, 0x59, 0xB0, 0x34, 0xB8, 0x2E, 0xDA };
+    std::memcpy( &m_memory[_remap_address( SND_WAVE_TABLE_ADDR )], &wave_table, sizeof( wave_table ) );
 }
 
 u8 MemorySystem::read_8( u16 address )
@@ -84,10 +91,19 @@ void MemorySystem::write( u16 address, u8 data )
     }
     case SND_ON_OFF_ADDR:
     {
-        // Remove bits 0 - 3 they are read only.
-        data = ( data & 0xF0 ) | ( read_8( LCDC_STAT_ADDR ) & 0x0F );
+        auto const snd_on_off = read_8( SND_ON_OFF_ADDR );
 
-        // TODO: Clearing bit 7, also clears all the sound registers!!
+        // Remove bits 0 - 3 they are read only.
+        data = ( data & 0xF0 ) | ( snd_on_off & 0x0F );
+
+        if( ( snd_on_off & Sound::MASTER_SWITCH ) && ( data & Sound::MASTER_SWITCH ) == 0 )
+        {
+            m_gameboy.get_sound().disable();
+        }
+        else if( ( snd_on_off & Sound::MASTER_SWITCH ) == 0 && ( data & Sound::MASTER_SWITCH ) )
+        {
+            m_gameboy.get_sound().enable();
+        }
     }
     default: 
         break;

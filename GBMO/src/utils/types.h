@@ -87,6 +87,11 @@ enum ADDRESSES : u16
     SND_CHANNEL_CONTROL_ADDR    = 0xFF24,
     SND_OUTPUT_TERMINAL_ADDR    = 0xFF25,
     SND_ON_OFF_ADDR             = 0xFF26,
+
+    SND_WAVE_TABLE_ADDR = 0xFF30,
+
+    SND_PWR_REG_START_ADDR  = 0xFF10,
+    SND_PWR_REG_END_ADDR    = 0xFF25,
 };
 
 enum Interrupts : u8

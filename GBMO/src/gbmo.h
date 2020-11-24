@@ -5,6 +5,7 @@
 #include "joypad\joypad.h"
 #include "memory\memory_system.h"
 #include "display\display.h"
+#include "sound\sound.h"
 
 #include <SDL_events.h>
 
@@ -25,6 +26,7 @@ public:
     CPU& get_cpu() { return m_cpu; }
     Joypad& get_joypad() { return m_joypad; }
     Display& get_display() { return m_display; }
+    Sound& get_sound() { return m_sound; }
 
 private:
     Cartridge m_cartridge;
@@ -32,6 +34,7 @@ private:
     CPU m_cpu;
     Joypad m_joypad;
     Display m_display;
+    Sound m_sound;
 
     SDL_Event m_event;
 };

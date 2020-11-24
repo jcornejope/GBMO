@@ -14,6 +14,7 @@ GBMO::GBMO( Options const& options )
     , m_cpu( m_memory_system )
     , m_joypad( m_cpu, m_memory_system )
     , m_display( m_cpu, m_memory_system )
+    , m_sound( m_memory_system )
 {
     m_joypad.set_input_bindings( options.m_inputs, options.m_controller_dead_zone );
 }

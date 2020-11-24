@@ -43,6 +43,9 @@
     <ClCompile Include="src\utils\input.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\sound\sound.cpp">
+      <Filter>sound</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="memory">
@@ -117,6 +120,9 @@
     </ClInclude>
     <ClInclude Include="src\utils\input.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sound\sound.h">
+      <Filter>sound</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
