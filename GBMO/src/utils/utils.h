@@ -36,4 +36,5 @@ namespace LogCat
     static char const* DISPLAY = "DISPLAY";
     static char const* CPU     = "CPU";
     static char const* UPDATE  = "UPDATE";
+    static char const* SOUND   = "SOUND";
 }
