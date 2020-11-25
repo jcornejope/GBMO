@@ -106,7 +106,7 @@ void MemorySystem::write( u16 address, u8 data )
     break;
     default: 
     {
-        if( address >= SND_PWR_REG_START_ADDR && address <= SND_PWR_REG_END_ADDR && !m_gameboy.get_sound().is_enabled() )
+        if( address >= SND_PWR_REG_START_ADDR && address <= SND_PWR_REG_END_ADDR && ( read_8( SND_ON_OFF_ADDR ) & Sound::MASTER_SWITCH ) == 0 )
         {
             // Sound register writes are ignored when the device is disabled (except DMG that allows write on lenght counters)
             if( address != CH1_LENGHT_N_DUTY_ADDR && address != CH2_LENGHT_N_DUTY_ADDR && address != CH3_LENGTH_ADDR && address != CH4_LENGTH_ADDR )
