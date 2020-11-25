@@ -86,6 +86,7 @@ void MemorySystem::write( u16 address, u8 data )
         // Remove bits 0 - 1 as they are read only.
         data = ( data & 0xFC ) | ( read_8( LCDC_STAT_ADDR ) & 0x03 );
     }
+    break;
     case SND_ON_OFF_ADDR:
     {
         auto const snd_on_off = read_8( SND_ON_OFF_ADDR );
@@ -102,8 +103,17 @@ void MemorySystem::write( u16 address, u8 data )
             m_gameboy.get_sound().enable();
         }
     }
+    break;
     default: 
-        break;
+    {
+        if( address >= SND_PWR_REG_START_ADDR && address <= SND_PWR_REG_END_ADDR && !m_gameboy.get_sound().is_enabled() )
+        {
+            // Sound register writes are ignored when the device is disabled (except DMG that allows write on lenght counters)
+            if( address != CH1_LENGHT_N_DUTY_ADDR && address != CH2_LENGHT_N_DUTY_ADDR && address != CH3_LENGTH_ADDR && address != CH4_LENGTH_ADDR )
+                return;
+        }
+    }
+    break;
     }
 
     u16 mapped_address = _remap_address( address );
