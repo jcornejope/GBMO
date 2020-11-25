@@ -29,13 +29,14 @@ bool GBMO::init()
     m_cartridge.log_header_values();
     m_cartridge.print_header_values();
 
-    if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER ) != 0 )
+    if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_AUDIO ) != 0 )
     {
+        LOG_E( LogCat::SYSTEM, "SDL_Init Error [%s]", SDL_GetError() );
         ERROR_MSG( "SDL_Init Error [%s]", SDL_GetError() );
-        LOG_E( LogCat::DISPLAY, "SDL_Init Error [%s]", SDL_GetError() );
         return false;
     }
 
+    m_sound.init();
     m_joypad.init();
 
     return true;
@@ -44,6 +45,7 @@ bool GBMO::init()
 void GBMO::deinit()
 {
     m_joypad.deinit();
+    m_sound.deinit();
 
     SDL_Quit();
 }

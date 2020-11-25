@@ -2,6 +2,8 @@
 
 #include "utils/types.h"
 
+#include <SDL_audio.h>
+
 class MemorySystem;
 
 class Sound
@@ -18,10 +20,17 @@ public:
 
     Sound( MemorySystem& memory );
 
+    bool init();
+    void deinit();
+
     void disable();
     void enable();
-    bool isEnabled() const;
+    bool is_enabled() const;
+
+    void fill_audio_buffer( Uint8* stream, int len );
 
 private:
     MemorySystem& m_memory;
+
+    SDL_AudioDeviceID m_device;
 };
