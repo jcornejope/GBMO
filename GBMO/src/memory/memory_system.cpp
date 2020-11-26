@@ -178,6 +178,8 @@ u8 MemorySystem::_get_read_mask( u16 address ) const
                                         0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 
                                         0xFF, 0xFF };
 
+    static_assert( ( sizeof( SND_READ_MASK ) / sizeof( SND_READ_MASK[0] ) ) == ( 0xFF30 - 0xFF10 ), "Sound read mask size is incorrect!" );
+
     if( address >= 0xFF10 && address <= 0xFF2F )
         return SND_READ_MASK[address - 0xFF10];
 

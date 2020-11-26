@@ -16,6 +16,8 @@ void audio_callback( void* userdata, Uint8* stream, int len )
 
 Sound::Sound( MemorySystem& memory )
     : m_memory( memory )
+    , m_sound_cycles( 0 )
+    , m_buff_write_pos( 0 )
     , m_device( 0 )
 {
 }
@@ -25,23 +27,20 @@ bool Sound::init()
     SDL_AudioSpec desired, obtained;
 
     SDL_memset( &desired, 0, sizeof( desired ) );
-    desired.freq = 48000;
-    desired.format = AUDIO_F32;
+    desired.freq = 44100;
+    desired.format = AUDIO_S16SYS;
     desired.channels = 2;
-    desired.samples = 4096;
+    desired.samples = AUDIO_BUFFER_SIZE / desired.channels;
     desired.callback = audio_callback;
-    desired.userdata = this;
+    desired.userdata = this; // Probably can use SDL_AudioQueue instead of manually filling the audio buffer...
     
-    m_device = SDL_OpenAudioDevice( NULL, 0, &desired, &obtained, SDL_AUDIO_ALLOW_FORMAT_CHANGE );
+    m_device = SDL_OpenAudioDevice( NULL, 0, &desired, &obtained, 0 );
     if( m_device == 0 ) 
     {
         LOG_E( LogCat::SOUND, "Failed opening audio device [%s]", SDL_GetError() );
         ERROR_MSG( "Failed opening audio device [%s]", SDL_GetError() );
         return false;
     }
-
-    if( obtained.format != desired.format )
-        LOG_W( LogCat::SOUND, "We didn't get the proper audio format. Des[%d] Obt[%d]", desired.format, obtained.format );
 
     SDL_PauseAudioDevice( m_device, 0 ); // This means unpause!
 
@@ -54,13 +53,17 @@ void Sound::deinit()
         SDL_CloseAudioDevice( m_device );
 }
 
+void Sound::update( u32 cycles )
+{
+    m_sound_cycles += cycles;
+}
+
 void Sound::enable()
 {
     // TODO
     // Frame sequencer is reset so that the next step will be 0
     // The square duty units are reset to the first step of the waveform
     // The wave channel's sample buffer is reset to 0.
-
 }
 
 void Sound::disable()
@@ -78,6 +81,12 @@ bool Sound::is_enabled() const
 
 void Sound::fill_audio_buffer( Uint8* stream, int len )
 {
-    (void*)stream;
-    (void)len;
+    // NOISE!
+    //u16 buf[AUDIO_BUFFER_SIZE]; 
+    //for( u32 i = 0; i < AUDIO_BUFFER_SIZE; ++i )
+    //    buf[i] = static_cast<u16>( rand() * 2 * 3.141596 );
+
+    //memcpy( stream, buf, len);
+
+    memset( stream, 0, len );
 }
