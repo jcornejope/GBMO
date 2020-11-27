@@ -65,6 +65,7 @@ bool GBMO::update()
         m_cpu.update_timer_registers( cycles );
         m_cpu.update_divider_register( cycles );
         m_display.update( cycles );
+        m_sound.update( cycles );
     }
     m_display.render();
 

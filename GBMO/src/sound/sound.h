@@ -9,6 +9,7 @@ class MemorySystem;
 class Sound
 {
     static u32 const AUDIO_BUFFER_SIZE = 8192;
+    using sample_t = s16;
 
 public:
     enum SND_ON_OFF : u8
@@ -39,5 +40,6 @@ private:
     u32 m_sound_cycles;
     s32 m_buff_write_pos;
 
+    SDL_AudioStream* m_stream;
     SDL_AudioDeviceID m_device;
 };
