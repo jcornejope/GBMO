@@ -11,6 +11,8 @@ class MemorySystem final
     static u16 const ECHO_RAM_SIZE          = 0xFE00 - 0xE000;
     static u16 const SYSTEM_MEMORY_SIZE     = 0x10000 - CARTRIDGE_ROM_MAP_SIZE - CARTRIDGE_RAM_MAP_SIZE - ECHO_RAM_SIZE;
 
+    friend class MemorySpan;
+
 public:
     MemorySystem( GBMO& gameboy );
 
