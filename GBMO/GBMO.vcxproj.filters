@@ -46,6 +46,12 @@
     <ClCompile Include="src\sound\sound.cpp">
       <Filter>sound</Filter>
     </ClCompile>
+    <ClCompile Include="src\memory\memory_span.cpp">
+      <Filter>memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sound\channels.cpp">
+      <Filter>sound</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="memory">
@@ -122,6 +128,12 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="src\sound\sound.h">
+      <Filter>sound</Filter>
+    </ClInclude>
+    <ClInclude Include="src\memory\memory_span.h">
+      <Filter>memory</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sound\channels.h">
       <Filter>sound</Filter>
     </ClInclude>
   </ItemGroup>

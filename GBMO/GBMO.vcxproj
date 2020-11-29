@@ -31,8 +31,10 @@
     <ClCompile Include="src\memory\mbc_2.cpp" />
     <ClCompile Include="src\memory\mbc_3.cpp" />
     <ClCompile Include="src\memory\mbc_none.cpp" />
+    <ClCompile Include="src\memory\memory_span.cpp" />
     <ClCompile Include="src\memory\memory_system.cpp" />
     <ClCompile Include="src\options.cpp" />
+    <ClCompile Include="src\sound\channels.cpp" />
     <ClCompile Include="src\sound\sound.cpp" />
     <ClCompile Include="src\utils\input.cpp" />
     <ClCompile Include="src\utils\logger.cpp" />
@@ -49,8 +51,10 @@
     <ClInclude Include="src\memory\mbc_2.h" />
     <ClInclude Include="src\memory\mbc_3.h" />
     <ClInclude Include="src\memory\mbc_none.h" />
+    <ClInclude Include="src\memory\memory_span.h" />
     <ClInclude Include="src\memory\memory_system.h" />
     <ClInclude Include="src\options.h" />
+    <ClInclude Include="src\sound\channels.h" />
     <ClInclude Include="src\sound\sound.h" />
     <ClInclude Include="src\utils\assert.h" />
     <ClInclude Include="src\utils\input.h" />
