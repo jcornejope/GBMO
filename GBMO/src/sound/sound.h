@@ -68,13 +68,16 @@ private:
     //SilenceOsc m_silence_channel;
 
     MemorySystem& m_memory;
+    
+    sample_t* m_sound_buffer;
+    //SDL_AudioStream* m_stream;
+    SDL_AudioDeviceID m_device;
 
     u32 m_sound_cycles;
     u32 m_buff_write_pos;
 
+    u32 m_frame_sequencer_cycles;
     u32 m_mixer_cycles;
 
-    sample_t* m_sound_buffer;
-    SDL_AudioStream* m_stream;
-    SDL_AudioDeviceID m_device;
+    u8 m_frame_sequencer_step;
 };

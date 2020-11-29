@@ -20,11 +20,16 @@
 
 Sound::Sound( MemorySystem& memory )
     : m_memory( memory )
+    , m_sound_buffer( nullptr )
+    //, m_stream( nullptr )
+    , m_square1_channel( nullptr )
+    , m_square2_channel( nullptr )
+    , m_device( 0 )
     , m_sound_cycles( 0 )
     , m_buff_write_pos( 0 )
-    , m_sound_buffer( nullptr )
-    , m_stream( nullptr )
-    , m_device( 0 )
+    , m_frame_sequencer_cycles( 0 )
+    , m_mixer_cycles( 0 )
+    , m_frame_sequencer_step( 0 )
 {
 }
 
@@ -99,12 +104,36 @@ void Sound::update( u32 cycles )
         m_square1_channel->tick();
         m_square2_channel->tick();
 
-        // update frame sequencer
+        // update frame sequencer (512 Hz) (4194304/512 = 8192)
+        ++m_frame_sequencer_cycles;
+        if( m_frame_sequencer_cycles == 8192 )
+        {
+            m_frame_sequencer_cycles = 0;
+            ++m_frame_sequencer_step;
 
+            switch( m_frame_sequencer_step )
+            {
+            case 2:
+            case 6:
+                m_square1_channel->tick_sweep();
+                // fallthrough!
+            case 0:
+            case 4:
+                m_square1_channel->tick_lenght();
+                m_square2_channel->tick_lenght();
+                break;
+            case 7:
+                m_square1_channel->tick_envelope();
+                m_square2_channel->tick_envelope();
+
+                m_frame_sequencer_step = 0;
+                break;
+            }
+        }
 
         // update mixer (ignoring Vin for now as it was never used).
         ++m_mixer_cycles;
-        if( m_mixer_cycles > 95 ) // 95 WTF!?
+        if( m_mixer_cycles == 95 ) // 95 WTF!?
         {
             m_mixer_cycles = 0;
 

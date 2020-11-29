@@ -46,8 +46,9 @@ public:
     void reset();
 
     void tick();
-    void tick_lenght();
-    void tick_sweep();
+    void tick_lenght() {};
+    void tick_envelope() {};
+    void tick_sweep() {};
 
     u8 get_output() const { return m_output; }
 
