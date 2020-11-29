@@ -50,24 +50,24 @@ void CPU::reset()
     m_memory.write( 0xFF05, static_cast<u8>( 0x00 ) ); // TIMA
     m_memory.write( 0xFF06, static_cast<u8>( 0x00 ) ); // TMA
     m_memory.write( 0xFF07, static_cast<u8>( 0x00 ) ); // TAC
-    m_memory.write( 0xFF10, static_cast<u8>( 0x80 ) ); // NR10
-    m_memory.write( 0xFF11, static_cast<u8>( 0xBF ) ); // NR11
-    m_memory.write( 0xFF12, static_cast<u8>( 0xF3 ) ); // NR12
-    m_memory.write( 0xFF14, static_cast<u8>( 0xBF ) ); // NR14
-    m_memory.write( 0xFF16, static_cast<u8>( 0x3F ) ); // NR21
-    m_memory.write( 0xFF17, static_cast<u8>( 0x00 ) ); // NR22
-    m_memory.write( 0xFF19, static_cast<u8>( 0xBF ) ); // NR24
-    m_memory.write( 0xFF1A, static_cast<u8>( 0x7F ) ); // NR30
-    m_memory.write( 0xFF1B, static_cast<u8>( 0xFF ) ); // NR31
-    m_memory.write( 0xFF1C, static_cast<u8>( 0x9F ) ); // NR32
-    m_memory.write( 0xFF1E, static_cast<u8>( 0xBF ) ); // NR33
-    m_memory.write( 0xFF20, static_cast<u8>( 0xFF ) ); // NR41
-    m_memory.write( 0xFF21, static_cast<u8>( 0x00 ) ); // NR42
-    m_memory.write( 0xFF22, static_cast<u8>( 0x00 ) ); // NR43
-    m_memory.write( 0xFF23, static_cast<u8>( 0xBF ) ); // NR30
-    m_memory.write( 0xFF24, static_cast<u8>( 0x77 ) ); // NR50
-    m_memory.write( 0xFF25, static_cast<u8>( 0xF3 ) ); // NR51
-    m_memory.write( 0xFF26, static_cast<u8>( 0xF1 ) ); // NR52 // $F1 - GB, $F0 - SGB
+    m_memory.non_protected_write( 0xFF10, static_cast<u8>( 0x80 ) ); // NR10
+    m_memory.non_protected_write( 0xFF11, static_cast<u8>( 0xBF ) ); // NR11
+    m_memory.non_protected_write( 0xFF12, static_cast<u8>( 0xF3 ) ); // NR12
+    m_memory.non_protected_write( 0xFF14, static_cast<u8>( 0xBF ) ); // NR14
+    m_memory.non_protected_write( 0xFF16, static_cast<u8>( 0x3F ) ); // NR21
+    m_memory.non_protected_write( 0xFF17, static_cast<u8>( 0x00 ) ); // NR22
+    m_memory.non_protected_write( 0xFF19, static_cast<u8>( 0xBF ) ); // NR24
+    m_memory.non_protected_write( 0xFF1A, static_cast<u8>( 0x7F ) ); // NR30
+    m_memory.non_protected_write( 0xFF1B, static_cast<u8>( 0xFF ) ); // NR31
+    m_memory.non_protected_write( 0xFF1C, static_cast<u8>( 0x9F ) ); // NR32
+    m_memory.non_protected_write( 0xFF1E, static_cast<u8>( 0xBF ) ); // NR33
+    m_memory.non_protected_write( 0xFF20, static_cast<u8>( 0xFF ) ); // NR41
+    m_memory.non_protected_write( 0xFF21, static_cast<u8>( 0x00 ) ); // NR42
+    m_memory.non_protected_write( 0xFF22, static_cast<u8>( 0x00 ) ); // NR43
+    m_memory.non_protected_write( 0xFF23, static_cast<u8>( 0xBF ) ); // NR30
+    m_memory.non_protected_write( 0xFF24, static_cast<u8>( 0x77 ) ); // NR50
+    m_memory.non_protected_write( 0xFF25, static_cast<u8>( 0xF3 ) ); // NR51
+    m_memory.non_protected_write( 0xFF26, static_cast<u8>( 0xF1 ) ); // NR52 // $F1 - GB, $F0 - SGB
     m_memory.write( 0xFF40, static_cast<u8>( 0x91 ) ); // LCDC
     m_memory.write( 0xFF42, static_cast<u8>( 0x00 ) ); // SCY
     m_memory.write( 0xFF43, static_cast<u8>( 0x00 ) ); // SCX
