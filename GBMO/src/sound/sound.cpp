@@ -177,9 +177,9 @@ void Sound::update( u32 cycles )
 
                 //LOG( LogCat::SOUND, "queue size: %d", SDL_GetQueuedAudioSize( m_device ) );
 
-                // Wait for the queue to be consumed 
+                // Wait for the queue to be consumed (DON'T LIKE THIS...)
                 while( ( SDL_GetQueuedAudioSize( m_device ) ) > AUDIO_BUFFER_BYTE_SIZE )
-                    SDL_Delay( 1 );
+                    SDL_Delay( 1 ); // (DON'T LIKE THIS AT ALL...)
 
                 SDL_QueueAudio( m_device, m_sound_buffer, AUDIO_BUFFER_BYTE_SIZE );
             }
@@ -216,6 +216,28 @@ bool Sound::is_enabled() const
 bool Sound::is_channel_enabled( SND_OUTPUT_TERMINAL const channel_flag ) const
 {
     return ( m_memory.read_8( SND_OUTPUT_TERMINAL_ADDR ) & channel_flag ) != 0;
+}
+
+void Sound::load_length_n_duty( u16 address, u8 data )
+{
+    switch( address )
+    {
+    case CH1_LENGHT_N_DUTY_ADDR:
+        if( m_square1_channel )
+            m_square1_channel->load_length_n_duty( data );
+        break;
+    case CH2_LENGHT_N_DUTY_ADDR:
+        if( m_square2_channel )
+            m_square2_channel->load_length_n_duty( data );
+        break;
+    case CH3_LENGTH_ADDR:
+        break;
+    case CH4_LENGTH_ADDR:
+        break;
+    default:
+        WARNING_MSG( "Invalid address sent to sound for lenght load!" );
+        break;
+    }
 }
 
 //void Sound::fill_audio_buffer( Uint8* stream, int len )

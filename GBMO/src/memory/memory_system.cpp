@@ -106,11 +106,19 @@ void MemorySystem::write( u16 address, u8 data )
     break;
     default: 
     {
-        if( address >= SND_PWR_REG_START_ADDR && address <= SND_PWR_REG_END_ADDR && ( read_8( SND_ON_OFF_ADDR ) & Sound::MASTER_SWITCH ) == 0 )
+        if( address >= SND_PWR_REG_START_ADDR && address <= SND_PWR_REG_END_ADDR )
         {
-            // Sound register writes are ignored when the device is disabled (except DMG that allows write on lenght counters)
-            if( address != CH1_LENGHT_N_DUTY_ADDR && address != CH2_LENGHT_N_DUTY_ADDR && address != CH3_LENGTH_ADDR && address != CH4_LENGTH_ADDR )
-                return;
+            if( ( read_8( SND_ON_OFF_ADDR ) & Sound::MASTER_SWITCH ) == 0 )
+            {
+                // Sound register writes are ignored when the device is disabled (except DMG that allows write on lenght counters)
+                if( !_is_sound_length_n_duty_address( address ) )
+                    return;
+            }
+            else
+            {
+                if( _is_sound_length_n_duty_address( address ) )
+                    m_gameboy.get_sound().load_length_n_duty( address, data );
+            }
         }
     }
     break;
@@ -140,6 +148,14 @@ void MemorySystem::non_protected_write( u16 address, u8 data )
 bool MemorySystem::_is_memory_handled_by_cartridge( u16 const address ) const
 {
     return ( address < 0x8000 ) || ( address >= 0xA000 && address < 0xC000 );
+}
+
+bool MemorySystem::_is_sound_length_n_duty_address( u16 const address ) const
+{
+    return address == CH1_LENGHT_N_DUTY_ADDR 
+        || address == CH2_LENGHT_N_DUTY_ADDR 
+        || address == CH3_LENGTH_ADDR 
+        || address == CH4_LENGTH_ADDR;
 }
 
 u16 MemorySystem::_remap_address( u16 const address )

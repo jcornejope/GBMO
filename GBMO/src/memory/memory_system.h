@@ -27,6 +27,7 @@ public:
 
 private:
     bool _is_memory_handled_by_cartridge( u16 const address ) const;
+    bool _is_sound_length_n_duty_address( u16 const address ) const;
 
     static u16 _remap_address( u16 const address );
     u8 _get_read_mask( u16 address ) const;

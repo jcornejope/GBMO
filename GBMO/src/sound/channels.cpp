@@ -30,13 +30,45 @@ void SquareChannel::tick()
         m_waveform_phase = ++m_waveform_phase & 0x07;
     }
 
-    // Check enabled here
+    //if( m_enabled )
+    {
+        // Osc
+        static u8 const AMP_RATIO = 0xFF / 0xF;
+        u8 const duty = _get_duty();
+        u8 const wave_output = ( ( WAVEFORM[duty] & ( 1 << m_waveform_phase ) ) >> m_waveform_phase );
+        m_output = wave_output * _get_volume() * AMP_RATIO;
+    }
+    //else
+    //{
+    //    m_output = 0;
+    //}
+}
 
-    // Osc
-    static u8 const AMP_RATIO = 0xFF / 0xF;
-    u8 const duty = _get_duty();
-    u8 const wave_output = ( ( WAVEFORM[duty] & ( 1 << m_waveform_phase ) ) >> m_waveform_phase );
-    m_output = wave_output * _get_volume() * AMP_RATIO;
+void SquareChannel::tick_lenght()
+{
+    if( m_length_counter && ( registers[REG_TL_N_FREQ_MSB] & FLAGS_LENGTH_ENABLE ) )
+    {
+        --m_length_counter;
+        if( m_length_counter == 0 )
+        {
+            m_enabled = false;
+        }
+    }
+}
+
+void SquareChannel::tick_envelope()
+{
+
+}
+
+void SquareChannel::tick_sweep()
+{
+
+}
+
+void SquareChannel::load_length_n_duty( u8 data )
+{
+    m_length_counter = 64 - ( data & FLAGS_LENGTH );
 }
 
 u16 SquareChannel::_get_frequency() const

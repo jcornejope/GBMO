@@ -5,6 +5,10 @@
 
 #include <SDL_audio.h>
 
+// TODO
+// Ideally we could split the channel and have a Timer, Length counter, Volume Envelope, and Sweep components added to each channel individually when needed,
+// for instance sq1 will have a Sweep component whilst sq2 don´t, but for now is easier having all there. Let´s revisit the idea once the channel is fully functional 
+// start dev on noise and wave channels.
 class SquareChannel
 {
     enum Registers : u16
@@ -46,11 +50,13 @@ public:
     void reset();
 
     void tick();
-    void tick_lenght() {};
-    void tick_envelope() {};
-    void tick_sweep() {};
+    void tick_lenght();
+    void tick_envelope();
+    void tick_sweep();
 
     u8 get_output() const { return m_output; }
+
+    void load_length_n_duty( u8 data );
 
 private:
     u16 _get_frequency() const;
@@ -59,7 +65,12 @@ private:
 
     MemorySpan registers;
 
+    // osc
     u32 m_timer = 1u;
     u8 m_output = 0;
     u8 m_waveform_phase = 0;
+
+    // length counter
+    u8 m_length_counter = 0u;
+    bool m_enabled = true;
 };

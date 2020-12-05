@@ -58,6 +58,8 @@ public:
     bool is_enabled() const;
     bool is_channel_enabled( SND_OUTPUT_TERMINAL const channel_flag ) const;
 
+    void load_length_n_duty( u16 address, u8 data );
+
     //void fill_audio_buffer( Uint8* stream, int len );
 
 private:
