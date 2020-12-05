@@ -9,8 +9,11 @@ class SquareChannel;
 
 class Sound
 {
+    static u32 const SOUND_FREQ = 44100;
     static u32 const AUDIO_BUFFER_SIZE = 8192;
     using sample_t = s16;
+
+    static u32 const AUDIO_BUFFER_BYTE_SIZE = AUDIO_BUFFER_SIZE * sizeof( sample_t );
 
 public:
     enum SND_ON_OFF : u8
@@ -78,6 +81,7 @@ private:
 
     u32 m_frame_sequencer_cycles;
     u32 m_mixer_cycles;
+    float m_mixer_leap;
 
     u8 m_frame_sequencer_step;
 };

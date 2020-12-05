@@ -38,7 +38,7 @@ bool Sound::init()
     SDL_AudioSpec desired, obtained;
 
     SDL_memset( &desired, 0, sizeof( desired ) );
-    desired.freq = 44100;
+    desired.freq = SOUND_FREQ;
     desired.format = AUDIO_S16SYS;
     desired.channels = 2;
     desired.samples = AUDIO_BUFFER_SIZE / desired.channels;
@@ -132,9 +132,14 @@ void Sound::update( u32 cycles )
         }
 
         // update mixer (ignoring Vin for now as it was never used).
+        constexpr float MIXER_FRAME_CYCLES_PRECISE = 4194304.f / SOUND_FREQ;
+        constexpr u32 MIXER_FRAME_CYCLES = static_cast<u32>( MIXER_FRAME_CYCLES_PRECISE );
+
         ++m_mixer_cycles;
-        if( m_mixer_cycles == 95 ) // 95 WTF!?
+        u32 const leap = static_cast<u32>( m_mixer_leap );
+        if( m_mixer_cycles == MIXER_FRAME_CYCLES + leap )
         {
+            m_mixer_leap += MIXER_FRAME_CYCLES_PRECISE - MIXER_FRAME_CYCLES - leap;
             m_mixer_cycles = 0;
 
             sample_t sample = 0;
@@ -169,7 +174,14 @@ void Sound::update( u32 cycles )
             if( m_buff_write_pos == AUDIO_BUFFER_SIZE )
             {
                 m_buff_write_pos = 0;
-                SDL_QueueAudio( m_device, m_sound_buffer, AUDIO_BUFFER_SIZE * sizeof( sample_t ) );
+
+                //LOG( LogCat::SOUND, "queue size: %d", SDL_GetQueuedAudioSize( m_device ) );
+
+                // Wait for the queue to be consumed 
+                while( ( SDL_GetQueuedAudioSize( m_device ) ) > AUDIO_BUFFER_BYTE_SIZE )
+                    SDL_Delay( 1 );
+
+                SDL_QueueAudio( m_device, m_sound_buffer, AUDIO_BUFFER_BYTE_SIZE );
             }
         }
     }
