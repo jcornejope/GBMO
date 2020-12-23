@@ -35,6 +35,7 @@ class SquareChannel
         FLAGS_VOLUME          = 0xF0,
         FLAGS_ENV_MODE        = 0x08,
         FLAGS_PERIOD          = 0x07,
+        FLAGS_DAC_ENABLED     = 0XF8,
 
         // NRx4
         FLAGS_TRIGGER         = 0x80,
@@ -57,13 +58,21 @@ public:
     u8 get_output() const { return m_output; }
 
     void load_length_n_duty( u8 data );
+    void load_vol_envelop( u8 data );
+    void load_tl_n_freq_msb( u8 data );
 
 private:
     u16 _get_frequency() const;
-    u8 _get_volume() const;
     u8 _get_duty() const;
+    u8 _get_volume() const;
+    u8 _get_volume( u8 const data ) const;
 
-    MemorySpan registers;
+    bool _is_dac_enabled() const;
+    bool _is_dac_enabled( u8 const data ) const;
+    void _read_envelope_counter();
+    void _read_envelope_counter( u8 const data );
+
+    MemorySpan m_registers;
 
     // osc
     u32 m_timer = 1u;
@@ -71,6 +80,11 @@ private:
     u8 m_waveform_phase = 0;
 
     // length counter
-    u8 m_length_counter = 0u;
+    u8 m_length_counter = 0;
     bool m_enabled = true;
+
+    // vol envelope
+    u8 m_volume = 0;
+    u8 m_vol_envelope_counter = 0;
+    bool m_vol_envelope_enabled = true;
 };

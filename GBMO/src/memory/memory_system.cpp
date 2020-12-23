@@ -116,8 +116,7 @@ void MemorySystem::write( u16 address, u8 data )
             }
             else
             {
-                if( _is_sound_length_n_duty_address( address ) )
-                    m_gameboy.get_sound().load_length_n_duty( address, data );
+                m_gameboy.get_sound().sound_memory_write( address, data );
             }
         }
     }

@@ -14,7 +14,7 @@ class Sound
     using sample_t = s16;
 
     static u32 const AUDIO_BUFFER_BYTE_SIZE = AUDIO_BUFFER_SIZE * sizeof( sample_t );
-
+    
 public:
     enum SND_ON_OFF : u8
     {
@@ -58,7 +58,7 @@ public:
     bool is_enabled() const;
     bool is_channel_enabled( SND_OUTPUT_TERMINAL const channel_flag ) const;
 
-    void load_length_n_duty( u16 address, u8 data );
+    void sound_memory_write( u16 address, u8 data );
 
     //void fill_audio_buffer( Uint8* stream, int len );
 

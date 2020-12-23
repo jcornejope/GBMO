@@ -29,6 +29,7 @@ Sound::Sound( MemorySystem& memory )
     , m_buff_write_pos( 0 )
     , m_frame_sequencer_cycles( 0 )
     , m_mixer_cycles( 0 )
+    , m_mixer_leap( 0.f )
     , m_frame_sequencer_step( 0 )
 {
 }
@@ -218,7 +219,7 @@ bool Sound::is_channel_enabled( SND_OUTPUT_TERMINAL const channel_flag ) const
     return ( m_memory.read_8( SND_OUTPUT_TERMINAL_ADDR ) & channel_flag ) != 0;
 }
 
-void Sound::load_length_n_duty( u16 address, u8 data )
+void Sound::sound_memory_write( u16 address, u8 data )
 {
     switch( address )
     {
@@ -234,8 +235,23 @@ void Sound::load_length_n_duty( u16 address, u8 data )
         break;
     case CH4_LENGTH_ADDR:
         break;
-    default:
-        WARNING_MSG( "Invalid address sent to sound for lenght load!" );
+    case CH1_VOL_ENVELOPE_ADDR:
+        if( m_square1_channel )
+            m_square1_channel->load_vol_envelop( data );
+        break;
+    case CH1_FREQ_HI_ADDR:
+        if( m_square1_channel )
+            m_square1_channel->load_tl_n_freq_msb( data );
+        break;
+    case CH2_VOL_ENVELOPE_ADDR:
+        if( m_square2_channel )
+            m_square2_channel->load_vol_envelop( data );
+        break;
+    case CH2_FREQ_HI_ADDR:
+        if( m_square2_channel )
+            m_square2_channel->load_tl_n_freq_msb( data );
+        break;
+    case CH4_VOL_ENVELOPE_ADDR:
         break;
     }
 }
