@@ -22,8 +22,8 @@ Sound::Sound( MemorySystem& memory )
     : m_memory( memory )
     , m_sound_buffer( nullptr )
     //, m_stream( nullptr )
-    , m_square1_channel( nullptr )
-    , m_square2_channel( nullptr )
+    , m_square1_channel( MemorySpan( memory, CH1_SWEEP_ADDR, 5 ) )
+    , m_square2_channel( MemorySpan( memory, 0xFF15, 5 ) )
     , m_device( 0 )
     , m_sound_cycles( 0 )
     , m_buff_write_pos( 0 )
@@ -65,8 +65,6 @@ bool Sound::init()
     SDL_PauseAudioDevice( m_device, 0 ); // This means unpause!
 
     m_sound_buffer = new sample_t[AUDIO_BUFFER_SIZE];
-    m_square1_channel = new SquareChannel( MemorySpan( m_memory, CH1_SWEEP_ADDR, 5 ) );
-    m_square2_channel = new SquareChannel( MemorySpan( m_memory, 0xFF15, 5 ) );
 
     return true;
 }
@@ -77,18 +75,6 @@ void Sound::deinit()
     {
         delete[] m_sound_buffer;
         m_sound_buffer = nullptr;
-    }
-
-    if( m_square1_channel != nullptr )
-    {
-        delete m_square1_channel;
-        m_square1_channel = nullptr;
-    }
-
-    if( m_square2_channel != nullptr )
-    {
-        delete m_square2_channel;
-        m_square2_channel = nullptr;
     }
     
     if( m_device != 0 )
@@ -102,8 +88,8 @@ void Sound::update( u32 cycles )
     for( u32 i = 0; i < cycles; ++i )
     {
         // update oscillators
-        m_square1_channel->tick();
-        m_square2_channel->tick();
+        m_square1_channel.tick();
+        m_square2_channel.tick();
 
         // update frame sequencer (512 Hz) (4194304/512 = 8192)
         ++m_frame_sequencer_cycles;
@@ -116,16 +102,16 @@ void Sound::update( u32 cycles )
             {
             case 2:
             case 6:
-                m_square1_channel->tick_sweep();
+                m_square1_channel.tick_sweep();
                 // fallthrough!
             case 0:
             case 4:
-                m_square1_channel->tick_lenght();
-                m_square2_channel->tick_lenght();
+                m_square1_channel.tick_lenght();
+                m_square2_channel.tick_lenght();
                 break;
             case 7:
-                m_square1_channel->tick_envelope();
-                m_square2_channel->tick_envelope();
+                m_square1_channel.tick_envelope();
+                m_square2_channel.tick_envelope();
 
                 m_frame_sequencer_step = 0;
                 break;
@@ -144,12 +130,12 @@ void Sound::update( u32 cycles )
             m_mixer_cycles = 0;
 
             sample_t sample = 0;
-            auto mix_sample = [this, &sample]( SND_OUTPUT_TERMINAL const channel_flag, SquareChannel const* const channel, u8 const so_vol )
+            auto mix_sample = [this, &sample]( SND_OUTPUT_TERMINAL const channel_flag, SquareChannel const& channel, u8 const so_vol )
             {
                 static int const SO_VOLUME_RATIO = SDL_MIX_MAXVOLUME / 7;
                 if( is_channel_enabled( channel_flag ) )
                 {
-                    sample_t const channel_out = static_cast<sample_t>( channel->get_output() ) * 128;
+                    sample_t const channel_out = static_cast<sample_t>( channel.get_output() ) * 128;
                     SDL_MixAudioFormat( (u8*)&sample, (u8*)&channel_out, AUDIO_S16SYS, sizeof( sample_t ), so_vol * SO_VOLUME_RATIO );
                 }
             };
@@ -194,11 +180,9 @@ void Sound::enable()
     // Frame sequencer is reset so that the next step will be 0
     // The square duty units are reset to the first step of the waveform
     // The wave channel's sample buffer is reset to 0.
-    if(m_square1_channel)
-        m_square1_channel->reset();
 
-    if( m_square2_channel )
-        m_square2_channel->reset();
+    m_square1_channel.reset();
+    m_square2_channel.reset();
 }
 
 void Sound::disable()
@@ -223,36 +207,15 @@ void Sound::sound_memory_write( u16 address, u8 data )
 {
     switch( address )
     {
-    case CH1_LENGHT_N_DUTY_ADDR:
-        if( m_square1_channel )
-            m_square1_channel->load_length_n_duty( data );
-        break;
-    case CH2_LENGHT_N_DUTY_ADDR:
-        if( m_square2_channel )
-            m_square2_channel->load_length_n_duty( data );
-        break;
-    case CH3_LENGTH_ADDR:
-        break;
-    case CH4_LENGTH_ADDR:
-        break;
-    case CH1_VOL_ENVELOPE_ADDR:
-        if( m_square1_channel )
-            m_square1_channel->load_vol_envelop( data );
-        break;
-    case CH1_FREQ_HI_ADDR:
-        if( m_square1_channel )
-            m_square1_channel->load_tl_n_freq_msb( data );
-        break;
-    case CH2_VOL_ENVELOPE_ADDR:
-        if( m_square2_channel )
-            m_square2_channel->load_vol_envelop( data );
-        break;
-    case CH2_FREQ_HI_ADDR:
-        if( m_square2_channel )
-            m_square2_channel->load_tl_n_freq_msb( data );
-        break;
-    case CH4_VOL_ENVELOPE_ADDR:
-        break;
+    case CH1_LENGHT_N_DUTY_ADDR:    m_square1_channel.load_length_n_duty( data );   break;
+    case CH2_LENGHT_N_DUTY_ADDR:    m_square2_channel.load_length_n_duty( data );   break;
+    case CH3_LENGTH_ADDR:        break;
+    case CH4_LENGTH_ADDR:        break;
+    case CH1_VOL_ENVELOPE_ADDR:     m_square1_channel.load_vol_envelop( data );     break;
+    case CH1_FREQ_HI_ADDR:          m_square1_channel.load_tl_n_freq_msb( data );   break;
+    case CH2_VOL_ENVELOPE_ADDR:     m_square2_channel.load_vol_envelop( data );     break;
+    case CH2_FREQ_HI_ADDR:          m_square2_channel.load_tl_n_freq_msb( data );   break;
+    case CH4_VOL_ENVELOPE_ADDR: break;
     }
 }
 

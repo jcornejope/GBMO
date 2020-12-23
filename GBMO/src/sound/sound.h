@@ -1,11 +1,11 @@
 #pragma once
 
 #include "utils/types.h"
+#include "channels.h"
 
 #include <SDL_audio.h>
 
 class MemorySystem;
-class SquareChannel;
 
 class Sound
 {
@@ -64,8 +64,8 @@ public:
 
 private:
 
-    SquareChannel* m_square1_channel;
-    SquareChannel* m_square2_channel;
+    SquareChannel m_square1_channel;
+    SquareChannel m_square2_channel;
     //SquareOsc m_square1_channel;
     //SquareOsc m_square2_channel;
     //WaveOsc m_wave_channel;
